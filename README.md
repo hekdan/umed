@@ -64,8 +64,9 @@ Served as a PWA (installable, offline-capable via service worker).
 
 ---
 
-<div align="center">
+## Copyright
 
-üMed logo © Daniel & Nathan Hekman 2014
+© 2014–2026 Daniel & Nathan Hekman. **All rights reserved.** üMed and the ü mark are
+trademarks of Daniel & Nathan Hekman. No license is granted to copy, modify, or
+redistribute this application or its content without written permission.
 
-</div>
