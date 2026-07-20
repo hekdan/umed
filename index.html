@@ -266,7 +266,7 @@ const SYSTEMS=[
  {id:'msk',ic:'msk',t:'Joint or back',s:'Back pain, a painful or swollen joint',go:'gate:msk'},
  {id:'eye',ic:'eye',t:'Eye',s:'Red, sore, itchy, or watery eye',go:'gate:eye'},
  {id:'ent',ic:'ent',t:'Ear, nose, sinus',s:'Earache, congestion, sinus pain',go:'gate:ent'},
- {id:'gu',ic:'gu',t:'Something else',s:'Anything not listed here',go:'T-HANDOFF-GENERIC'}
+ {id:'gu',ic:'gu',t:'Something else',s:'Anything not listed — tell me in your own words',go:'nlfocus'}
 ];
 
 /* ---- RED-FLAG GATE, shown before every complaint ---- */
@@ -504,7 +504,7 @@ function renderHome(){
     <div class="cathead" style="color:${cat.tint}">${esc(cat.label)}</div>
     <div class="sysgrid">${cat.ids.map(id=>{const i=SYSTEMS.findIndex(s=>s.id===id);if(i<0)return'';const s=SYSTEMS[i];return `<button class="sys" data-i="${i}" style="--tint:${cat.tint};--tintbg:${cat.bg}"><span class="ic">${SYSICON[s.ic]||''}</span><span class="st">${esc(s.t)}</span><span class="ss">${esc(s.s)}</span></button>`;}).join('')}</div>
    </div>`).join('')}
-  <div class="foot">üMed · DEMO BUILD v3.6 · 22 SYSTEMS · NOT FOR CLINICAL USE<br>Architecture demonstration. Screening tools shown for illustration; terminal content requires clinician sign-off before any real use.<br>üMed logo © Daniel &amp; Nathan Hekman 2014</div>
+  <div class="foot">üMed · DEMO BUILD v3.7 · 22 SYSTEMS · NOT FOR CLINICAL USE<br>Architecture demonstration. Screening tools shown for illustration; terminal content requires clinician sign-off before any real use.<br>üMed logo © Daniel &amp; Nathan Hekman 2014</div>
  </div>`;
  app.querySelectorAll('.sys').forEach(b=>b.onclick=()=>{const s=SYSTEMS[+b.dataset.i];go(s.go,'SYS:'+s.id.toUpperCase())});
  const nlq=document.getElementById('nlq');
@@ -3020,7 +3020,7 @@ Object.assign(STEPS,{
    {t:'Menopause symptoms — hot flushes, changes, dryness',go:'T-MENOPAUSE',tr:'R:MENO'},
    {t:'Vaginal discharge or itch',go:'T-VAGINITIS',tr:'R:VAG'},
    {t:'Genital symptoms, sores, or a possible STI',go:'T-STI-GENITAL',tr:'R:STI'},
-   {t:'Testicular pain, swelling, or a lump',go:'repro_testicular',tr:'R:TESTIS'},
+   {t:'A testicle or penis concern',s:'Covered under Men’s health — this takes you there',go:'mens_type',tr:'R:TO-MENS'},
    {t:'A breast lump or change',go:'T-BREAST',tr:'R:BREAST'},
    {t:'Contraception, or emergency contraception',go:'T-CONTRACEPTION',tr:'R:CONTRA'},
    {t:'Something else',go:'T-HANDOFF-GENERIC',tr:'R:OTHER'}]},
@@ -3167,7 +3167,7 @@ Object.assign(ALGO,{
 });
 
 { const add=(sys,kw)=>NL_LEX.push({sys,kw});
-  add('repro',['period','periods','menstrual','heavy period','heavy periods','missed period','late period','pregnant','pregnancy','pregnancy test','miscarriage','menopause','hot flushes','hot flashes','vaginal discharge','sti','std','genital','herpes','chlamydia','contraception','birth control','morning after pill','emergency contraception','breast lump','lump in my breast','testicle','testicular','testicles','scrotum','lump on my testicle','erectile','sexual health','endometriosis','fibroids','smear']); }
+  add('repro',['period','periods','menstrual','heavy period','heavy periods','missed period','late period','pregnant','pregnancy','pregnancy test','miscarriage','menopause','hot flushes','hot flashes','vaginal discharge','sti','std','genital','herpes','chlamydia','contraception','birth control','morning after pill','emergency contraception','breast lump','lump in my breast','sexual health','endometriosis','fibroids','smear']); }
 /* ===== END NEW SYSTEM (v1.6) ===== */
 
 
@@ -3362,7 +3362,7 @@ Object.assign(SYSICON,{
  mens:SVG(`<circle cx="14" cy="18.5" r="5.5"/><path d="M18.5 14l6.5-6.5M20 7.5h5.5V13"/>`)});
 SYSTEMS.splice(SYSTEMS.length-1,0,
  {id:'dental',ic:'dental',t:'Mouth & dental',s:'Toothache, ulcers, gums, jaw',go:'gate:dental'},
- {id:'mens',ic:'mens',t:"Men's health",s:'Erections, prostate, waterworks, foreskin',go:'gate:mens'});
+ {id:'mens',ic:'mens',t:"Men's health",s:'Testicles, erections, prostate, waterworks',go:'gate:mens'});
 Object.assign(SYS_ENTRY,{dental:'dental_type',mens:'mens_type'});
 GATE_CRISIS.dental=[
  ['ludwig','Spreading swelling of the face, jaw, or neck — or swelling under the tongue — with trouble breathing or swallowing'],
@@ -3532,7 +3532,7 @@ Object.assign(ALGO,{
 
 { const add=(sys,kw)=>NL_LEX.push({sys,kw});
   add('dental',['toothache','tooth ache','tooth pain','dental','dentist','mouth ulcer','mouth sore','ulcer in my mouth','gum','gums','bleeding gums','jaw pain','jaw clicking','broken tooth','chipped tooth','knocked out tooth','dental abscess','wisdom tooth','sore tooth']);
-  add('mens',['erectile','erection','erections','impotence','cant get an erection','cant keep an erection','prostate','psa','foreskin','phimosis','balanitis','penis','penile','priapism']); }
+  add('mens',['erectile','erection','erections','impotence','cant get an erection','cant keep an erection','prostate','psa','foreskin','phimosis','balanitis','penis','penile','priapism','testicle','testicular','testicles','scrotum','scrotal','lump on my testicle','testicle pain','my balls hurt','varicocele','epididymitis']); }
 /* ===== END NEW SYSTEMS (v1.8) ===== */
 
 
@@ -4613,6 +4613,13 @@ button.sys:hover .ic{transform:scale(1.05);box-shadow:0 8px 18px -10px rgba(20,4
  // -- navigation history ------------------------------------------------
  const _go=go;
  go=function(id,tr){
+  if(id==='nlfocus'){ // "Something else" tile → the describe-it-yourself box
+   renderHome();
+   const ta=document.getElementById('nlq');
+   if(ta){ ta.focus(); ta.scrollIntoView({block:'center',behavior:'smooth'});
+    const lb=document.querySelector('.nllabel'); if(lb){ lb.textContent='Tell me what’s going on — a few words is enough'; } }
+   return;
+  }
   if(typeof id==='string'&&id.indexOf('gate:')===0){ state.hist=[]; state.cur=null; }
   return _go(id,tr);
  };
