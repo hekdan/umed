@@ -521,7 +521,7 @@ function renderHome(){
     <div class="cathead" style="color:${cat.tint}">${esc(cat.label)}</div>
     <div class="sysgrid">${cat.ids.map(id=>{const i=SYSTEMS.findIndex(s=>s.id===id);if(i<0)return'';const s=SYSTEMS[i];return `<button class="sys" data-i="${i}" style="--tint:${cat.tint};--tintbg:${cat.bg}"><span class="ic">${SYSICON[s.ic]||''}</span><span class="st">${esc(s.t)}</span><span class="ss">${esc(s.s)}</span></button>`;}).join('')}</div>
    </div>`).join('')}
-  <div class="foot">üMed · DEMO BUILD v3.7 · 22 SYSTEMS · NOT FOR CLINICAL USE<br>Architecture demonstration. Screening tools shown for illustration; terminal content requires clinician sign-off before any real use.<br>© 2014–2026 Daniel &amp; Nathan Hekman · All rights reserved · üMed and the ü mark are trademarks of Daniel &amp; Nathan Hekman</div>
+  <div class="foot">üMed · DEMO BUILD v3.8 · 22 SYSTEMS · NOT FOR CLINICAL USE<br>Architecture demonstration. Screening tools shown for illustration; terminal content requires clinician sign-off before any real use.<br>© 2014–2026 Daniel &amp; Nathan Hekman · All rights reserved · üMed and the ü mark are trademarks of Daniel &amp; Nathan Hekman</div>
  </div>`;
  app.querySelectorAll('.sys').forEach(b=>b.onclick=()=>{const s=SYSTEMS[+b.dataset.i];go(s.go,'SYS:'+s.id.toUpperCase())});
  const nlq=document.getElementById('nlq');
@@ -3037,7 +3037,6 @@ Object.assign(STEPS,{
    {t:'Menopause symptoms — hot flushes, changes, dryness',go:'T-MENOPAUSE',tr:'R:MENO'},
    {t:'Vaginal discharge or itch',go:'T-VAGINITIS',tr:'R:VAG'},
    {t:'Genital symptoms, sores, or a possible STI',go:'T-STI-GENITAL',tr:'R:STI'},
-   {t:'A testicle or penis concern',s:'Covered under Men’s health — this takes you there',go:'mens_type',tr:'R:TO-MENS'},
    {t:'A breast lump or change',go:'T-BREAST',tr:'R:BREAST'},
    {t:'Contraception, or emergency contraception',go:'T-CONTRACEPTION',tr:'R:CONTRA'},
    {t:'Something else',go:'T-HANDOFF-GENERIC',tr:'R:OTHER'}]},
