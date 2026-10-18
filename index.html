@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-J8mYLkUwxFRrQ+5+w93dip7VWObZfcCmP340pWkCAkI=' 'sha256-ULJWgXwOsxQM38S6PAmTVEZEGdpV4bKO9qYVVV/AV1M=' 'sha256-WngoENLU8ukt51gjI1JhpShseJiPBfWn6sPvuo2pZPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="no-referrer">
+<script>/*frame-guard*/if(window.top!==window.self){try{window.top.location.replace(window.location.href)}catch(e){document.documentElement.style.display='none'}}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>üMed — Guided Symptom Intake · Get Ready for Your Doctor Visit</title>
 <meta name="description" content="Free guided symptom intake: answer a few plain-language questions, get a clear next step and possible causes, and download a visit summary PDF to bring to your appointment. Educational demo, not a diagnosis.">
@@ -36,7 +39,7 @@
    Results lead with a colored care card (action first), then quieter sections. */
 :root{
   color-scheme:light;
-  --paper:#F4F2ED; --panel:#FFFFFF; --ink:#1B2226; --muted:#5B666D; --faint:#8B949A;
+  --paper:#F4F2ED; --panel:#FFFFFF; --ink:#1B2226; --muted:#56616A; --faint:#646D73;
   --rule:#E1DED6; --rule2:#ECE9E3;
   --sea:#2A6570; --sea-ink:#1E4B54; --sea-bg:#E3EEED; --sea-line:#C6DCDA;
   --sig:#B3392D; --sig-bg:#FBEBE8; --sig-line:#EDC2BB;
@@ -421,6 +424,17 @@ h3{letter-spacing:-.01em}
 .report .primary svg{width:19px;height:19px}
 .report .fine{text-align:center}
 .report .skip{font-size:.85rem}
+footer.legal{margin-top:2.5rem;padding:1.4rem 0 0;border-top:1px solid var(--rule)}
+footer.legal p{font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:.5rem}
+footer.legal a{color:var(--sea-ink);font-weight:500}
+.ack h1{margin-bottom:1rem}
+.ackl{list-style:none;display:grid;gap:.6rem;margin-bottom:1.2rem}
+.ackl li{background:var(--panel);border:1px solid color-mix(in srgb,var(--rule) 70%,transparent);border-radius:var(--r-md);padding:.85rem 1rem;line-height:1.5;font-size:.95rem;box-shadow:var(--lift)}
+.ackl li:nth-child(2){background:var(--sig-bg);border-color:var(--sig-line)}
+.ackl b{display:block;margin-bottom:.15rem}
+.ackc{display:flex;gap:.7rem;align-items:flex-start;margin:0 0 1rem;padding:.2rem .1rem;font-size:.95rem;line-height:1.5;cursor:pointer}
+.ackc input{flex:none;width:1.25rem;height:1.25rem;margin-top:.15rem;accent-color:var(--sea)}
+.ackc a,.ack a{color:var(--sea-ink);font-weight:600}
 .who{margin:-.2rem 0 1.3rem}
 .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:color-mix(in srgb,var(--rule) 55%,transparent)}
 .seg button{min-height:44px;border:none;border-radius:12px;background:transparent;font-weight:500;font-size:.93rem;color:var(--muted);cursor:pointer;transition:background-color .15s,color .15s,box-shadow .15s}
@@ -445,6 +459,7 @@ h3{letter-spacing:-.01em}
   <div class="trace" id="trace" hidden></div>
   <div id="app"></div>
 </div></main>
+<footer class="legal"><div class="wrap"><p><b>Educational tool, not medical advice.</b> üMed does not diagnose, and it does not replace a clinician. In an emergency, call 911. For a mental health crisis, call or text 988.</p><p><a href="https://hekdan.github.io/umed/terms.html" target="_blank" rel="noopener noreferrer">Terms of Use</a> · <a href="https://hekdan.github.io/umed/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> · © 2014–2026 üMed</p></div></footer>
 <script>
 /* ===================================================================
    GUIDED INTAKE — patient triage & hand-off demo, v0.19
@@ -473,7 +488,7 @@ const CONTENT={"TIERS":{"emergent":{"cls":"emergent","label":"Emergency","ic":"<
    file only renders it and moves between screens.
    =================================================================== */
 const {TIERS,ATLAS,SYSTEMS,GATE_UNIVERSAL,GATE_EXTRA,HOST,STEPS,SYS_ENTRY,N,ASK,CANTMISS,SOURCE,INFO,DXMAP,FT,INTAKE}=CONTENT;
-const VERSION='v0.25';
+const VERSION='v0.26';
 
 /* ---- Children and pregnancy (v0.25) ----
    "Who is this for?" on the home screen: me / my child (age band) / I'm pregnant (weeks).
@@ -842,7 +857,29 @@ function renderAsk(field,next){
  scroll();
 }
 
+/* ---- First visit: terms and safety acknowledgment (v0.26) ----
+   Shown until accepted; the only thing ever stored on the device is that
+   acceptance (key umed.ack = terms version), never any health information. */
+const TERMS_VER='2026-10-18';
+const ackOK=()=>{ try{ return localStorage.getItem('umed.ack')===TERMS_VER; }catch(e){ return !!renderAck.ok; } };
+function renderAck(){
+ const L=(f,t)=>`<a href="https://hekdan.github.io/umed/${f}" target="_blank" rel="noopener noreferrer">${t}</a>`;
+ app.innerHTML=`<div class="step ack"><p class="eyebrow">Before you start</p><h1>Please read this first</h1>
+  <ul class="ackl">
+   <li><b>Not medical advice.</b> üMed is an educational tool. It does not diagnose or treat anything, it does not replace a doctor, nurse or other clinician, and it can be wrong.</li>
+   <li><b>Not for emergencies.</b> Call 911 now for chest pain or pressure, trouble breathing, signs of a stroke (face drooping, arm weakness, trouble speaking), severe bleeding, fainting, or a severe allergic reaction. For thoughts of suicide or a mental health crisis, call or text 988.</li>
+   <li><b>Your answers stay on this device.</b> Nothing you enter is sent to us or anyone else. No accounts, cookies, analytics or ads.</li>
+   <li><b>Who it is for.</b> Adults 18 and over, or a parent or guardian answering for a child, in the United States.</li>
+  </ul>
+  <label class="ackc"><input type="checkbox" id="ackcb"><span>I have read and agree to the ${L('terms.html','Terms of Use')} and ${L('privacy.html','Privacy Policy')}.</span></label>
+  <button class="primary" id="ackgo" disabled>Continue</button></div>`;
+ const cb=document.getElementById('ackcb'), go=document.getElementById('ackgo');
+ cb.onchange=()=>{ go.disabled=!cb.checked; };
+ go.onclick=()=>{ renderAck.ok=true; try{ localStorage.setItem('umed.ack',TERMS_VER); }catch(e){} renderHome(); };
+ scroll();
+}
 function renderHome(){
+ if(!ackOK()) return renderAck();
  state={trace:[],sys:null,depth:0,skinNext:null,gateHits:[],freeText:'',freeFlags:{},intake:{}}; screenStack=[]; drawTrace(); setProg();
  app.innerHTML=`<div class="step">
   <section class="hero"><svg class="hero-art" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="ha1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--sea2)" stop-opacity=".30"/><stop offset="1" stop-color="var(--sea)" stop-opacity=".08"/></linearGradient><linearGradient id="ha2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--amber)" stop-opacity=".22"/><stop offset="1" stop-color="var(--amber)" stop-opacity="0"/></linearGradient></defs>
@@ -1018,7 +1055,7 @@ function dxPanel(f,danger){
  else if(care==='otc') h+=`<h5>What can help at home</h5><ul class="sg">${f.act.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
    <p class="fine">Check with a pharmacist first if you take other medicines, are pregnant, or have kidney, liver, heart, or stomach problems. Follow the package directions.</p>`;
  else h+=`<p class="needs ${care}"><b>${care==='er'?'Needs emergency care.':'Needs a clinician.'}</b> ${esc(Array.isArray(f.act)?'This one has to be ruled out by an examination before any home treatment.':f.act)}</p>`;
- h+=`<a class="ml" href="${ML+encodeURIComponent(f.ml)}" target="_blank" rel="noopener">Read more on MedlinePlus</a>`;
+ h+=`<a class="ml" href="${ML+encodeURIComponent(f.ml)}" target="_blank" rel="noopener noreferrer">Read more on MedlinePlus</a>`;
  return h;
 }
 
@@ -1486,6 +1523,7 @@ function rpLib(){
  if(window.jspdf) return Promise.resolve(window.jspdf);
  return new Promise((res,rej)=>{ const s=document.createElement('script');
   s.src='jspdf.umd.min.js';
+  s.integrity='sha512-plOdviVmws4Y3JAvbnpfKb2hVxKM1lCwsi3vmElYRj+tiDLffZ4FVUj5a8vyKJ9pIgl8JCAHEJ4D1iUKBecswg=='; s.crossOrigin='anonymous'; s.referrerPolicy='no-referrer';
   s.onload=()=>window.jspdf?res(window.jspdf):rej(new Error('pdf library missing')); s.onerror=()=>rej(new Error('pdf library failed to load'));
   document.head.appendChild(s); });
 }
@@ -1656,7 +1694,7 @@ async function rpPDF(d,note,o={}){ const cp=!!o.compact;
  const pages=doc.getNumberOfPages();
  for(let p=1;p<=pages;p++){ doc.setPage(p); draw(C.rule); doc.setLineWidth(.5); doc.line(M,H-40,W-M,H-40);
   font('normal',7.5); ink(C.faint);
-  doc.text('üMed demo '+VERSION+' - patient-reported, not clinician-verified, not a diagnosis. In an emergency call 911.',M,H-28);
+  doc.text('Confidential health information  |  üMed '+VERSION+'  |  patient-reported, not clinician-verified, not a diagnosis  |  Emergency: call 911',M,H-28);
   doc.text('Page '+p+' of '+pages,W-M,H-28,{align:'right'}); }
  doc.setProperties({title:'Visit summary - '+rpTxt(d.area)+' - '+d.stamp,subject:'Patient-reported intake and self-triage ('+d.tierLabel+')',
   author:'Patient (via üMed)',keywords:'patient-reported; intake; triage; '+d.tier+'; '+d.ranked.map(r=>r.name).join('; '),creator:'üMed '+VERSION});

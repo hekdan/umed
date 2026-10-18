@@ -6,7 +6,7 @@
 
 **Get ready for your doctor visit — a clear next step and a summary to bring with you.**
 
-[**▶︎ Open the app**](https://hekdan.github.io/umed/) · [Privacy policy](https://hekdan.github.io/umed/privacy.html)
+[**▶︎ Open the app**](https://hekdan.github.io/umed/) · [Privacy policy](https://hekdan.github.io/umed/privacy.html) · [Terms of use](https://hekdan.github.io/umed/terms.html)
 
 *Free · No account · Works offline · Installable (Add to Home Screen)*
 
@@ -46,10 +46,18 @@ from the patient's own words and OPQRST-AAA history: 59 question steps and
 - Urgency can only be raised, never lowered; "not sure" counts as yes
 - Every path ends with being seen by a real clinician
 
-## Privacy
+## Privacy and security
 
-**No data leaves your device.** No server, no accounts, no analytics, no tracking.
-Answers are processed in memory and discarded. [Full policy](https://hekdan.github.io/umed/privacy.html).
+**No data leaves your device.** No server, no accounts, no cookies, no analytics, no tracking.
+Answers are processed in memory and discarded; the only thing stored is that you accepted the
+terms. HIPAA does not apply because üMed never receives health information.
+[Privacy policy](https://hekdan.github.io/umed/privacy.html) · [Terms of use](https://hekdan.github.io/umed/terms.html).
+
+- Strict Content-Security-Policy: only the site's own (hash-pinned) scripts can run
+- No third-party code at runtime; fonts and the PDF library are self-hosted, and the
+  PDF library (jsPDF 4.2.1) is integrity-checked
+- No referrer sent to outside links; the app refuses to run inside another site's frame
+- First-use acknowledgment: not medical advice, not for emergencies (911 / 988), 18+ or parent/guardian
 
 ## Tech
 
