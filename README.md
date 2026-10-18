@@ -28,6 +28,7 @@ kinds of questions a clinician would. You get:
 - **Possible causes** a clinician would consider, ranked, with "must not miss" conditions flagged
 - **A best guess at any point**: stop early and üMed pools the remaining branches into a provisional result
 - **What to bring up** at your appointment
+- **Guided photos** of the area of concern (whole area, close-up, with a coin for size), checked for blur and darkness, stripped of location data on the device, and placed in the report
 - **A visit summary PDF**: a page for you, plus a typeset clinician summary (triage, OPQRST-AAA history, assessment with the basis for each condition; all selectable text), a copy-to-chart note, and a FHIR R4 export for electronic records
 
 ## Coverage
@@ -48,7 +49,7 @@ from the patient's own words and OPQRST-AAA history: 59 question steps and
 
 ## Privacy and security
 
-**No data leaves your device.** No server, no accounts, no cookies, no analytics, no tracking.
+**No data leaves your device**, including photos. No server, no accounts, no cookies, no analytics, no tracking.
 Answers are processed in memory and discarded; the only thing stored is that you accepted the
 terms. HIPAA does not apply because üMed never receives health information.
 [Privacy policy](https://hekdan.github.io/umed/privacy.html) · [Terms of use](https://hekdan.github.io/umed/terms.html).

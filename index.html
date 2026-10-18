@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-J8mYLkUwxFRrQ+5+w93dip7VWObZfcCmP340pWkCAkI=' 'sha256-ULJWgXwOsxQM38S6PAmTVEZEGdpV4bKO9qYVVV/AV1M=' 'sha256-WngoENLU8ukt51gjI1JhpShseJiPBfWn6sPvuo2pZPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-1PAURlMb6NkgsBS8d7ZVTZgdUHLI4l8s/+OCfLweVyY=' 'sha256-ULJWgXwOsxQM38S6PAmTVEZEGdpV4bKO9qYVVV/AV1M=' 'sha256-WngoENLU8ukt51gjI1JhpShseJiPBfWn6sPvuo2pZPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <script>/*frame-guard*/if(window.top!==window.self){try{window.top.location.replace(window.location.href)}catch(e){document.documentElement.style.display='none'}}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -435,6 +435,32 @@ footer.legal a{color:var(--sea-ink);font-weight:500}
 .ackc{display:flex;gap:.7rem;align-items:flex-start;margin:0 0 1rem;padding:.2rem .1rem;font-size:.95rem;line-height:1.5;cursor:pointer}
 .ackc input{flex:none;width:1.25rem;height:1.25rem;margin-top:.15rem;accent-color:var(--sea)}
 .ackc a,.ack a{color:var(--sea-ink);font-weight:600}
+.photos .note{margin-bottom:.9rem}
+.phguide{list-style:none;display:grid;gap:.55rem;margin:0 0 .9rem}
+.phg{display:grid;grid-template-columns:96px minmax(0,1fr);gap:.8rem;align-items:center;background:var(--panel);border:1px solid color-mix(in srgb,var(--rule) 70%,transparent);border-radius:var(--r-md);padding:.5rem .7rem .5rem .5rem;box-shadow:var(--lift);font-size:.9rem;line-height:1.45}
+.phg img,.phg .pgsvg{width:96px;height:auto;border-radius:10px;display:block}
+.phg b{display:flex;align-items:center;gap:.4rem;margin-bottom:.1rem}
+.phn{display:inline-grid;place-items:center;width:1.3rem;height:1.3rem;border-radius:50%;background:var(--grad);color:var(--on-accent);font-size:.72rem}
+.phd{font-weight:600;color:var(--sea-ink)}
+.phtips{margin:0 0 .8rem 1.1rem;font-size:.88rem;color:var(--muted);line-height:1.5}
+.phwarn{font-size:.85rem;line-height:1.5;background:var(--amber-bg);border:1px solid var(--amber-line);border-radius:12px;padding:.6rem .8rem;margin-bottom:1rem}
+.phgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem}
+.phslot{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:.35rem;min-height:150px;border:1.5px dashed var(--sea-line);border-radius:var(--r-md);padding:.8rem;text-align:center;background:color-mix(in srgb,var(--panel) 60%,transparent)}
+.phslot.more{min-height:96px}
+.phl{font-weight:600;font-size:.9rem}
+.phbtn{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;background:var(--grad);color:var(--on-accent);font-weight:600;font-size:.92rem;cursor:pointer}
+.phalt{font-size:.8rem;color:var(--sea-ink);text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:32px;display:flex;align-items:center;justify-content:center}
+.phbtn:focus-within,.phalt:focus-within{outline:2px solid var(--sea);outline-offset:2px}
+.phcard{background:var(--panel);border:1px solid color-mix(in srgb,var(--rule) 70%,transparent);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--lift);display:flex;flex-direction:column}
+.phcard img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--chip)}
+.phmeta{padding:.55rem .6rem .6rem;display:flex;flex-direction:column;gap:.35rem;font-size:.85rem}
+.phq{color:var(--amber);font-size:.8rem;line-height:1.35;margin:0}
+.phcap{min-height:40px;padding:.45rem .6rem;font-size:.85rem}
+.phdel{align-self:flex-start;background:none;border:none;color:var(--sig);font-size:.82rem;font-weight:600;cursor:pointer;min-height:32px;padding:0}
+details.phdet summary{list-style:none;display:flex;align-items:center;gap:.4rem;min-height:48px;cursor:pointer;font-weight:600;color:var(--sea-ink)}
+details.phdet summary::-webkit-details-marker{display:none}
+details.phdet summary .chev{color:var(--sea);transition:transform .15s}
+details.phdet[open] summary .chev{transform:rotate(90deg)}
 .who{margin:-.2rem 0 1.3rem}
 .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:color-mix(in srgb,var(--rule) 55%,transparent)}
 .seg button{min-height:44px;border:none;border-radius:12px;background:transparent;font-weight:500;font-size:.93rem;color:var(--muted);cursor:pointer;transition:background-color .15s,color .15s,box-shadow .15s}
@@ -488,7 +514,7 @@ const CONTENT={"TIERS":{"emergent":{"cls":"emergent","label":"Emergency","ic":"<
    file only renders it and moves between screens.
    =================================================================== */
 const {TIERS,ATLAS,SYSTEMS,GATE_UNIVERSAL,GATE_EXTRA,HOST,STEPS,SYS_ENTRY,N,ASK,CANTMISS,SOURCE,INFO,DXMAP,FT,INTAKE}=CONTENT;
-const VERSION='v0.26';
+const VERSION='v0.27';
 
 /* ---- Children and pregnancy (v0.25) ----
    "Who is this for?" on the home screen: me / my child (age band) / I'm pregnant (weeks).
@@ -860,7 +886,7 @@ function renderAsk(field,next){
 /* ---- First visit: terms and safety acknowledgment (v0.26) ----
    Shown until accepted; the only thing ever stored on the device is that
    acceptance (key umed.ack = terms version), never any health information. */
-const TERMS_VER='2026-10-18';
+const TERMS_VER='2026-10-18.2';
 const ackOK=()=>{ try{ return localStorage.getItem('umed.ack')===TERMS_VER; }catch(e){ return !!renderAck.ok; } };
 function renderAck(){
  const L=(f,t)=>`<a href="https://hekdan.github.io/umed/${f}" target="_blank" rel="noopener noreferrer">${t}</a>`;
@@ -868,7 +894,7 @@ function renderAck(){
   <ul class="ackl">
    <li><b>Not medical advice.</b> üMed is an educational tool. It does not diagnose or treat anything, it does not replace a doctor, nurse or other clinician, and it can be wrong.</li>
    <li><b>Not for emergencies.</b> Call 911 now for chest pain or pressure, trouble breathing, signs of a stroke (face drooping, arm weakness, trouble speaking), severe bleeding, fainting, or a severe allergic reaction. For thoughts of suicide or a mental health crisis, call or text 988.</li>
-   <li><b>Your answers stay on this device.</b> Nothing you enter is sent to us or anyone else. No accounts, cookies, analytics or ads.</li>
+   <li><b>Your answers and photos stay on this device.</b> Nothing you enter is sent to us or anyone else. No accounts, cookies, analytics or ads.</li>
    <li><b>Who it is for.</b> Adults 18 and over, or a parent or guardian answering for a child, in the United States.</li>
   </ul>
   <label class="ackc"><input type="checkbox" id="ackcb"><span>I have read and agree to the ${L('terms.html','Terms of Use')} and ${L('privacy.html','Privacy Policy')}.</span></label>
@@ -880,6 +906,7 @@ function renderAck(){
 }
 function renderHome(){
  if(!ackOK()) return renderAck();
+ photos=[];
  state={trace:[],sys:null,depth:0,skinNext:null,gateHits:[],freeText:'',freeFlags:{},intake:{}}; screenStack=[]; drawTrace(); setProg();
  app.innerHTML=`<div class="step">
   <section class="hero"><svg class="hero-art" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="ha1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--sea2)" stop-opacity=".30"/><stop offset="1" stop-color="var(--sea)" stop-opacity=".08"/></linearGradient><linearGradient id="ha2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--amber)" stop-opacity=".22"/><stop offset="1" stop-color="var(--amber)" stop-opacity="0"/></linearGradient></defs>
@@ -1013,9 +1040,8 @@ function renderTerminal(id){
  const cm=(CANTMISS[id]&&!(who.kind==='child'&&whoHide(CANTMISS[id])))?callout('danger cantmiss','alert','Don’t miss this',CANTMISS[id]):'';
  const bringList=(n.bring||[]).concat(amplifiers().map(a=>'That you have '+a.label),whoBring());
  const bring=bringList.length?`<section class="sec"><h3>Get ready for your visit</h3><ul class="todo">${bringList.map(x=>`<li>${CHECK}<span>${esc(x)}</span></li>`).join('')}</ul>
-   ${state.sys==='skin'?`<h4 class="sub">Take three photos</h4>
-   <div class="photoguide"><figure class="pg">${PG.wide}<figcaption>The whole area</figcaption></figure><figure class="pg">${PG.close}<figcaption>Close and in focus</figcaption></figure><figure class="pg">${PG.scale}<figcaption>A coin for scale</figcaption></figure></div>
-   <p class="note">Use daylight near a window, not a lamp. No flash or filters. Retake anything blurred.</p>`:''}</section>`:'';
+</section>`:'';
+ const phSec=(tierId==='emergent'||id==='T-GATE-CRISIS')?'':'<section class="sec photos" id="phsec"></section>';
  const safety=callout('plain safety','stethoscope','Get help sooner if',' anything gets worse, anything new appears, you develop a fever, you feel unwell overall, or something about this frightens you, whatever this result says.'.trim());
  const S=SOURCE[id];
  const clin=(n.distinguish||S)?`<details class="clin"><summary>For your clinician${CHEV}</summary>
@@ -1028,11 +1054,12 @@ function renderTerminal(id){
    <div class="care-b"><p class="why">${esc(why0)}</p>${tsub}${call}${hits}</div>
   </section>
   ${carry}${state.freeText?`<div class="callout plain words"><span class="ci">${ICON.doctor}</span><div><h4>In your words</h4><p>“${esc(state.freeText)}”</p><p class="fine">Show this to your clinician.</p></div></div>`:''}
-  ${/^T-GATE-/.test(id)?'':whoCallout()}${amp}${whoAmp}${hxAmp}${hx}${warn}${dx}${cm}${bring}${safety}${clin}
+  ${/^T-GATE-/.test(id)?'':whoCallout()}${amp}${whoAmp}${hxAmp}${hx}${warn}${dx}${cm}${bring}${phSec}${safety}${clin}
   <button class="restart" id="again">Start over</button>
  </div>`;
  document.getElementById('bk').onclick=back;
  document.getElementById('again').onclick=renderHome;
+ phRender();
  const cp=document.getElementById('cp'); if(cp) cp.onclick=copyHpi;
  app.querySelectorAll('.dxbtn').forEach(b=>b.onclick=()=>{
   const open=b.getAttribute('aria-expanded')!=='true';
@@ -1310,6 +1337,66 @@ function fdWhy(x,html){ const q=w=>html?'“'+esc(w)+'”':'"'+w+'"', P=[];
 const about1=name=>{ const f=INFO[DXMAP[name]]; if(!f) return ''; const t=f.about.replace(/\b(e\.g|i\.e|vs)\./g,m=>m.replace(/\./g,'\u2024'));
  const m=t.match(/^.*?(?<!\b[A-Z])[.!?](?=\s|$)/); return (m?m[0]:t).replace(/\u2024/g,'.').trim(); };
 
+/* ---- Photos of the area of concern (v0.27) ----
+   Taken or chosen on the device, resized to 1600 px and re-encoded as JPEG in the
+   browser (which also drops location and other metadata), kept in memory only,
+   and placed into the downloaded report. Never uploaded. */
+const PHOTO_MAX=6;
+const PG_CLOSE='<svg class="pgsvg" viewBox="0 0 290 180" role="img" aria-label="Close-up: the spot fills most of the frame"><defs><radialGradient id="pgc-s" cx=".45" cy=".4" r=".75"><stop offset="0" stop-color="#F3D9C6"/><stop offset="1" stop-color="#E6BFA5"/></radialGradient><radialGradient id="pgc-m" cx=".42" cy=".38" r=".7"><stop offset="0" stop-color="#9B5A44"/><stop offset=".75" stop-color="#7A3F2E"/><stop offset="1" stop-color="#8E5242" stop-opacity=".85"/></radialGradient></defs><rect x="6" y="6" width="278" height="168" rx="14" fill="url(#pgc-s)"/><g fill="#C99A80" opacity=".45"><circle cx="40" cy="40" r="1.6"/><circle cx="250" cy="52" r="1.4"/><circle cx="62" cy="140" r="1.5"/><circle cx="232" cy="138" r="1.6"/><circle cx="210" cy="30" r="1.2"/><circle cx="84" cy="70" r="1.1"/></g><path d="M146 44c34-4 66 16 70 44s-22 52-60 54-70-14-72-44 28-50 62-54z" fill="url(#pgc-m)"/><g fill="none" stroke="#2A6570" stroke-width="3" stroke-linecap="round"><path d="M20 44V22h22M248 22h22v22M270 136v22h-22M42 158H20v-22"/></g></svg>';
+let photos=[]; // {id,kind,label,caption,src,w,h,taken,warn}
+const PH_KINDS=[
+ {k:'wide',label:'Whole area',dist:'About 2 feet (60 cm) away',tip:'So it is clear which part of the body this is.'},
+ {k:'close',label:'Close-up',dist:'About 4 to 6 inches (10 to 15 cm) away',tip:'Fill most of the frame and tap the screen to focus. Don’t zoom in.'},
+ {k:'scale',label:'With a coin for size',dist:'Same distance as the close-up',tip:'Put a coin or a ruler right next to it.'}];
+const PH_VISUAL=new Set(['skin','eye','msk','ent','gu','']);
+async function phProcess(file){
+ if(!/^image\//.test(file.type||'image/')) throw new Error('Please choose a photo.');
+ let bmp; try{ bmp=await createImageBitmap(file,{imageOrientation:'from-image'}); }catch(e){
+  bmp=await new Promise((res,rej)=>{ const u=URL.createObjectURL(file), im=new Image();
+   im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('That file could not be opened as a photo.')); }; im.src=u; }); }
+ const W0=bmp.naturalWidth||bmp.width, H0=bmp.naturalHeight||bmp.height, s=Math.min(1,1600/Math.max(W0,H0)), w=Math.round(W0*s), h=Math.round(H0*s);
+ const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(bmp,0,0,w,h);
+ const src=c.toDataURL('image/jpeg',.85);
+ // quick quality check on a small grayscale copy: brightness, and sharpness as the variance of the Laplacian
+ const qs=Math.min(1,200/Math.max(w,h)), qw=Math.max(8,Math.round(w*qs)), qh=Math.max(8,Math.round(h*qs));
+ const q=document.createElement('canvas'); q.width=qw; q.height=qh; const qx=q.getContext('2d'); qx.drawImage(c,0,0,qw,qh);
+ const px=qx.getImageData(0,0,qw,qh).data, g=new Float32Array(qw*qh); let sum=0;
+ for(let i=0;i<qw*qh;i++){ g[i]=.299*px[i*4]+.587*px[i*4+1]+.114*px[i*4+2]; sum+=g[i]; }
+ let n=0,m=0,m2=0; for(let yy=1;yy<qh-1;yy++) for(let xx=1;xx<qw-1;xx++){ const i=yy*qw+xx, L=4*g[i]-g[i-1]-g[i+1]-g[i-qw]-g[i+qw]; n++; m+=L; m2+=L*L; }
+ const mean=sum/(qw*qh), sharp=n?m2/n-(m/n)**2:0;
+ const warn=mean<50?'This looks dark. Try again near a window, without flash.':mean>238?'This looks washed out. Try again out of direct light.':sharp<20?'This may be blurry. Hold steady, tap to focus, and try again.':'';
+ return {src,w,h,warn,taken:new Date()};
+}
+function phRender(){
+ const el=document.getElementById('phsec'); if(!el) return;
+ const lab=k=>(PH_KINDS.find(x=>x.k===k)||{label:'Extra photo'}).label;
+ const card=p=>`<div class="phcard"><img src="${p.src}" alt="${esc(p.label)}"><div class="phmeta"><b>${esc(p.label)}</b>${p.warn?`<p class="phq">${esc(p.warn)}</p>`:''}
+   <input class="txt phcap" data-id="${p.id}" maxlength="80" placeholder="Add a note (optional), e.g. left forearm" value="${esc(p.caption||'')}" aria-label="Note for ${esc(p.label)}">
+   <button type="button" class="phdel" data-id="${p.id}">Remove</button></div></div>`;
+ const pick=(k,txt)=>`<label class="phbtn"><input class="sr" type="file" accept="image/*" capture="environment" data-k="${k}">${txt}</label><label class="phalt"><input class="sr" type="file" accept="image/*" data-k="${k}">or choose an existing photo</label>`;
+ const slots=PH_KINDS.map(g=>{ const p=photos.find(x=>x.kind===g.k); return p?card(p):`<div class="phslot"><span class="phl">${esc(g.label)}</span>${pick(g.k,'Take photo')}</div>`; }).join('')
+  +photos.filter(p=>p.kind==='extra').map(card).join('')
+  +(photos.length<PHOTO_MAX&&PH_KINDS.every(g=>photos.some(p=>p.kind===g.k))?`<div class="phslot more">${pick('extra','Add another photo')}</div>`:'');
+ const vis=PH_VISUAL.has(state.sys==='gu'?'':(state.sys||''));
+ const body=`<p class="note">Optional. A few clear photos help your clinician, especially if it may change or be gone by your visit. They stay on this device and go only into the report you download; location data is removed.</p>
+  <ol class="phguide">${PH_KINDS.map((g,i)=>`<li class="phg">${g.k==='close'?PG_CLOSE:(PG[g.k]||'')}<div><b><span class="phn">${i+1}</span>${esc(g.label)}</b><span class="phd">${esc(g.dist)}.</span> ${esc(g.tip)}</div></li>`).join('')}</ol>
+  <ul class="phtips"><li>Daylight near a window; no flash or filters</li><li>A plain background, and hold the phone steady</li><li>Retake anything blurry. If it changes, take the same photos again later.</li></ul>
+  <p class="phwarn"><b>Keep it private:</b> don’t photograph anyone’s genitals or a child’s private areas. Describe it instead, or show your clinician in person. Leave faces out unless the problem is on the face.</p>
+  <div class="phgrid">${slots}</div><p class="fine" id="phmsg" aria-live="polite"></p>`;
+ el.innerHTML=vis?`<h3>Photos for your clinician</h3>${body}`:`<details class="phdet"${photos.length?' open':''}><summary>${CHEV}<span>Add a photo for your clinician (optional)</span></summary>${body}</details>`;
+ const msg=el.querySelector('#phmsg');
+ el.querySelectorAll('input[type=file]').forEach(inp=>inp.onchange=async()=>{
+  const f=inp.files&&inp.files[0]; if(!f) return; msg.textContent='Preparing your photo…';
+  try{ const r=await phProcess(f), k=inp.dataset.k;
+   photos=photos.filter(p=>p.kind!==k||k==='extra');
+   photos.push(Object.assign(r,{id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind:k,label:lab(k),caption:''}));
+   photos.sort((a,b)=>['wide','close','scale','extra'].indexOf(a.kind)-['wide','close','scale','extra'].indexOf(b.kind));
+   phRender(); }
+  catch(e){ msg.textContent=(e&&e.message)||'That photo could not be added.'; } });
+ el.querySelectorAll('.phcap').forEach(i=>i.oninput=()=>{ const p=photos.find(x=>x.id===i.dataset.id); if(p) p.caption=i.value.trim(); });
+ el.querySelectorAll('.phdel').forEach(b=>b.onclick=()=>{ photos=photos.filter(x=>x.id!==b.dataset.id); phRender(); });
+}
+
 /* ---- Best guess from partial answers (v0.20) ----
    A patient can stop at any question and still get a ranked differential.
    From the current question, every path still possible (earlier answers
@@ -1467,7 +1554,7 @@ function rpData(id){
  const now=new Date();
  return {id,tier,tierLabel:(TIERS[tier]||{}).label||tier,title,why:(app.querySelector('.care .why')||{}).textContent||n.why||'',fromFree:!!fd,area:sysName()||'General',freeText:state.freeText||'',
   answers,hpi,screened,host,cleared,positives:(/^T-GATE-/.test(id)?state.gateHits:[]),risk,ampl,ranked,
-  warn:n.warn||'',warnList:n.warnList||null,cantmiss:(CANTMISS[id]&&!(who.kind==='child'&&whoHide(CANTMISS[id])))?CANTMISS[id]:'',bring:(n.bring||[]).concat(amplifiers().map(a=>'That you have '+a.label),whoBring()),whoLabel:whoLabel(),raised:[...app.querySelectorAll('.callout')].filter(c=>/^Raised/.test((c.querySelector('h4')||{}).textContent||'')).map(c=>{ let t=((c.querySelector('p')||{}).textContent||'').replace(/,? (so )?the urgency above has been raised\. It is never lowered\./,'.').replace(/^Because /,'').trim(); return t.charAt(0).toUpperCase()+t.slice(1); }),whoAlert:(w=>w?w.querySelector('h4').textContent+': '+w.querySelector('p').textContent.replace(/^You/,'you').replace(/^Is/,'is'):'')(app.querySelector('.whonote')),
+  warn:n.warn||'',warnList:n.warnList||null,cantmiss:(CANTMISS[id]&&!(who.kind==='child'&&whoHide(CANTMISS[id])))?CANTMISS[id]:'',bring:(n.bring||[]).concat(amplifiers().map(a=>'That you have '+a.label),whoBring()),whoLabel:whoLabel(),photos:document.getElementById('phsec')?photos.map(p=>({label:p.label,caption:p.caption,src:p.src,w:p.w,h:p.h,taken:p.taken})):[],raised:[...app.querySelectorAll('.callout')].filter(c=>/^Raised/.test((c.querySelector('h4')||{}).textContent||'')).map(c=>{ let t=((c.querySelector('p')||{}).textContent||'').replace(/,? (so )?the urgency above has been raised\. It is never lowered\./,'.').replace(/^Because /,'').trim(); return t.charAt(0).toUpperCase()+t.slice(1); }),whoAlert:(w=>w?w.querySelector('h4').textContent+': '+w.querySelector('p').textContent.replace(/^You/,'you').replace(/^Is/,'is'):'')(app.querySelector('.whonote')),
   distinguish:n.distinguish||'',source:SOURCE[id]?SOURCE[id].c:'',provisional:id==='T-BESTGUESS',
   stoppedAt:id==='T-BESTGUESS'?((n.distinguish||'').match(/“(.+)”/)||[])[1]||'':'',
   now,dateStr:now.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),
@@ -1486,6 +1573,7 @@ function rpNote(d){
  if(d.provisional) P('  Provisional: patient stopped early'+(d.stoppedAt?' (at "'+d.stoppedAt+'")':'')+'; pooled from the remaining branches.');
  if(d.whoLabel){ H('Patient'); P('  '+d.whoLabel); }
  H('Chief concern'); P('  Area: '+clinArea(d)); if(d.freeText) P('  In the patient\'s words: "'+d.freeText+'"');
+ if(d.photos.length){ H('Photos'); d.photos.forEach(p=>P('  - '+p.label+(p.caption?': '+p.caption:'')+' (taken '+p.taken.toLocaleString([], {dateStyle:'medium',timeStyle:'short'})+')')); P('  Images are in the PDF report and the FHIR export.'); }
  if(d.hpi.length){ H('History of present illness (OPQRST-AAA)'); d.hpi.forEach(h=>P('  '+h.label+': '+h.text)); }
  if(d.answers.length){ H('Patient responses'); d.answers.forEach(a=>P('  - '+a.q+' '+a.a)); }
  H('Screening');
@@ -1513,6 +1601,7 @@ function rpFHIR(d,note){
  d.risk.forEach((r,i)=>items.push(it('risk-'+(i+1),r.q,[{valueBoolean:r.yes}])));
  items.push(it('triage','Self-triage level',[{valueCoding:{system:'urn:guided-intake:triage-tier',code:d.tier,display:d.title}}]));
  if(d.ranked.length) items.push(it('differential','Tool-generated differential (unverified)',d.ranked.map(r=>({valueString:r.name+(r.danger?' [must not miss]':' ['+r.label.toLowerCase()+']')+(r.why?' - matched: '+r.why:'')}))));
+ if(d.photos.length) items.push(it('photos','Patient photos',d.photos.map(p=>({valueAttachment:{contentType:'image/jpeg',data:p.src.split(',')[1],title:p.label+(p.caption?': '+p.caption:''),creation:p.taken.toISOString()}}))));
  items.push(it('note','Narrative note',[{valueString:note}]));
  return {resourceType:'QuestionnaireResponse',status:d.provisional?'in-progress':'completed',authored:d.now.toISOString(),
   meta:{tag:[{system:'urn:guided-intake',code:'patient-reported-unverified',display:'Patient-reported via üMed demo '+VERSION+'; not clinician-verified'}]},
@@ -1591,6 +1680,7 @@ async function rpPDF(d,note,o={}){ const cp=!!o.compact;
  if(d.positives.length) rows.push({q:'Warning signs',a:d.positives.join('; ')});
  else if(d.cleared) rows.push({q:'Warning signs',a:'None of the emergency warning signs'});
  d.risk.forEach(r=>rows.push({q:r.q,a:r.yes?'Yes or not sure':'No'}));
+ if(d.photos.length) rows.push({q:'Photos',a:d.photos.length+' attached on the Photos page'});
  if(!rows.length) rows.push({q:'Area',a:d.area});
  rows.forEach((r,i)=>{ font('normal',8.5); const ql=wrap(r.q,CW*.42); font('bold',10); const al=wrap(r.a,CW*.54);
   const h=Math.max(ql.length*LH(8.5),al.length*LH(10))+(cp?8:12); need(h);
@@ -1635,6 +1725,23 @@ async function rpPDF(d,note,o={}){ const cp=!!o.compact;
  if(y+66<H-58){ h3('Questions for my clinician'); let n=0; while(n<4&&y+22<H-60){ draw(C.rule); doc.setLineWidth(.6); doc.line(M,y+4,W-M,y+4); y+=22; n++; } }
 
  if(doc.getNumberOfPages()>1&&!cp) return rpPDF(d,note,{compact:true});
+ // ---------- photos page ----------
+ if(d.photos.length){
+  sub='Photos'; doc.addPage(); header();
+  font('bold',16); ink(C.ink); doc.text('Photos taken by the patient',M,y); y+=14;
+  font('normal',8.5); ink(C.muted); wrap('Taken on a phone by the patient or a caregiver. Colors and size may not be exact; where there is a coin, use it for scale. Location data was removed.',CW).forEach(l=>{ doc.text(l,M,y); y+=LH(8.5); }); y+=10;
+  const gw=(CW-16)/2, fh=236, cellH=fh+34; let col=0;
+  d.photos.forEach(p=>{
+   if(col===0&&y+cellH>H-58){ doc.addPage(); header(); }
+   const x=M+col*(gw+16);
+   fill([249,248,245]); draw(C.rule); doc.setLineWidth(.6); doc.roundedRect(x,y,gw,fh,6,6,'FD');
+   const r=Math.min((gw-12)/p.w,(fh-12)/p.h), iw=p.w*r, ih=p.h*r;
+   doc.addImage(p.src,'JPEG',x+(gw-iw)/2,y+(fh-ih)/2,iw,ih);
+   font('bold',9.5); ink(C.ink); doc.text(rpTxt(p.label),x,y+fh+13);
+   font('normal',8.5); ink(C.muted); doc.text(wrap((p.caption?p.caption+'  |  ':'')+'Taken '+p.taken.toLocaleString([], {dateStyle:'medium',timeStyle:'short'}),gw)[0],x,y+fh+25);
+   if(col===1){ y+=cellH+10; col=0; } else col=1; });
+  y=H;   // the clinician summary always starts on a fresh page after the photos
+ }
  // ---------- clinician summary: typeset from the same data as the note (real, selectable text) ----------
  sub='For the clinician';
  if(doc.getNumberOfPages()>1&&y<H*.5){ y+=30; draw(C.rule); doc.setLineWidth(.8); doc.line(M,y-26,W-M,y-26); } else { doc.addPage(); header(); }
@@ -1663,7 +1770,7 @@ async function rpPDF(d,note,o={}){ const cp=!!o.compact;
  const bullets=(L,c)=>{ L.forEach(t=>{ font('normal',9.5); const l=wrap(t,CW-14); need(l.length*LH(9.5)+3); fill(c||C.sea); doc.circle(M+3,y-3,1.6,'F'); ink(C.ink); l.forEach((x,j)=>doc.text(x,M+12,y+j*LH(9.5))); y+=l.length*LH(9.5)+3; }); y+=7; };
  // assessment first only when triage is emergent; otherwise history first, as a clinician reads it
  sec('Chief concern');
- kv([...(d.freeText?[['In the patient’s words','“'+d.freeText+'”','italic']]:[]),...(d.raised&&d.raised.length?[['Urgency raised',d.raised.join(' ')]]:[])],120);
+ kv([...(d.photos.length?[['Photos',d.photos.length+' patient photos ('+d.photos.map(p=>p.label.toLowerCase()).join(', ')+') on the Photos page']]:[]),...(d.freeText?[['In the patient’s words','“'+d.freeText+'”','italic']]:[]),...(d.raised&&d.raised.length?[['Urgency raised',d.raised.join(' ')]]:[])],120);
  if(d.hpi.length){ sec('History of present illness (OPQRST-AAA)'); kv(d.hpi.map(h=>[h.label,h.text]),150); }
  if(d.answers.length){ sec('Patient responses'); kv(d.answers.map(a=>[a.q,a.a,'bold']),236); }
  sec('Screening');
