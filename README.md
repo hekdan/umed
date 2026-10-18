@@ -2,9 +2,9 @@
 
 <img src="icon-512.png" alt="üMed logo" width="110">
 
-# üMed · Guided Intake
+# üMed
 
-**Organize your symptoms before you see a doctor.**
+**Get ready for your doctor visit — a clear next step and a summary to bring with you.**
 
 [**▶︎ Open the app**](https://hekdan.github.io/umed/) · [Privacy policy](https://hekdan.github.io/umed/privacy.html)
 
@@ -21,35 +21,28 @@
 
 ## What it does
 
-Answer a few plain-language questions — or just type what's going on in your own
-words — and üMed walks you through the kinds of questions a clinician would ask.
-You get:
+Pick an area (or describe what's going on in your own words) and üMed asks the
+kinds of questions a clinician would. You get:
 
-- **A recommended next step** — emergency care, same-day, within a few days, or routine
-- **Possible causes** a clinician would consider, in plain English
-- **Practical recommendations** you can safely try
+- **A recommended next step**: emergency care, same-day, within a few days, or routine
+- **Possible causes** a clinician would consider, ranked, with "must not miss" conditions flagged
+- **A best guess at any point**: stop early and üMed pools the remaining branches into a provisional result
 - **What to bring up** at your appointment
-- **A printable summary** to hand to your clinician
+- **A visit summary PDF**: page 1 for you, page 2 a clinician note (selectable text), plus a FHIR R4 export for electronic records
 
 ## Coverage
 
-22 areas of health: headache, brain & nerves, eyes, ears/nose/sinus, mouth & dental,
-chest pain & palpitations, breathing, stomach & bowels, urinary, skin (with photo-guided
-mole/rash triage), joints & back, feet, injuries, fever & fatigue, allergic reactions,
-women's & sexual health, men's health, mood & anxiety, sleep, alcohol, smoking,
-meaning & spirit, and preventive care.
-
-Mental-health, alcohol, and smoking paths use validated screening instruments
-(PHQ-9, GAD-7, AUDIT-C, Fagerström) — never guesses. Question flows are anchored to
-published clinical review articles, cited in-app.
+Skin and rashes (with diagrams of lesion shapes), cough and breathing, heart and circulation,
+stomach and bowels, urinary, headache, nerves and dizziness, joints and back, eye,
+ear/nose/sinus, and a free-text "something else" path: 59 question steps and
+141 result pathways.
 
 ## Safety design
 
-- A consent screen precedes all content and routes emergencies to 911/988
-- Free-text input is screened for crisis and emergency language **first** — danger
-  wording bypasses everything and shows crisis resources
-- Any positive answer on the PHQ-9 self-harm item overrides all scoring
-- Urgency recommendations always err toward being seen
+- A one-tap red-flag check appears before every non-emergency result; any flag escalates to emergency care
+- Free-text descriptions are screened for emergency wording first
+- Urgency can only be raised, never lowered; "not sure" counts as yes
+- Every path ends with being seen by a real clinician
 
 ## Privacy
 
@@ -58,8 +51,8 @@ Answers are processed in memory and discarded. [Full policy](https://hekdan.gith
 
 ## Tech
 
-A single self-contained HTML file (~700 KB) — deterministic decision-graph engine,
-227 result pathways, embedded fonts and icons, zero dependencies, zero network calls.
+A single HTML page with a deterministic decision-graph engine. Fonts and the PDF
+library (jsPDF) are served from this site, so there are no third-party network calls.
 Served as a PWA (installable, offline-capable via service worker).
 
 ---

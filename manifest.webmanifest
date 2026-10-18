@@ -1,14 +1,23 @@
 {
-  "name": "üMed Guided Intake",
+  "name": "üMed",
   "short_name": "üMed",
-  "description": "Guided symptom intake demo — educational, not for clinical use.",
+  "description": "Guided symptom intake — get a clear next step and a visit summary to bring to your appointment. Educational, not for clinical use.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F5F7F9",
-  "theme_color": "#15697F",
+  "background_color": "#F4F2ED",
+  "theme_color": "#2A6570",
   "icons": [
-    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
