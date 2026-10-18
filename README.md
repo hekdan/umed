@@ -28,18 +28,20 @@ kinds of questions a clinician would. You get:
 - **Possible causes** a clinician would consider, ranked, with "must not miss" conditions flagged
 - **A best guess at any point**: stop early and üMed pools the remaining branches into a provisional result
 - **What to bring up** at your appointment
-- **A visit summary PDF**: page 1 for you, page 2 a clinician note (selectable text), plus a FHIR R4 export for electronic records
+- **A visit summary PDF**: a page for you, plus a typeset clinician summary (triage, OPQRST-AAA history, assessment with the basis for each condition; all selectable text), a copy-to-chart note, and a FHIR R4 export for electronic records
 
 ## Coverage
 
 Skin and rashes (with diagrams of lesion shapes), cough and breathing, heart and circulation,
 stomach and bowels, urinary, headache, nerves and dizziness, joints and back, eye,
-ear/nose/sinus, and a free-text "something else" path: 59 question steps and
-141 result pathways.
+ear/nose/sinus, and a free-text "something else" path whose differential is matched
+from the patient's own words and OPQRST-AAA history: 59 question steps and
+141 result pathways, for adults, children and pregnancy.
 
 ## Safety design
 
-- A one-tap red-flag check appears before every non-emergency result; any flag escalates to emergency care
+- Children (by age band) and pregnancy (by weeks) are supported: group-specific conditions are added, urgency is raised where the group needs it (e.g. any illness in a baby under 3 months, belly pain in pregnancy), and adult medicine advice is replaced with child- or pregnancy-safe guidance
+- A short "get help now" box is shown for children and pregnancy (the earlier one-tap red-flag checklist is switched off for now)
 - Free-text descriptions are screened for emergency wording first
 - Urgency can only be raised, never lowered; "not sure" counts as yes
 - Every path ends with being seen by a real clinician

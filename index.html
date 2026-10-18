@@ -421,6 +421,15 @@ h3{letter-spacing:-.01em}
 .report .primary svg{width:19px;height:19px}
 .report .fine{text-align:center}
 .report .skip{font-size:.85rem}
+.who{margin:-.2rem 0 1.3rem}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:color-mix(in srgb,var(--rule) 55%,transparent)}
+.seg button{min-height:44px;border:none;border-radius:12px;background:transparent;font-weight:500;font-size:.93rem;color:var(--muted);cursor:pointer;transition:background-color .15s,color .15s,box-shadow .15s}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--sea-ink);font-weight:600;box-shadow:var(--lift)}
+.bands{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.75rem}
+.bands .bq{width:100%;font-size:.9rem;font-weight:600;margin:0 0 .1rem}
+.who.nudge .bands,.who.nudge .seg{outline:2px solid var(--amber-line);outline-offset:4px;border-radius:16px}
+.whonudge{margin-top:.6rem;font-size:.88rem;color:var(--amber);font-weight:500}
+.whotag{font-size:.74rem;font-weight:600;color:var(--sea-ink);background:var(--sea-bg);border-radius:999px;padding:.1rem .55rem;white-space:nowrap}
 .dxi .dxwhy{margin:.1rem 0 .7rem;padding:.6rem .75rem;border-radius:10px;background:var(--sea-bg);font-size:.9rem;line-height:1.5}
 .dxi .dxwhy b{color:var(--sea-ink)}
 .callout ul.wl{margin:.35rem 0 .45rem 1.05rem;font-size:.95rem;line-height:1.45}
@@ -464,7 +473,152 @@ const CONTENT={"TIERS":{"emergent":{"cls":"emergent","label":"Emergency","ic":"<
    file only renders it and moves between screens.
    =================================================================== */
 const {TIERS,ATLAS,SYSTEMS,GATE_UNIVERSAL,GATE_EXTRA,HOST,STEPS,SYS_ENTRY,N,ASK,CANTMISS,SOURCE,INFO,DXMAP,FT,INTAKE}=CONTENT;
-const VERSION='v0.24';
+const VERSION='v0.25';
+
+/* ---- Children and pregnancy (v0.25) ----
+   "Who is this for?" on the home screen: me / my child (age band) / I'm pregnant (weeks).
+   It adds age- and pregnancy-specific conditions to each area's differential, can only
+   RAISE urgency, and swaps adult medicine advice for child- or pregnancy-safe guidance.
+   Draft clinical content, physician sign-off pending, like everything else here. */
+const REDFLAG_CHECK=false; // the one-tap red-flag screen before results; kept (renderCheck) for later, switched off for now
+let who={kind:'adult',band:null}; // persists across "Start over", like profile
+const WHO_BANDS={
+ child:[['u3m','Under 3 months'],['3m2y','3 months to 2 years'],['2y11','2 to 11 years'],['12y17','12 to 17 years']],
+ preg:[['lt20','Under 20 weeks'],['ge20','20 weeks or more'],['unk','Not sure']]};
+const whoLabel=()=>who.kind==='adult'?'':who.kind==='child'?'Child, '+(((WHO_BANDS.child.find(b=>b[0]===who.band)||[])[1])||'age not given').toLowerCase()
+ :'Pregnant, '+(((WHO_BANDS.preg.find(b=>b[0]===who.band)||[])[1])||'weeks not given').toLowerCase();
+const whoShort=()=>who.kind==='child'?{u3m:'Baby, under 3 mo','3m2y':'Child, 3 mo–2 yr','2y11':'Child, 2–11 yr','12y17':'Teen, 12–17 yr'}[who.band]||'Child'
+ :who.kind==='preg'?{lt20:'Pregnant, under 20 wk',ge20:'Pregnant, 20+ wk',unk:'Pregnant'}[who.band]||'Pregnant':'';
+Object.assign(INFO,{
+ bronchiolitis:{care:'doc',kids:1,about:'A common viral chest infection in babies and toddlers under 2 that narrows the smallest airways.',signs:['A runny nose, then a cough over 2 to 3 days','Fast, noisy or wheezy breathing','Feeding less than usual'],act:'Small, frequent feeds and saline drops for a blocked nose. Get seen today if breathing looks hard, the ribs suck in, or feeds drop below half of normal; call 911 for pauses in breathing or blue lips.',ml:'Bronchiolitis'},
+ croup:{care:'doc',kids:1,about:'A viral infection that swells the voice box and windpipe in children, usually 6 months to 6 years old.',signs:['A barking, seal-like cough','Hoarse voice','A harsh noise when breathing in, often worse at night'],act:'Keep your child calm and upright. A clinician can give a single dose of steroid medicine that helps within hours. Call 911 for noisy breathing at rest, drooling, or blue lips.',ml:'Croup'},
+ peds_dehydration:{care:'doc',kids:1,about:'Losing more fluid than is taken in, usually from vomiting and diarrhea. Babies and toddlers dry out fastest.',signs:['Fewer wet diapers, or no pee for 8 hours or more','No tears, dry mouth, sunken soft spot','Unusually sleepy or floppy'],act:'Give small sips of oral rehydration solution every few minutes. Get seen the same day for any sign of dehydration; go to the ER if your child is very sleepy, floppy, or has not peed in 8 hours.',ml:'Dehydration'},
+ intussusception:{care:'er',kids:1,about:'One part of the bowel slides into the next and blocks it. It is most common between 6 months and 3 years.',signs:['Sudden bouts of hard crying with the knees drawn up, every 15 to 20 minutes','Vomiting, sometimes green','Red, jelly-like poop; pale and sleepy between bouts'],act:'This is an emergency. Go to the ER now.',ml:'Intussusception'},
+ hfmd:{care:'otc',kids:1,about:'Hand, foot and mouth disease: a common, mild viral infection in young children.',signs:['Fever and a sore mouth','Small blisters or spots on the hands, feet and diaper area','Not wanting to eat or drink'],act:['Cold drinks and soft foods for a sore mouth; keep fluids going','Acetaminophen or ibuprofen dosed by your child’s weight, never aspirin','Keep your child home until the fever is gone; wash hands well'],ml:'Hand, foot, and mouth disease'},
+ kawasaki:{care:'doc',kids:1,about:'Kawasaki disease: inflammation of blood vessels in young children that can damage the heart’s arteries if it is not treated in time.',signs:['Fever lasting 5 days or more','Red eyes without discharge; red, cracked lips or a strawberry tongue','A rash, swollen red hands or feet, or a swollen gland in the neck'],act:'Needs to be seen the same day. Treatment within the first 10 days of fever protects the heart.',ml:'Kawasaki disease'},
+ uti_child:{care:'doc',kids:1,about:'A urine infection in a young child. It can be the only cause of a fever, and it needs prompt treatment to protect the kidneys.',signs:['Fever with no other obvious cause','Vomiting, poor feeding, or irritability','Pain when peeing, wetting again, or smelly urine in older children'],act:'Needs a urine test the same day. Young children usually need antibiotics promptly.',ml:'Urinary tract infection - children'},
+ serious_infection_infant:{care:'er',kids:1,about:'Babies under 3 months can have serious infections of the blood, urine or brain lining with very few signs.',signs:['A temperature of 100.4°F (38°C) or higher, or too cold','Feeding poorly, unusually sleepy, floppy or irritable','A rash, or breathing that looks hard'],act:'A baby under 3 months with a fever needs emergency care, even if they seem well.',ml:'Fever'},
+ scfe:{care:'doc',kids:1,about:'Slipped capital femoral epiphysis (SCFE): the growth plate at the top of the thigh bone slips. It happens between about 10 and 16 years.',signs:['Pain in the hip, thigh or knee','A limp, or the foot turning outward','Pain that started slowly or after a minor fall'],act:'Stop sports, avoid walking on it, and get an X-ray the same day. Knee pain in a teenager can come from the hip.',ml:'Slipped capital femoral epiphysis'},
+ transient_synovitis:{care:'doc',kids:1,about:'Irritable hip (transient synovitis): short-lived inflammation of the hip, often after a cold, usually in children 3 to 10.',signs:['A sudden limp or refusing to walk','Hip, thigh or knee pain','Otherwise fairly well, without a high fever'],act:'Must be checked, because a hip joint infection can look the same, especially with a fever. It usually settles within 1 to 2 weeks with rest.',ml:'Transient synovitis'},
+ growing_pains:{care:'otc',kids:1,about:'Growing pains: harmless aching in both legs in children about 3 to 12, usually in the evening or at night.',signs:['Aching in both thighs, calves or behind the knees','Comes in the evening or night, gone by morning','No limp, swelling, redness or fever'],act:['Massage, stretching and a warm bath','Acetaminophen or ibuprofen dosed by weight if needed','Get it checked if there is a limp, swelling, fever, or pain in only one leg'],ml:'Growing pains'},
+ ectopic:{care:'er',preg:1,about:'Ectopic pregnancy: a pregnancy growing outside the womb, usually in a fallopian tube. It can rupture and bleed.',signs:['Pain low in the belly, often on one side','Vaginal bleeding or spotting','Shoulder-tip pain, dizziness or fainting'],act:'Go to the ER now if the pain is severe, you feel faint, or you have shoulder-tip pain. Otherwise, get seen today.',ml:'Ectopic pregnancy'},
+ nvp:{care:'otc',preg:1,about:'Nausea and vomiting of pregnancy (“morning sickness”): very common, usually from about week 6 to week 16.',signs:['Nausea that can come at any time of day','Some vomiting, but keeping fluids down','Worse with an empty stomach or strong smells'],act:['Small, frequent meals; plain crackers before getting up','Ginger, and plenty of fluids in small sips','Ask your clinician about vitamin B6 with doxylamine, which is safe in pregnancy'],ml:'Morning sickness'},
+ hyperemesis:{care:'doc',preg:1,about:'Hyperemesis gravidarum: severe pregnancy sickness that leads to dehydration and weight loss.',signs:['Vomiting many times a day','Unable to keep fluids down; dark urine','Losing weight, dizzy or weak'],act:'Needs to be seen today. Anti-sickness medicines that are safe in pregnancy, and fluids through a drip, help.',ml:'Hyperemesis gravidarum'},
+ round_ligament:{care:'otc',preg:1,about:'Round ligament pain: sharp, stretching pain from the ligaments that support the growing womb, common in the second trimester.',signs:['A brief, sharp jab low in the belly or groin, one or both sides','Brought on by standing up quickly, coughing or rolling over','No bleeding, fever, or constant pain'],act:['Change position slowly; support your belly when you cough','Rest, and a warm (not hot) compress','Tell your midwife or doctor if it is constant, severe, or comes with bleeding or fever'],ml:'Round ligament pain'},
+ preeclampsia:{care:'er',preg:1,about:'Preeclampsia: a condition after 20 weeks of pregnancy with high blood pressure that can affect the liver, kidneys, brain and the baby.',signs:['A severe headache that does not go away','Vision changes: flashing lights, blurring','Pain under the right ribs; sudden swelling of the face or hands'],act:'Call your maternity unit now to have your blood pressure and urine checked today. Call 911 for a severe headache with vision loss, confusion or a seizure.',ml:'Preeclampsia'},
+ uti_preg:{care:'doc',preg:1,about:'A urine infection in pregnancy. Even mild ones are treated, with antibiotics that are safe for the baby.',signs:['Burning or stinging when peeing','Needing to pee more often or urgently','Cloudy or smelly urine'],act:'Needs a urine test and treatment within a day. Go sooner with fever, back pain or vomiting.',ml:'Urinary tract infection - adults'},
+ pyelo_preg:{care:'doc',preg:1,about:'A kidney infection in pregnancy. It needs same-day treatment because it can make you very unwell and trigger early labor.',signs:['Fever or shivering','Pain in the back or side, under the ribs','Vomiting, with or without burning when peeing'],act:'Get seen today; many people need antibiotics through a drip.',ml:'Pyelonephritis'},
+ cholestasis_preg:{care:'doc',preg:1,about:'Intrahepatic cholestasis of pregnancy: a liver condition in later pregnancy that causes itching and needs monitoring for the baby’s sake.',signs:['Intense itching, especially of the palms and soles','Worse at night','No rash, apart from scratch marks'],act:'Needs a blood test within a few days. Tell your maternity team.',ml:'Cholestasis of pregnancy'},
+ puppp:{care:'doc',preg:1,about:'Polymorphic eruption of pregnancy (PUPPP): an itchy rash that usually starts in stretch marks on the belly in the third trimester. It does not harm the baby.',signs:['Itchy red bumps and hive-like patches','Starts in stretch marks, sparing the belly button','Spreads to thighs, buttocks or arms'],act:'Moisturizer and cool compresses help. Ask your clinician about a steroid cream or an antihistamine that is safe in pregnancy.',ml:'Pruritic urticarial papules and plaques of pregnancy'},
+ pelvic_girdle:{care:'otc',preg:1,about:'Back or pelvic girdle pain of pregnancy: pain from the joints of the pelvis loosening and the change in posture.',signs:['Pain at the front of the pelvis, the low back or the buttocks','Worse walking, on stairs, or turning over in bed','Sometimes a clicking feeling in the pelvis'],act:['Keep your knees together getting in and out of bed or a car','A support belt and a physical therapist can help','Acetaminophen is usually preferred in pregnancy; ask before taking ibuprofen'],ml:'Pregnancy and back pain'},
+ preg_breathless:{care:'otc',preg:1,about:'Breathlessness of pregnancy: feeling short of breath with activity is common as the womb grows and hormones change.',signs:['Mild breathlessness with activity or talking','Normal breathing at rest','No chest pain, cough or leg swelling'],act:['Slow down, keep good posture, sleep propped up','Get seen today for breathlessness at rest, chest pain, a fast heartbeat, coughing blood, or one swollen leg'],ml:'Shortness of breath'},
+ ppcm:{care:'doc',preg:1,about:'Peripartum cardiomyopathy: weakening of the heart muscle in late pregnancy or the months after birth.',signs:['Breathlessness lying flat or at night','Swollen ankles and legs, rapid weight gain','A fast or pounding heartbeat; tiredness beyond normal'],act:'Needs heart tests promptly. Get seen today; call 911 for breathlessness at rest or chest pain.',ml:'Peripartum cardiomyopathy'}
+});
+Object.assign(DXMAP,{'Bronchiolitis':'bronchiolitis','Croup':'croup','Dehydration (young child)':'peds_dehydration','Intussusception':'intussusception','Hand, foot and mouth disease':'hfmd','Kawasaki disease':'kawasaki','Urine infection in a young child':'uti_child','Serious infection in a young baby':'serious_infection_infant','Slipped growth plate at the hip (SCFE)':'scfe','Irritable hip (transient synovitis)':'transient_synovitis','Growing pains':'growing_pains','Ectopic pregnancy':'ectopic','Morning sickness':'nvp','Severe pregnancy sickness (hyperemesis)':'hyperemesis','Round ligament pain':'round_ligament','Preeclampsia':'preeclampsia','Urine infection in pregnancy':'uti_preg','Kidney infection in pregnancy':'pyelo_preg','Itching of pregnancy (cholestasis)':'cholestasis_preg','Pregnancy rash (PUPPP)':'puppp','Pelvic girdle or back pain of pregnancy':'pelvic_girdle','Breathlessness of pregnancy':'preg_breathless','Peripartum cardiomyopathy':'ppcm'});
+// per area: [name, must-not-miss?, bands it applies to]
+const C3=['u3m','3m2y','2y11','12y17'], P3=['lt20','ge20','unk'];
+const POP={
+ child:{
+  resp:[['Bronchiolitis',0,['u3m','3m2y']],['Croup',0,['3m2y','2y11']],['Asthma exacerbation',0,['2y11','12y17']],['Pneumonia',1,C3]],
+  ent:[['Acute otitis media',0,['3m2y','2y11']],['Streptococcal pharyngitis',0,['2y11','12y17']]],
+  gi:[['Viral gastroenteritis',0,C3],['Dehydration (young child)',1,['u3m','3m2y','2y11']],['Intussusception',1,['3m2y']],['Appendicitis',1,['2y11','12y17']]],
+  skin:[['Hand, foot and mouth disease',0,['3m2y','2y11']],['Viral exanthem',0,['3m2y','2y11']],['Impetigo',0,['2y11']],['Kawasaki disease',1,['3m2y','2y11']],['Meningococcal or other serious blood infection',1,C3]],
+  uti:[['Urine infection in a young child',1,['u3m','3m2y','2y11']]],
+  head:[['Migraine',0,['2y11','12y17']],['Meningococcal or other serious blood infection',1,C3]],
+  msk:[['Growing pains',0,['2y11']],['Irritable hip (transient synovitis)',0,['2y11']],['Slipped growth plate at the hip (SCFE)',1,['12y17']],['Septic arthritis',1,C3]],
+  eye:[['Viral conjunctivitis',0,C3],['Bacterial conjunctivitis',0,C3]],
+  '*':[['Serious infection in a young baby',1,['u3m']]]},
+ preg:{
+  gi:[['Morning sickness',0,['lt20','unk']],['Round ligament pain',0,P3],['Severe pregnancy sickness (hyperemesis)',1,['lt20','unk']],['Ectopic pregnancy',1,['lt20','unk']],['Appendicitis',1,P3],['Preeclampsia',1,['ge20','unk']]],
+  head:[['Preeclampsia',1,['ge20','unk']]], nv:[['Preeclampsia',1,['ge20','unk']]], eye:[['Preeclampsia',1,['ge20','unk']]],
+  uti:[['Urine infection in pregnancy',0,P3],['Kidney infection in pregnancy',1,P3]],
+  resp:[['Breathlessness of pregnancy',0,P3],['Blood clot in the lung',1,P3]],
+  cv:[['Breathlessness of pregnancy',0,P3],['Blood clot in the lung',1,P3],['Deep vein thrombosis (DVT)',1,P3],['Peripartum cardiomyopathy',1,['ge20','unk']],['Preeclampsia',1,['ge20','unk']]],
+  skin:[['Pregnancy rash (PUPPP)',0,['ge20','unk']],['Itching of pregnancy (cholestasis)',1,['ge20','unk']]],
+  msk:[['Pelvic girdle or back pain of pregnancy',0,P3]]}};
+// minimum urgency (escalate only) by group and area, with the reason shown to the patient
+function whoFloor(sys){
+ const b=who.band, f=(tier,why)=>({tier,why});
+ if(who.kind==='child'){
+  if(b==='u3m') return f(feverSaid()?'emergent':'urgent',feverSaid()?'a baby under 3 months with a fever needs emergency care, even if they seem well':'a baby under 3 months should be seen the same day for any illness');
+  if(b==='3m2y'&&['resp','gi'].includes(sys)) return f('urgent','babies and toddlers get short of breath and dehydrated faster than adults');
+  if(sys==='msk'&&/limp|won.?t walk|not walking|refus\w* to walk/i.test(state.freeText||'')) return f('urgent','a child with a new limp needs to be checked the same day');
+  if(['uti'].includes(sys)) return f('prompt','a child with urinary symptoms needs a urine test');
+ }
+ if(who.kind==='preg'){
+  if(/bleed|spotting|fluid leak|leaking|waters/i.test(state.freeText||'')) return f('urgent','bleeding or leaking fluid in pregnancy needs to be checked the same day');
+  if(sys==='gi') return f('urgent','belly pain or vomiting in pregnancy needs to be checked the same day');
+  if(sys==='uti') return f('urgent','urine infections in pregnancy need treatment within a day');
+  if(['head','nv','eye','cv'].includes(sys)&&b!=='lt20') return f('urgent','after 20 weeks, a headache, vision change, dizziness, swelling or breathlessness can be preeclampsia or a blood clot');
+  if(['cv','resp'].includes(sys)) return f('urgent','breathlessness or chest symptoms in pregnancy need a same-day check for a blood clot');
+  if(sys==='skin'&&b!=='lt20') return f('prompt','itching in later pregnancy needs a blood test for cholestasis');
+ }
+ return null;
+}
+const feverSaid=()=>/fever|temperature|\btemp\b|feels? (very )?hot|hot to (the )?touch|burning up|febrile|\b(100\.[4-9]|10[1-6](\.\d)?)\s*(°|deg|f\b)|\b3[89](\.\d)?\s*(°|deg|c\b)/i.test(state.freeText||'')||((state.intake||{}).assoc||[]).includes('Fever or chills');
+// body-part words in the patient's own text name the area more reliably than topic matching
+const WHO_SYS=[['gi',/belly|abdom|stomach|tummy|cramp|pelvi|spotting|vaginal bleed|bleeding|vomit|throw(ing)? up|nausea|diarrh|poop|constipat/],['uti',/\bpee|urin|bladder|wee\b/],['head',/head ?ache|migraine|\bhead\b/],['ent',/\bears?\b|throat|tonsil|nose|sinus/],['eye',/\beyes?\b|vision|blurr/],['resp',/cough|breath|wheez|chest cold/],['skin',/rash|itch|spots|hives|blister|skin/],['msk',/knee|hip|limp|\blegs?\b|ankle|joint|\bback\b|arm|shoulder/],['cv',/chest pain|heart|palpit|swollen (leg|ankle|feet|hands|face)|swelling/],['nv',/dizz|numb|faint|tingl|vision change/]];
+const whoSys=t=>{ const s=(t||'').toLowerCase(); const h=WHO_SYS.find(([,re])=>re.test(s)); return h?h[0]:''; };
+// the extra conditions for this person in this area: [{name,danger}]
+function whoExtras(sys){
+ if(who.kind==='adult'||!who.band) return [];
+ const T=POP[who.kind]||{}, out=[];
+ [...(T[sys]||[]),...(T['*']||[])].forEach(([name,d,bands])=>{ if(bands.includes(who.band)&&DXMAP[name]&&!out.some(x=>x.name===name)) out.push({name,danger:!!d}); });
+ return out;
+}
+// merge into a node's ranked list: common ones join as "Consider", must-not-miss ones are flagged
+// conditions of adult life, hidden for children (teens keep sexual-health ones); asthma is not diagnosed in babies
+const ADULT_ONLY=/malignan|cancer|carcinoma|lymphoma|myeloma|pemphigoid|prostat|giant cell|polymyalgia|COPD|atrial fib|atrial flutter|heart failure|heart attack|coronary|angina|aortic|stroke|\bTIA\b|vertebral fracture|osteopor|catheter|spondyl|degenerat|menopaus|erectile|presbyop|cataract|glaucoma|macular|diabetic|medication-overuse|hypertensi|white.coat|syphilis|\bSTI\b|urethritis/i;
+const whoHide=name=>who.kind==='child'&&(who.band==='12y17'?ADULT_ONLY.test(name)&&!/syphilis|\bSTI\b|urethritis/i.test(name):ADULT_ONLY.test(name)||(['u3m','3m2y'].includes(who.band)&&/asthma|migraine|strain|disc/i.test(name)));
+function whoRanked(rk,lv,sys){
+ const ex=whoExtras(sys);
+ let R0=(rk||[]).slice(), L0=(lv||R0.map((_,i)=>i===0?3:2)).slice();
+ if(who.kind==='child'){ const keep=R0.map(x=>!whoHide(x.replace(/^!/,''))); R0=R0.filter((_,i)=>keep[i]); L0=L0.filter((_,i)=>keep[i]); if(L0.length&&!R0[0].startsWith('!')) L0[0]=Math.max(L0[0],3); }
+ if(!ex.length) return {rk:R0,lv:L0,added:{}};
+ const names=R0.map(x=>x.replace(/^!/,'')), R=R0.slice(), L=L0.slice(), added={};
+ ex.forEach(x=>{ const i=names.indexOf(x.name);
+  if(i>=0){ if(x.danger&&!R[i].startsWith('!')) R[i]='!'+R[i]; return; }
+  R.push((x.danger?'!':'')+x.name); L.push(x.danger?0:2); added[x.name]=1; });
+ return {rk:R,lv:L,added};
+}
+const whoAddedWhy=()=>'Added because this is for '+(who.kind==='child'?(who.band==='u3m'?'a baby under 3 months':who.band==='12y17'?'a teenager':'a child aged '+whoLabel().replace(/^child, /i,'')):'someone who is pregnant ('+whoLabel().replace(/^pregnant, /i,'')+')')+'.';
+// group-specific "get help now" callout (information, not a checklist)
+function whoCallout(){
+ if(who.kind==='preg') return `<div class="callout danger whonote"><span class="ci">${ICON.alert}</span><div><h4>Call your maternity unit or OB now if</h4><p>You have vaginal bleeding or fluid leaking, fewer baby movements (after 24 weeks), severe belly pain, a severe headache or vision changes, or sudden swelling of your face or hands. In an emergency, call 911.</p></div></div>`;
+ if(who.kind==='child') return `<div class="callout danger whonote"><span class="ci">${ICON.alert}</span><div><h4>Get help right away if your child</h4><p>Is breathing hard or fast, or the skin between the ribs sucks in; is very sleepy, floppy or hard to wake; has a rash that does not fade when you press a glass on it; has had no pee or wet diaper for 8 hours${who.band==='u3m'?'; or has a temperature of 100.4°F (38°C) or higher':''}. In an emergency, call 911.</p></div></div>`;
+ return '';
+}
+function whoMedNote(){
+ return who.kind==='child'?'Ask your child’s clinician or a pharmacist before giving any medicine: doses depend on weight, and some adult medicines are not safe for children. Never give aspirin to anyone under 18.'
+  :who.kind==='preg'?'Ask your clinician, midwife or pharmacist before taking any medicine while pregnant. Acetaminophen is usually preferred; avoid ibuprofen, naproxen and aspirin unless your clinician says otherwise.':'';
+}
+function whoBring(){
+ return who.kind==='child'?['Your child’s weight, and their vaccination record',...(['u3m','3m2y'].includes(who.band)?['How many wet diapers in the last 24 hours, and how much they are drinking']:[]),'Their temperature readings, with times']
+  :who.kind==='preg'?['How many weeks pregnant you are, and your prenatal record','Any recent blood pressure readings']:[];
+}
+// guess the group from the patient's own words ("my 4 year old", "I'm 30 weeks pregnant")
+function whoFromText(t){
+ const s=(t||'').toLowerCase();
+ if(/\bpregnan|\bweeks? along\b|\bexpecting\b/.test(s)){ const w=s.match(/(\d{1,2})\s*(?:weeks?|wks?)\b/); return {kind:'preg',band:w?(+w[1]>=20?'ge20':'lt20'):null}; }
+ const m=s.match(/\b(\d{1,2})[\s-]*(day|days|week|weeks|wk|wks|month|months|mo|mos|year|years|yr|yrs|y\/?o)\b[\s-]*(old)?/);
+ const kid=/\b(my|our)\s+(son|daughter|kid|child|baby|toddler|infant|newborn|boy|girl)\b|\bnewborn\b/.test(s);
+ if(m&&(m[3]||kid)){ const n=+m[1], u=m[2][0]; const months=u==='d'?n/30:u==='w'?n/4.3:u==='m'?n:n*12;
+  if(months<216) return {kind:'child',band:months<3?'u3m':months<24?'3m2y':months<144?'2y11':'12y17'}; }
+ if(kid) return {kind:'child',band:/newborn/.test(s)?'u3m':/\b(baby|infant|toddler)\b/.test(s)?null:null};
+ return null;
+}
+function whoPicker(note){
+ const seg=[['adult','Me'],['child','My child'],['preg','I’m pregnant']];
+ const bands=who.kind==='adult'?'':`<div class="bands" role="group" aria-label="${who.kind==='child'?'Your child’s age':'How far along'}"><p class="bq">${who.kind==='child'?'How old is your child?':'How far along are you?'}</p>${WHO_BANDS[who.kind].map(([k,l])=>`<button type="button" class="chip" data-b="${k}" aria-pressed="${who.band===k}">${esc(l)}</button>`).join('')}</div>`;
+ return `<section class="who${note?' nudge':''}" id="who"><p class="homecap">Who is this for?</p>
+  <div class="seg" role="group" aria-label="Who is this for">${seg.map(([k,l])=>`<button type="button" data-w="${k}" aria-pressed="${who.kind===k}">${l}</button>`).join('')}</div>${bands}
+  ${note?`<p class="whonudge">${esc(note)}</p>`:''}</section>`;
+}
+function wireWho(rerender){
+ app.querySelectorAll('.who [data-w]').forEach(b=>b.onclick=()=>{ const k=b.dataset.w; if(who.kind!==k) who={kind:k,band:null}; rerender(); });
+ app.querySelectorAll('.who [data-b]').forEach(b=>b.onclick=()=>{ who.band=b.dataset.b; rerender(); });
+}
+
 const DEBUG=/[?&]debug\b/.test(location.search);
 const app=document.getElementById('app'), traceEl=document.getElementById('trace'), progEl=document.getElementById('prog');
 let state={trace:[],sys:null,depth:0,skinNext:null,gateHits:[],freeText:'',freeFlags:{},intake:{}};
@@ -506,7 +660,9 @@ function route(id){
  if(id==='@skinNext') return route(state.skinNext);
  if(id.startsWith('ask:')){ const sp=id.slice(4),g=sp.indexOf('>'),field=sp.slice(0,g),next=sp.slice(g+1); return profileKnows(field)?route(next):navTo(()=>renderAsk(field,next),'a'); }
  // every non-emergency result passes the one-tap red-flag check first
- if(N[id]) return (N[id].tier!=='emergent'&&!/^T-GATE-/.test(id))?navTo(()=>renderCheck(id),'c'):navTo(()=>renderTerminal(id),'t');
+ if(N[id]){ if(REDFLAG_CHECK&&N[id].tier!=='emergent'&&!/^T-GATE-/.test(id)) return navTo(()=>renderCheck(id),'c');
+  if(id==='T-HANDOFF-GENERIC') return navTo(()=>renderIntake(0,id),'i');
+  return navTo(()=>renderTerminal(id),'t'); }
  if(STEPS[id]) return navTo(()=>renderStep(id),'q');
  route('T-HANDOFF-GENERIC');
 }
@@ -661,7 +817,7 @@ const CHEV='<svg class="chev" viewBox="0 0 20 20" aria-hidden="true"><path d="M7
 const CHECK='<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.4 10.3l2.4 2.4 4.8-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const backBtn=(label)=>`<button class="back" id="bk"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5L7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(label||'Back')}</button>`;
 const sysIcon=()=>ICON[(SYSTEMS.find(s=>s.id===state.sys)||{}).ic]||'';
-const ctx=(right)=>`<div class="ctx"><span class="ctx-ic">${sysIcon()}</span><span class="ctx-s">${esc(sysName())}</span>${right?`<span class="ctx-n">${esc(right)}</span>`:''}</div>`;
+const ctx=(right)=>`<div class="ctx"><span class="ctx-ic">${sysIcon()}</span><span class="ctx-s">${esc(sysName())}</span>${whoShort()?`<span class="whotag">${esc(whoShort())}</span>`:''}${right?`<span class="ctx-n">${esc(right)}</span>`:''}</div>`;
 const optBtn=(attrs,t,s)=>`<button class="opt" ${attrs}><span class="opt-body"><span class="opt-t">${esc(t)}</span>${s?`<span class="opt-s">${esc(s)}</span>`:''}</span>${CHEV}</button>`;
 /* How each urgency level is presented: one clear action first (after the NHS care-card pattern). */
 const CARE={
@@ -698,13 +854,17 @@ function renderHome(){
    <p class="lede">A few quick questions. You'll get a clear next step and a summary to bring to your appointment.</p>
    <ul class="trust"><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>About 2 minutes</li><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7"/></svg>Stays on this device</li><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5l5 2v3.6c0 3-2.2 5-5 5.9-2.8-.9-5-2.9-5-5.9V4.5z"/></svg>Not a diagnosis</li></ul>
   </section>
+  ${whoPicker(renderHome.nudge)}
   <p class="homecap">Choose an area</p>
   <div class="sysgrid">${SYSTEMS.map((s,i)=>`<button class="sys${s.id==='gu'?' else':''}" data-i="${i}">
     <span class="ic">${ICON[s.ic]||''}</span>
     <span class="tx"><span class="st">${esc(s.t)}</span><span class="ss">${esc(s.s)}</span></span>${CHEV}</button>`).join('')}</div>
  </div>`;
- app.querySelectorAll('.sys').forEach(b=>b.onclick=()=>{const s=SYSTEMS[+b.dataset.i];go(s.go,'SYS:'+s.id.toUpperCase())});
- scroll();
+ wireWho(()=>{ const y=scrollY; renderHome.nudge=''; renderHome(); scrollTo(0,y); });
+ app.querySelectorAll('.sys').forEach(b=>b.onclick=()=>{
+  if(who.kind!=='adult'&&!who.band){ renderHome.nudge=who.kind==='child'?'Choose your child’s age first, so the questions and advice fit.':'Choose how far along you are first, so the advice fits.'; renderHome(); document.getElementById('who').scrollIntoView({block:'center'}); return; }
+  renderHome.nudge=''; const s=SYSTEMS[+b.dataset.i];go(s.go,'SYS:'+s.id.toUpperCase()+(who.kind!=='adult'?':'+who.kind.toUpperCase()+'-'+who.band:''))});
+ if(!renderHome.keep) scroll(); renderHome.keep=false;
 }
 
 /* Red-flag check: one tap, shown right before any non-emergency result
@@ -767,6 +927,9 @@ function renderTerminal(id){
  if(n.amplify){ let mb=0; amplifiers().forEach(a=>{ if(n.amplify[a.k]){ mb=Math.max(mb,n.amplify[a.k]); bumpReasons.push(a.label);} }); if(mb>0) tierId=bumpTier(n.tier,mb); }
  let hxWhy=[];
  if(id==='T-HANDOFF-GENERIC'){ const r=intakeEscalation(); hxWhy=r.why; if(TIER_ORDER.indexOf(r.tier)>TIER_ORDER.indexOf(tierId)) tierId=r.tier; }
+ const wsys=(state.sys&&state.sys!=='gu')?state.sys:(whoSys(state.freeText)||(FTM.analyze(state.freeText||'').ranked.find(r=>r.id!=='host')||{}).id||'');
+ let whoWhy=''; const wf=/^T-GATE-/.test(id)?null:whoFloor(wsys);
+ if(wf&&TIER_ORDER.indexOf(wf.tier)>TIER_ORDER.indexOf(tierId)){ tierId=wf.tier; whoWhy=wf.why; }
  const t=TIERS[tierId], care=Object.assign({},CARE[tierId],n.title?{title:n.title}:{},n.icon?{ic:n.icon}:{});
  push('NODE:'+id);
  progEl.style.width='100%';
@@ -778,6 +941,9 @@ function renderTerminal(id){
  if(generic){ const fd=freeDx(state.freeText,state.intake); state.fdx=fd; rk=fd.map(x=>(x.danger?'!':'')+x.name); lv=fd.map(x=>x.lvl); fd.forEach(x=>fdBy[x.name]=x);
   if(fd.length) why0='Your answers don’t fit one of this tool’s question paths, so we matched your own words and history against the conditions it knows. The list below is a starting point for your clinician, not a diagnosis. If anything feels urgent, contact a clinician today, or call 911 in an emergency.';
   else if(state.freeText) dx=`<section class="sec"><h3>What this could be</h3><p class="note">What you described didn’t match the conditions this tool knows closely enough to list any. That doesn’t make it more or less serious. Your clinician will work it out with you, using the history above.</p></section>`; }
+ const wr=/^T-GATE-/.test(id)?{rk,lv,added:{}}:whoRanked(rk,lv,wsys); rk=wr.rk; lv=wr.lv; const whoAdded=wr.added;
+ if(generic&&!(state.fdx||[]).length&&Object.keys(whoAdded).length) why0='Your answers don’t fit one of this tool’s question paths, so the list below shows what a clinician will want to consider first for '+(who.kind==='child'?'a child this age':'someone who is pregnant')+', with your symptoms in mind. It is a starting point, not a diagnosis. If anything feels urgent, contact a clinician today, or call 911 in an emergency.';
+ state.lastDx={id,rk:rk||[],lv:lv||null,added:whoAdded};
  if(rk&&rk.length){
   const r=rk,last=r.length-1;
   const rows=r.map((x,i)=>{
@@ -786,7 +952,7 @@ function renderTerminal(id){
    const lk=danger?`<span class="lk"><span class="flagdot" aria-hidden="true"></span>Must not miss</span>`
      :`<span class="lk"><span class="meter" aria-hidden="true">${[1,2,3].map(k=>`<i${k<=lvl?' class="on"':''}></i>`).join('')}</span>${lbl}</span>`;
    return `<li${danger?' class="mnm"':''}><button class="dxbtn" aria-expanded="false" aria-controls="dxi-${i}"><span class="nm">${esc(name)}</span>${lk}${CHEV}</button>
-    <div class="dxi" id="dxi-${i}" hidden>${fdBy[name]?`<p class="dxwhy"><b>Why it’s on your list.</b> ${fdWhy(fdBy[name],true)}</p>`:''}${dxPanel(INFO[DXMAP[name]],danger)}</div></li>`;
+    <div class="dxi" id="dxi-${i}" hidden>${whoAdded[name]?`<p class="dxwhy"><b>Why it’s on your list.</b> ${esc(whoAddedWhy())}</p>`:''}${fdBy[name]?`<p class="dxwhy"><b>Why it’s on your list.</b> ${fdWhy(fdBy[name],true)}</p>`:''}${dxPanel(INFO[DXMAP[name]],danger)}</div></li>`;
   }).join('');
   dx=generic?`<section class="sec"><h3>What this could be, based on what you told us</h3><ul class="dx">${rows}</ul>
    <p class="dxnote">Best match first, matched from your own words and history. Must not miss means it has to be ruled out, even if unlikely. Tap any condition to see what it is and why it’s listed.</p></section>`
@@ -802,12 +968,13 @@ function renderTerminal(id){
    :(ff.emerg&&tierId!=='emergent')?callout('danger','alert','You mentioned something that can be an emergency','If it is happening now, call 911 or go to the ER.'):'';
  const tsub=tierId==='handoff'?'<p class="tsub">Nothing here needs same-day care. That is not the same as ruling anything out.</p>':'';
  const amp=bumpReasons.length?callout('amber','alert','Raised because of your health history',`You told us about ${bumpReasons.join(', ')}. For someone with that, a problem like this should be looked at sooner, so the urgency above has been raised. It is never lowered.`):'';
+ const whoAmp=whoWhy?callout('amber','alert','Raised for '+(who.kind==='child'?'a child':'pregnancy'),`Because ${whoWhy}, the urgency above has been raised. It is never lowered.`):'';
  const hxAmp=hxWhy.length?callout('amber','alert','Raised because of what you told us',`Because ${hxWhy.join(', and ')}, the urgency above has been raised. It is never lowered.`):'';
  const hx=id==='T-HANDOFF-GENERIC'?hpiSection():'';
  const warn=n.warnList?`<div class="callout amber warn"><span class="ci">${ICON.alert}</span><div><h4>Get care today if any of these apply</h4><ul class="wl">${n.warnList.map(w=>`<li>${esc(w)}</li>`).join('')}</ul><p class="wl-f">If it feels severe, call 911.</p></div></div>`
   :n.warn?callout('amber warn','alert','Please note',n.warn):'';
- const cm=CANTMISS[id]?callout('danger cantmiss','alert','Don’t miss this',CANTMISS[id]):'';
- const bringList=(n.bring||[]).concat(amplifiers().map(a=>'That you have '+a.label));
+ const cm=(CANTMISS[id]&&!(who.kind==='child'&&whoHide(CANTMISS[id])))?callout('danger cantmiss','alert','Don’t miss this',CANTMISS[id]):'';
+ const bringList=(n.bring||[]).concat(amplifiers().map(a=>'That you have '+a.label),whoBring());
  const bring=bringList.length?`<section class="sec"><h3>Get ready for your visit</h3><ul class="todo">${bringList.map(x=>`<li>${CHECK}<span>${esc(x)}</span></li>`).join('')}</ul>
    ${state.sys==='skin'?`<h4 class="sub">Take three photos</h4>
    <div class="photoguide"><figure class="pg">${PG.wide}<figcaption>The whole area</figcaption></figure><figure class="pg">${PG.close}<figcaption>Close and in focus</figcaption></figure><figure class="pg">${PG.scale}<figcaption>A coin for scale</figcaption></figure></div>
@@ -824,7 +991,7 @@ function renderTerminal(id){
    <div class="care-b"><p class="why">${esc(why0)}</p>${tsub}${call}${hits}</div>
   </section>
   ${carry}${state.freeText?`<div class="callout plain words"><span class="ci">${ICON.doctor}</span><div><h4>In your words</h4><p>“${esc(state.freeText)}”</p><p class="fine">Show this to your clinician.</p></div></div>`:''}
-  ${amp}${hxAmp}${hx}${warn}${dx}${cm}${bring}${safety}${clin}
+  ${/^T-GATE-/.test(id)?'':whoCallout()}${amp}${whoAmp}${hxAmp}${hx}${warn}${dx}${cm}${bring}${safety}${clin}
   <button class="restart" id="again">Start over</button>
  </div>`;
  document.getElementById('bk').onclick=back;
@@ -846,7 +1013,9 @@ function dxPanel(f,danger){
  const care=(danger&&f.care==='otc')?'doc':f.care;
  let h=`<p class="ab">${esc(f.about)}</p>`;
  if(f.signs.length) h+=`<h5>Common signs</h5><ul class="sg">${f.signs.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`;
- if(care==='otc') h+=`<h5>What can help at home</h5><ul class="sg">${f.act.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
+ const medSafe=who.kind==='adult'||(who.kind==='child'&&f.kids)||(who.kind==='preg'&&f.preg);
+ if(care==='otc'&&!medSafe) h+=`<h5>What can help at home</h5><p class="needs"><b>${who.kind==='child'?'For a child:':'In pregnancy:'}</b> ${esc(whoMedNote())}</p>`;
+ else if(care==='otc') h+=`<h5>What can help at home</h5><ul class="sg">${f.act.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
    <p class="fine">Check with a pharmacist first if you take other medicines, are pregnant, or have kidney, liver, heart, or stomach problems. Follow the package directions.</p>`;
  else h+=`<p class="needs ${care}"><b>${care==='er'?'Needs emergency care.':'Needs a clinician.'}</b> ${esc(Array.isArray(f.act)?'This one has to be ruled out by an examination before any home treatment.':f.act)}</p>`;
  h+=`<a class="ml" href="${ML+encodeURIComponent(f.ml)}" target="_blank" rel="noopener">Read more on MedlinePlus</a>`;
@@ -870,6 +1039,7 @@ function renderFree(){
   state.freeText=document.getElementById('ft').value.trim();
   const a=FTM.analyze(state.freeText);
   state.freeFlags={emerg:a.emerg,crisis:a.crisis};
+  renderSuggest.noted=false; const wg=whoFromText(state.freeText); if(wg&&(who.kind!==wg.kind||(wg.band&&who.band!==wg.band))){ who={kind:wg.kind,band:wg.band||null}; renderSuggest.noted=true; }
   push('FREE:'+state.freeText.length+(a.crisis?':CRISIS':a.emerg?':EMERG':'')+':'+(a.ranked.map(r=>r.id).join('+')||'NOMATCH'));
   navTo(()=>renderSuggest(a),'f');
  };
@@ -883,7 +1053,7 @@ function renderSuggest(a){
  const emerg=(!a.crisis&&a.emerg)?`<div class="callout danger"><span class="ci">${ICON.alert}</span><div><h4>Some of what you wrote can be an emergency</h4>
    <p>If it is happening now, call 911 or go to the ER.</p><a class="call" href="tel:911">Call 911</a></div></div>`:'';
  const byId=Object.fromEntries(AREAS.map(x=>[x.id,x]));
- const shown=a.ranked.slice(0,4).map(r=>byId[r.id]).filter(Boolean), rest=AREAS.filter(x=>!shown.includes(x));
+ const shown=a.ranked.filter(r=>r.id!=='host').slice(0,4).map(r=>byId[r.id]).filter(Boolean), rest=AREAS.filter(x=>x.id!=='host'&&!shown.includes(x));
  const fin=a.crisis?'T-GATE-CRISIS':a.emerg?'T-GATE-EMERGENT':'T-HANDOFF-GENERIC';
  const none=`<div class="opts">${optBtn(`data-go="${fin}"`,'None of these fit',a.crisis?'Get support now':a.emerg?'Get emergency advice':'A clinician will go through it with you')}</div>`;
  const picked=a.picked.length?`<p class="picked"><span>We picked up</span>${a.picked.slice(0,6).map(w=>`<b>${esc(w)}</b>`).join('')}</p>`:'';
@@ -893,12 +1063,14 @@ function renderSuggest(a){
    <details class="allareas"><summary>${CHEV}<span>Not right? See every area</span></summary><div class="opts">${rest.map(x=>areaBtn(x,'all')).join('')}</div></details>`
   :a.crisis?`<button class="primary support" data-go="T-GATE-CRISIS">Get support now</button>
    <h2 class="also">Is there also a physical problem?</h2><p class="lede">If so, pick the closest area.</p>
-   <div class="opts">${AREAS.map(x=>areaBtn(x,'all')).join('')}</div>`
+   <div class="opts">${AREAS.filter(x=>x.id!=='host').map(x=>areaBtn(x,'all')).join('')}</div>`
   :`<h2>Which area is closest?</h2><p class="lede">${state.freeText?'We couldn’t tell from what you wrote. Pick the closest, or go back and add a few more words.':'Pick the closest.'}</p>
-   <div class="opts">${AREAS.map(x=>areaBtn(x,'all')).join('')}</div>`;
- app.innerHTML=`<div class="step suggest">${backBtn()}${ctx('In your own words')}${crisis}${emerg}${body}${none}</div>`;
+   <div class="opts">${AREAS.filter(x=>x.id!=='host').map(x=>areaBtn(x,'all')).join('')}</div>`;
+ const wp=(renderSuggest.noted||who.kind!=='adult')?whoPicker(who.kind!=='adult'&&!who.band?(who.kind==='child'?'Choose your child’s age so the questions and advice fit.':'Choose how far along you are.'):(renderSuggest.noted?'We picked this up from what you wrote. Change it if it’s wrong.':'')):'';
+ app.innerHTML=`<div class="step suggest">${backBtn()}${ctx('In your own words')}${crisis}${emerg}${wp}${body}${none}</div>`;
  document.getElementById('bk').onclick=back;
- app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go,'SUGGEST:'+(b.dataset.id||b.dataset.go).toUpperCase()));
+ wireWho(()=>{ const y=scrollY; renderSuggest(a); scrollTo(0,y); });
+ app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ if(who.kind!=='adult'&&!who.band){ document.getElementById('who').scrollIntoView({block:'center'}); document.getElementById('who').classList.add('nudge'); return; } go(b.dataset.go,'SUGGEST:'+(b.dataset.id||b.dataset.go).toUpperCase()); });
  scroll();
 }
 /* After free text, gently mark the one option whose wording matches the
@@ -1025,6 +1197,7 @@ function makeFreeDx(C,FTM){
   (JSON.stringify(s).match(/[A-Za-z0-9_\-]+/g)||[]).forEach(t=>{ if(t!==id&&(N[t]||STEPS[t])) walk(t,sys); }); };
  Object.entries(SYS_ENTRY).forEach(([sys,e])=>{ if(STEPS[e]) walk(e,sys); });
  FT.T.forEach(t=>{ if(N[t.go]) walk(t.go,t.id); });
+ if(typeof POP!=='undefined') Object.values(POP).forEach(G=>Object.entries(G).forEach(([sys,L])=>L.forEach(([nm])=>{ const k=DXMAP[nm]; if(k&&sys!=='*') (area[k]=area[k]||new Set()).add(sys); })));
  Object.values(N).forEach(n=>(n.ranked||[]).forEach(r=>{ if(r[0]==='!'&&DXMAP[r.slice(1)]) danger.add(DXMAP[r.slice(1)]); }));
  keys.forEach(k=>{ if(INFO[k].care==='er') danger.add(k); });
  const docLoc={}; keys.forEach(k=>docLoc[k]=locOf([...doc[k].keys()]));
@@ -1042,7 +1215,7 @@ function makeFreeDx(C,FTM){
   'Fever or chills':'fever chills','Nausea or vomiting':'nausea vomiting','Diarrhea or constipation':'diarrhea constipation bowel','Cough':'cough',
   'Rash or skin change':'rash redness','Swelling':'swelling swollen','Numbness or weakness':'numbness weakness','Dizziness':'dizziness dizzy lightheaded vertigo',
   'Weight loss without trying':'weight loss','Night sweats':'night sweats','Very tired':'tired fatigue tiredness','Low mood or worry':'mood worry anxiety low',
-  'Moving':'movement moving','Eating':'eating meal food','Over-the-counter pain medicine':'painkiller','Nothing has helped':'persistent','Walking or exercise':'exercise walking exertion','Lying down':'lying down night','Breathing in deeply':'breathing deep breath inspiration',
+  'Moving':'movement moving','Eating':'eating meal food','Nothing has helped':'persistent','Walking or exercise':'exercise walking exertion','Lying down':'lying down night','Breathing in deeply':'breathing deep breath inspiration',
   'Touch or pressure':'tender tenderness touch','Rest':'rest','Heat or ice':'heat ice','Eating, or an antacid':'antacid food','Changing position':'position posture'};
  const LABEL={trigger:'set off by',quality:'feels',spread:'',pattern:'',trend:'',assoc:'with',worse:'worse with',better:'better with',when:'started',how:'started'};
  return function freeDx(text,A){
@@ -1055,7 +1228,10 @@ function makeFreeDx(C,FTM){
   const hasText=q.some(x=>!x.chip), qLoc=locOf(q.filter(x=>!x.chip).map(x=>x.s));
   const aset=new Set(ar.filter(a=>a.score>=.6*atop).map(a=>a.id));
   const score={};
-  keys.forEach(k=>{ const d=doc[k]; let sc=0; const hit=new Map();
+  const popOK=k=>!(INFO[k].kids&&who.kind!=='child')&&!(INFO[k].preg&&who.kind!=='preg');
+  const popD=new Set(); Object.values(POP[who.kind]||{}).forEach(L=>L.forEach(([nm,dg])=>{ if(dg&&DXMAP[nm]) popD.add(DXMAP[nm]); }));
+  popD.forEach(k=>danger.add(k));
+  keys.forEach(k=>{ if(!popOK(k)||(names[k]||[]).some(whoHide)) return; const d=doc[k]; let sc=0; const hit=new Map();
    const byS=new Map();                     // each word counts once, typed beats tapped
    q.forEach(x=>{ const w=d.get(x.s); if(!w) return; const v=idf(x.s)*(x.chip?.7*Math.min(w,1):w); // a tapped answer matching a condition's name is not a diagnosis
     if(!byS.has(x.s)||byS.get(x.s).v<v) byS.set(x.s,{v,x}); });
@@ -1241,10 +1417,10 @@ function rpData(id){
  const tier=care?(TIER_ORDER.find(t=>care.classList.contains(t))||n.tier):n.tier;
  const ct=app.querySelector('.care-t');
  const title=ct?[...ct.childNodes].filter(x=>!(x.classList&&x.classList.contains('sr'))).map(x=>x.textContent).join('').trim():(TIERS[tier]||{}).label;
- const fd=id==='T-HANDOFF-GENERIC'?(state.fdx||[]):null;
- const r=fd?fd.map(x=>(x.danger?'!':'')+x.name):(n.ranked||[]), last=r.length-1;
- const ranked=r.map((x,i)=>{ const danger=x.startsWith('!'), name=danger?x.slice(1):x, lvl=fd?fd[i].lvl:n.lvls?n.lvls[i]:(i===0?3:(i===last&&r.length>2?1:2)), f=INFO[DXMAP[name]];
-  return {name,danger,lvl,label:danger?'Must not miss':['','Less likely','Consider','Most likely'][lvl],about:about1(name),ml:f?f.ml:'',why:fd?fdWhy(fd[i],false):''}; });
+ const fd=id==='T-HANDOFF-GENERIC'?(state.fdx||[]):null, LD=(state.lastDx&&state.lastDx.id===id)?state.lastDx:null;
+ const r=LD?LD.rk:fd?fd.map(x=>(x.danger?'!':'')+x.name):(n.ranked||[]), last=r.length-1;
+ const ranked=r.map((x,i)=>{ const danger=x.startsWith('!'), name=danger?x.slice(1):x, lvl=LD&&LD.lv?LD.lv[i]:fd?fd[i].lvl:n.lvls?n.lvls[i]:(i===0?3:(i===last&&r.length>2?1:2)), f=INFO[DXMAP[name]];
+  return {name,danger,lvl,label:danger?'Must not miss':['','Less likely','Consider','Most likely'][lvl],about:about1(name),ml:f?f.ml:'',why:LD&&LD.added[name]?whoAddedWhy():(fd&&fd.find(z=>z.name===name))?fdWhy(fd.find(z=>z.name===name),false):''}; });
  const answers=screenStack.filter(e=>e.ans).map(e=>e.ans);
  const hpi=Object.keys(state.intake||{}).length?hpiRows().filter(x=>x.text):[];
  const screened=[...GATE_UNIVERSAL,...(GATE_EXTRA[state.sys]||[])].map(x=>x[1]), host=HOST.map(x=>x[1]);
@@ -1254,42 +1430,45 @@ function rpData(id){
  const now=new Date();
  return {id,tier,tierLabel:(TIERS[tier]||{}).label||tier,title,why:(app.querySelector('.care .why')||{}).textContent||n.why||'',fromFree:!!fd,area:sysName()||'General',freeText:state.freeText||'',
   answers,hpi,screened,host,cleared,positives:(/^T-GATE-/.test(id)?state.gateHits:[]),risk,ampl,ranked,
-  warn:n.warn||'',warnList:n.warnList||null,cantmiss:CANTMISS[id]||'',bring:(n.bring||[]).concat(amplifiers().map(a=>'That you have '+a.label)),
+  warn:n.warn||'',warnList:n.warnList||null,cantmiss:(CANTMISS[id]&&!(who.kind==='child'&&whoHide(CANTMISS[id])))?CANTMISS[id]:'',bring:(n.bring||[]).concat(amplifiers().map(a=>'That you have '+a.label),whoBring()),whoLabel:whoLabel(),raised:[...app.querySelectorAll('.callout')].filter(c=>/^Raised/.test((c.querySelector('h4')||{}).textContent||'')).map(c=>{ let t=((c.querySelector('p')||{}).textContent||'').replace(/,? (so )?the urgency above has been raised\. It is never lowered\./,'.').replace(/^Because /,'').trim(); return t.charAt(0).toUpperCase()+t.slice(1); }),whoAlert:(w=>w?w.querySelector('h4').textContent+': '+w.querySelector('p').textContent.replace(/^You/,'you').replace(/^Is/,'is'):'')(app.querySelector('.whonote')),
   distinguish:n.distinguish||'',source:SOURCE[id]?SOURCE[id].c:'',provisional:id==='T-BESTGUESS',
   stoppedAt:id==='T-BESTGUESS'?((n.distinguish||'').match(/“(.+)”/)||[])[1]||'':'',
   now,dateStr:now.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),
   stamp:now.toISOString().slice(0,10)};
 }
 
+const clinWhy=w=>(w||'').replace(/^You wrote/,'Patient wrote').replace(/Your history:/,'History:').replace(/It fits the/,'Fits the').replace(/^Added because this is for /,'Added for ');
+const clinArea=d=>d.area==='Something else'?'Free text (no pathway matched)':d.area;
 function rpNote(d){
- const L=[];
- L.push('PATIENT-REPORTED INTAKE - üMed (demo '+VERSION+')');
- L.push('Generated '+d.now.toLocaleString()+'. Unverified patient self-report; not a diagnosis.');
- L.push('');
- L.push('CHIEF CONCERN: '+d.area);
- if(d.freeText) L.push('  Patient\'s words: "'+d.freeText+'"');
- if(d.answers.length){ L.push(''); L.push('HISTORY (patient responses):'); d.answers.forEach(a=>L.push('  - '+a.q+' -> '+a.a)); }
- if(d.hpi.length){ L.push(''); L.push('STRUCTURED HPI (OPQRST-AAA):'); d.hpi.forEach(h=>L.push('  '+h.L+' - '+h.label+': '+h.text)); }
- L.push('');
- if(d.positives.length) L.push('RED-FLAG SCREEN: POSITIVE - '+d.positives.join('; '));
- else if(d.cleared) L.push('RED-FLAG SCREEN: denied all of: '+d.screened.join('; ')+'. Also denied: '+d.host.join('; ')+'.');
- else L.push('RED-FLAG SCREEN: not completed.');
- if(d.risk.length) L.push('RISK FACTORS ASKED: '+d.risk.map(r=>r.q+' '+(r.yes?'YES (or unsure)':'no')).join('; '));
- L.push('');
- L.push('SELF-TRIAGE RESULT: '+d.tierLabel.toUpperCase()+' - '+d.title+(d.ampl.length?' [raised because of '+d.ampl.join(', ')+']':''));
- if(d.provisional) L.push('  PROVISIONAL: patient stopped before completing the pathway'+(d.stoppedAt?' (at "'+d.stoppedAt+'")':'')+'; differential pooled from the remaining branches.');
- if(d.ranked.length){ L.push(''); L.push('TOOL DIFFERENTIAL (most common first; unverified):');
-  if(d.fromFree) L[L.length-1]='TOOL DIFFERENTIAL (matched from free text + OPQRST-AAA answers; best match first; unverified):';
-  d.ranked.forEach((r,i)=>{ L.push('  '+(i+1)+'. '+r.name+' - '+(r.danger?'MUST NOT MISS':r.label.toLowerCase())); if(r.why) L.push('     matched: '+r.why); }); }
- if(d.warn||d.cantmiss){ L.push(''); L.push('CAUTIONS SHOWN TO PATIENT:'); if(d.warn) L.push('  - '+d.warn); if(d.cantmiss) L.push('  - '+d.cantmiss); }
- if(d.distinguish&&!d.provisional){ L.push(''); L.push('WHAT TELLS THESE APART: '+d.distinguish); }
- if(d.source){ L.push(''); L.push('EVIDENCE BASIS (draft, pending physician sign-off): '+d.source); }
+ const L=[], P=s=>L.push(s), gap=()=>{ if(L[L.length-1]!=='') L.push(''); }, H=t=>{ gap(); P(t.toUpperCase()); };
+ P('PATIENT-REPORTED INTAKE  |  üMed '+VERSION);
+ P('Generated: '+d.now.toLocaleString([], {dateStyle:'medium',timeStyle:'short'}));
+ P('Status: unverified patient self-report. Not a diagnosis.');
+ H('Triage'); P('  '+d.tierLabel+': '+d.title);
+ (d.raised||[]).forEach(r=>P('  Raised: '+r));
+ if(d.provisional) P('  Provisional: patient stopped early'+(d.stoppedAt?' (at "'+d.stoppedAt+'")':'')+'; pooled from the remaining branches.');
+ if(d.whoLabel){ H('Patient'); P('  '+d.whoLabel); }
+ H('Chief concern'); P('  Area: '+clinArea(d)); if(d.freeText) P('  In the patient\'s words: "'+d.freeText+'"');
+ if(d.hpi.length){ H('History of present illness (OPQRST-AAA)'); d.hpi.forEach(h=>P('  '+h.label+': '+h.text)); }
+ if(d.answers.length){ H('Patient responses'); d.answers.forEach(a=>P('  - '+a.q+' '+a.a)); }
+ H('Screening');
+ P('  Red flags: '+(d.positives.length?'POSITIVE - '+d.positives.join('; '):d.cleared?'denied all ('+d.screened.join('; ')+')':(REDFLAG_CHECK?'not completed':'not asked (screen switched off in this version)')));
+ if(d.risk.length) P('  Risk factors: '+d.risk.map(r=>r.q.replace(/\?$/,'')+': '+(r.yes?'yes or unsure':'no')).join('; '));
+ if(d.ranked.length){ H('Assessment: tool-generated differential (unverified)');
+  P('  '+(d.fromFree?'Matched from free text and history answers; best match first.':'Most common first.'));
+  d.ranked.forEach((r,i)=>{ P('  '+(i+1)+'. '+r.name+' ('+(r.danger?'MUST NOT MISS':r.label.toLowerCase())+')'); if(r.why) P('     Basis: '+clinWhy(r.why)); }); }
+ const caut=[...(d.whoAlert?[d.whoAlert]:[]),...(d.warnList?['Get care today if: '+d.warnList.join('; ')+'.']:d.warn?[d.warn]:[]),...(d.cantmiss?[d.cantmiss]:[])];
+ if(caut.length){ H('Cautions shown to the patient'); caut.forEach(c=>P('  - '+c)); }
+ if(d.id!=='T-HANDOFF-GENERIC'&&((d.distinguish&&!d.provisional)||d.source)){ H('Notes for the clinician');
+  if(d.distinguish&&!d.provisional) P('  What tells these apart: '+d.distinguish);
+  if(d.source) P('  Evidence basis (draft, physician sign-off pending): '+d.source); }
  return L.join('\n');
 }
 
 function rpFHIR(d,note){
  const it=(linkId,text,answer)=>({linkId,text,answer});
  const items=[it('area','Area of concern',[{valueString:d.area}])];
+ if(d.whoLabel) items.push(it('patient-group','Patient group',[{valueString:d.whoLabel}]));
  if(d.freeText) items.push(it('free-text','In the patient\'s words',[{valueString:d.freeText}]));
  d.answers.forEach((a,i)=>items.push(it('q'+(i+1),a.q,[{valueString:a.a}])));
  d.hpi.forEach(h=>items.push(it('hpi-'+h.L,h.label,[{valueString:h.text}])));
@@ -1352,7 +1531,7 @@ async function rpPDF(d,note,o={}){ const cp=!!o.compact;
  // next-step card
  const TC={emergent:[C.sig,C.white,C.sig],urgent:[C.sigBg,C.sig,[237,194,187]],prompt:[C.amberBg,C.amber,[230,205,142]],handoff:[C.seaBg,C.seaInk,[198,220,218]]}[d.tier]||[C.seaBg,C.seaInk,C.rule];
  font('bold',17); const tl=wrap(d.title,CW-32); font('normal',10.5); const wl=wrap(d.why,CW-32);
- const SAFE='Get help sooner if anything gets worse, anything new appears, you develop a fever, or something frightens you. In an emergency, call 911.';
+ const SAFE=d.whoAlert?d.whoAlert.replace(/\s+/g,' ').trim():'Get help sooner if anything gets worse, anything new appears, you develop a fever, or something frightens you. In an emergency, call 911.';
  font('normal',9); const sl=wrap(SAFE,CW-32); font('normal',10.5);
  const bandH=26+tl.length*LH(17)+8, bodyH=16+wl.length*LH(10.5)+(d.provisional?18:4)+10+sl.length*LH(9)+8;
  need(bandH+bodyH+16);
@@ -1369,7 +1548,7 @@ async function rpPDF(d,note,o={}){ const cp=!!o.compact;
 
  // what you told us
  h3('What you told us');
- const rows=[]; if(d.freeText) rows.push({q:'In your words',a:'"'+d.freeText+'"'});
+ const rows=[]; if(d.whoLabel) rows.push({q:'Who this is for',a:d.whoLabel}); if(d.freeText) rows.push({q:'In your words',a:'"'+d.freeText+'"'});
  d.answers.forEach(a=>rows.push(a)); d.hpi.forEach(h=>rows.push({q:h.label,a:h.text}));
  if(d.positives.length) rows.push({q:'Warning signs',a:d.positives.join('; ')});
  else if(d.cleared) rows.push({q:'Warning signs',a:'None of the emergency warning signs'});
@@ -1418,17 +1597,60 @@ async function rpPDF(d,note,o={}){ const cp=!!o.compact;
  if(y+66<H-58){ h3('Questions for my clinician'); let n=0; while(n<4&&y+22<H-60){ draw(C.rule); doc.setLineWidth(.6); doc.line(M,y+4,W-M,y+4); y+=22; n++; } }
 
  if(doc.getNumberOfPages()>1&&!cp) return rpPDF(d,note,{compact:true});
- // ---------- page 2: for the clinician / EMR ----------
+ // ---------- clinician summary: typeset from the same data as the note (real, selectable text) ----------
  sub='For the clinician';
- if(doc.getNumberOfPages()>1&&y<H*.55){ y+=24; draw(C.rule); doc.setLineWidth(.8); doc.line(M,y-22,W-M,y-22); } else { doc.addPage(); header(); }
- font('bold',15); ink(C.ink); doc.text('Patient-reported intake',M,y); y+=16;
- font('normal',9.5); ink(C.muted); wrap('Structured note generated from the patient\'s own answers. The text below is selectable - copy it into the chart. Not clinician-verified; not a diagnosis.',CW).forEach(l=>{ doc.text(l,M,y); y+=LH(9.5); });
- y+=10; fill([249,248,245]); draw(C.rule);
- const noteL=[]; note.split('\n').forEach(p=>{ font('normal',8.8,'courier'); const w=wrap(p,CW-24); (w.length?w:['']).forEach(x=>noteL.push(x)); });
- let i=0; while(i<noteL.length){ const room=Math.floor((H-58-y-16)/LH(8.8)); const take=Math.max(1,Math.min(room,noteL.length-i));
-  doc.roundedRect(M,y,CW,take*LH(8.8)+16,6,6,'FD'); font('normal',8.8,'courier'); ink(C.ink);
-  noteL.slice(i,i+take).forEach((l,k)=>doc.text(l,M+12,y+16+k*LH(8.8))); i+=take; y+=take*LH(8.8)+20;
-  if(i<noteL.length){ doc.addPage(); header(); fill([249,248,245]); draw(C.rule); } }
+ if(doc.getNumberOfPages()>1&&y<H*.5){ y+=30; draw(C.rule); doc.setLineWidth(.8); doc.line(M,y-26,W-M,y-26); } else { doc.addPage(); header(); }
+ font('bold',17); ink(C.ink); doc.text('Clinician summary',M,y);
+ font('bold',7); ink(C.sig); doc.text('PATIENT-REPORTED  |  NOT CLINICIAN-VERIFIED  |  NOT A DIAGNOSIS',W-M,y-1,{align:'right'});
+ y+=14; font('normal',8.5); ink(C.muted); doc.text(rpTxt('Generated '+d.now.toLocaleString([], {dateStyle:'medium',timeStyle:'short'})+' by üMed '+VERSION+' from the patient’s own answers. All text is selectable.'),M,y);
+ y+=24; draw([170,176,180]); doc.setLineWidth(.5); font('normal',8); ink(C.muted);
+ doc.text('Reviewed by',M,y); doc.line(M+52,y+1.5,M+300,y+1.5); doc.text('Date',M+316,y); doc.line(M+338,y+1.5,W-M,y+1.5); y+=16;
+ // key facts strip
+ const TC2={emergent:[C.sig,C.white],urgent:[C.sigBg,C.sig],prompt:[C.amberBg,C.amber],handoff:[C.seaBg,C.seaInk]}[d.tier]||[C.seaBg,C.seaInk];
+ const facts=[['Triage',d.title,TC2],['Patient',d.whoLabel||'Adult'],['Area',clinArea(d)],['Red-flag screen',d.positives.length?'Positive':d.cleared?'Negative':'Not asked']];
+ const fw=[CW*.34,CW*.24,CW*.22,CW*.20]; let fx=M, fh=44;
+ font('bold',9.5); facts.forEach(([,v],i)=>{ fh=Math.max(fh,24+wrap(v,fw[i]-20).slice(0,2).length*LH(9.5)+6); });
+ need(fh+14); fill([249,248,245]); draw(C.rule); doc.setLineWidth(.6); doc.roundedRect(M,y,CW,fh,7,7,'FD');
+ facts.forEach(([k,v,col],i)=>{ if(col){ fill(col[0]); doc.roundedRect(fx+4,y+4,fw[i]-8,fh-8,5,5,'F'); }
+  font('bold',7); ink(col?col[1]:C.muted); doc.text(k.toUpperCase(),fx+12,y+16,{charSpace:.6});
+  font('bold',9.5); ink(col?col[1]:C.ink); wrap(v,fw[i]-20).slice(0,2).forEach((l,j)=>doc.text(l,fx+12,y+30+j*LH(9.5)));
+  if(i&&!facts[i-1][2]&&!col){ draw(C.rule); doc.line(fx,y+10,fx,y+fh-10); }
+  fx+=fw[i]; });
+ y+=fh+16;
+ const sec=t=>{ need(40); font('bold',8.5); ink(C.sea); doc.text(rpTxt(t).toUpperCase(),M,y,{charSpace:.8}); y+=5; draw(C.rule); doc.setLineWidth(.5); doc.line(M,y,W-M,y); y+=12; };
+ const kv=(rows,kw)=>{ rows.forEach(([k,v,st])=>{ font(st||'normal',9.5); const vl=wrap(v,CW-kw-8), kl=(font('bold',8.5),wrap(k,kw-8));
+   const h=Math.max(vl.length*LH(9.5),kl.length*LH(8.5))+2.5; need(h);
+   ink(C.muted); kl.forEach((l,j)=>doc.text(l,M,y+j*LH(8.5)));
+   font(st||'normal',9.5); ink(C.ink); vl.forEach((l,j)=>doc.text(l,M+kw,y+j*LH(9.5))); y+=h; }); y+=6; };
+ const bullets=(L,c)=>{ L.forEach(t=>{ font('normal',9.5); const l=wrap(t,CW-14); need(l.length*LH(9.5)+3); fill(c||C.sea); doc.circle(M+3,y-3,1.6,'F'); ink(C.ink); l.forEach((x,j)=>doc.text(x,M+12,y+j*LH(9.5))); y+=l.length*LH(9.5)+3; }); y+=7; };
+ // assessment first only when triage is emergent; otherwise history first, as a clinician reads it
+ sec('Chief concern');
+ kv([...(d.freeText?[['In the patient’s words','“'+d.freeText+'”','italic']]:[]),...(d.raised&&d.raised.length?[['Urgency raised',d.raised.join(' ')]]:[])],120);
+ if(d.hpi.length){ sec('History of present illness (OPQRST-AAA)'); kv(d.hpi.map(h=>[h.label,h.text]),150); }
+ if(d.answers.length){ sec('Patient responses'); kv(d.answers.map(a=>[a.q,a.a,'bold']),236); }
+ sec('Screening');
+ kv([['Red-flag screen',d.positives.length?'POSITIVE: '+d.positives.join('; '):d.cleared?'Denied all: '+d.screened.join('; ')+'.':(REDFLAG_CHECK?'Not completed.':'Not asked (screen switched off in this version).')],
+  ...(d.risk.length?[['Risk factors',d.risk.map(r=>r.q.replace(/\?$/,'')+': '+(r.yes?'yes or unsure':'no')).join('; ')]]:[])],120);
+ if(d.ranked.length){
+  sec('Assessment: tool-generated differential'+(d.provisional?' (provisional)':''));
+  font('italic',8.5); ink(C.muted); wrap((d.fromFree?'Matched from free text and history answers; best match first. ':'Most common first. ')+'Unverified decision support, not a diagnosis.'+(d.provisional?' Patient stopped early'+(d.stoppedAt?' at "'+d.stoppedAt+'"':'')+'.':''),CW).forEach(l=>{ need(12); doc.text(l,M,y); y+=LH(8.5); }); y+=4;
+  const cx=[M+8,M+24,M+CW-112];
+  font('bold',7.5); ink(C.faint); need(20); doc.text('#',cx[0],y); doc.text('CONDITION AND BASIS',cx[1],y,{charSpace:.5}); doc.text('LIKELIHOOD',cx[2],y,{charSpace:.5}); y+=8;
+  d.ranked.forEach((r,i)=>{ font('normal',8.5); const basis=wrap(r.why?clinWhy(r.why):(r.about||''),cx[2]-cx[1]-12); font('bold',10); const nl=wrap(r.name,cx[2]-cx[1]-12);
+   const h=6+nl.length*LH(10)+basis.length*LH(8.5)+5; need(h+2);
+   if(r.danger){ fill(C.sigBg); doc.rect(M,y,CW,h,'F'); } else if(i%2===0){ fill([250,249,246]); doc.rect(M,y,CW,h,'F'); }
+   font('bold',9); ink(C.faint); doc.text(String(i+1),cx[0],y+14);
+   font('bold',10); ink(C.ink); nl.forEach((l,j)=>{ if(j===0&&r.ml) doc.textWithLink(l,cx[1],y+14,{url:ML+encodeURIComponent(r.ml)}); else doc.text(l,cx[1],y+14+j*LH(10)); });
+   font('normal',8.5); ink(C.muted); basis.forEach((l,j)=>doc.text(l,cx[1],y+14+nl.length*LH(10)+j*LH(8.5)));
+   if(r.danger){ fill(C.sig); doc.circle(cx[2]+3,y+11,2.6,'F'); font('bold',8); ink(C.sig); doc.text('MUST NOT MISS',cx[2]+10,y+14); }
+   else { [1,2,3].forEach(k=>{ fill(k<=r.lvl?C.sea:C.chip); doc.roundedRect(cx[2]+(k-1)*12,y+9,10,4.5,2,2,'F'); }); font('normal',8.5); ink(C.muted); doc.text(r.label,cx[2]+40,y+14); }
+   y+=h; draw(C.rule); doc.setLineWidth(.4); doc.line(M,y,W-M,y); });
+  y+=12;
+ }
+ const cautions=[...(d.whoAlert?[d.whoAlert]:[]),...(d.warnList?['Get care today if: '+d.warnList.join('; ')+'.']:d.warn?[d.warn]:[]),...(d.cantmiss?[d.cantmiss]:[])];
+ if(cautions.length){ sec('Cautions shown to the patient'); bullets(cautions,C.sig); }
+ if(d.id!=='T-HANDOFF-GENERIC'&&((d.distinguish&&!d.provisional)||d.source)){ sec('Notes for the clinician');
+  kv([...(d.distinguish&&!d.provisional?[['What tells these apart',d.distinguish]]:[]),...(d.source?[['Evidence basis',d.source+' (draft, physician sign-off pending)']]:[])],120); }
 
  // footer + metadata
  const pages=doc.getNumberOfPages();
