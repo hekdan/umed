@@ -421,6 +421,8 @@ h3{letter-spacing:-.01em}
 .report .primary svg{width:19px;height:19px}
 .report .fine{text-align:center}
 .report .skip{font-size:.85rem}
+.dxi .dxwhy{margin:.1rem 0 .7rem;padding:.6rem .75rem;border-radius:10px;background:var(--sea-bg);font-size:.9rem;line-height:1.5}
+.dxi .dxwhy b{color:var(--sea-ink)}
 .callout ul.wl{margin:.35rem 0 .45rem 1.05rem;font-size:.95rem;line-height:1.45}
 .callout ul.wl li{margin-bottom:.3rem;padding-left:.1rem}
 .callout ul.wl li::marker{color:var(--amber)}
@@ -462,7 +464,7 @@ const CONTENT={"TIERS":{"emergent":{"cls":"emergent","label":"Emergency","ic":"<
    file only renders it and moves between screens.
    =================================================================== */
 const {TIERS,ATLAS,SYSTEMS,GATE_UNIVERSAL,GATE_EXTRA,HOST,STEPS,SYS_ENTRY,N,ASK,CANTMISS,SOURCE,INFO,DXMAP,FT,INTAKE}=CONTENT;
-const VERSION='v0.23';
+const VERSION='v0.24';
 const DEBUG=/[?&]debug\b/.test(location.search);
 const app=document.getElementById('app'), traceEl=document.getElementById('trace'), progEl=document.getElementById('prog');
 let state={trace:[],sys:null,depth:0,skinNext:null,gateHits:[],freeText:'',freeFlags:{},intake:{}};
@@ -771,18 +773,24 @@ function renderTerminal(id){
 
  // Differential: most common first; ordinal meter, never percentages.
  // '!' (authored, clinician-editable) = must not miss, which overrides position.
- let dx='';
- if(n.ranked&&n.ranked.length){
-  const r=n.ranked,last=r.length-1;
+ let dx='', rk=n.ranked, lv=n.lvls, fdBy={}, why0=n.why;
+ const generic=id==='T-HANDOFF-GENERIC';
+ if(generic){ const fd=freeDx(state.freeText,state.intake); state.fdx=fd; rk=fd.map(x=>(x.danger?'!':'')+x.name); lv=fd.map(x=>x.lvl); fd.forEach(x=>fdBy[x.name]=x);
+  if(fd.length) why0='Your answers don’t fit one of this tool’s question paths, so we matched your own words and history against the conditions it knows. The list below is a starting point for your clinician, not a diagnosis. If anything feels urgent, contact a clinician today, or call 911 in an emergency.';
+  else if(state.freeText) dx=`<section class="sec"><h3>What this could be</h3><p class="note">What you described didn’t match the conditions this tool knows closely enough to list any. That doesn’t make it more or less serious. Your clinician will work it out with you, using the history above.</p></section>`; }
+ if(rk&&rk.length){
+  const r=rk,last=r.length-1;
   const rows=r.map((x,i)=>{
    const danger=x.startsWith('!'), name=danger?x.slice(1):x;
-   const lvl=n.lvls?n.lvls[i]:(i===0?3:(i===last&&r.length>2?1:2)), lbl=['','Less likely','Consider','Most likely'][lvl];
+   const lvl=lv?lv[i]:(i===0?3:(i===last&&r.length>2?1:2)), lbl=['','Less likely','Consider','Most likely'][lvl];
    const lk=danger?`<span class="lk"><span class="flagdot" aria-hidden="true"></span>Must not miss</span>`
      :`<span class="lk"><span class="meter" aria-hidden="true">${[1,2,3].map(k=>`<i${k<=lvl?' class="on"':''}></i>`).join('')}</span>${lbl}</span>`;
    return `<li${danger?' class="mnm"':''}><button class="dxbtn" aria-expanded="false" aria-controls="dxi-${i}"><span class="nm">${esc(name)}</span>${lk}${CHEV}</button>
-    <div class="dxi" id="dxi-${i}" hidden>${dxPanel(INFO[DXMAP[name]],danger)}</div></li>`;
+    <div class="dxi" id="dxi-${i}" hidden>${fdBy[name]?`<p class="dxwhy"><b>Why it’s on your list.</b> ${fdWhy(fdBy[name],true)}</p>`:''}${dxPanel(INFO[DXMAP[name]],danger)}</div></li>`;
   }).join('');
-  dx=`<section class="sec"><h3>What this could be</h3><ul class="dx">${rows}</ul>
+  dx=generic?`<section class="sec"><h3>What this could be, based on what you told us</h3><ul class="dx">${rows}</ul>
+   <p class="dxnote">Best match first, matched from your own words and history. Must not miss means it has to be ruled out, even if unlikely. Tap any condition to see what it is and why it’s listed.</p></section>`
+   :`<section class="sec"><h3>What this could be</h3><ul class="dx">${rows}</ul>
    <p class="dxnote">Most common first. Must not miss means it has to be ruled out, even if unlikely. Tap any condition to learn more.</p></section>`;
  }
  const hits=(/^T-GATE-/.test(id)&&state.gateHits.length)?`<div class="told"><h3>What you told us</h3><ul>${state.gateHits.map(h=>`<li>${esc(h)}</li>`).join('')}</ul>${id==='T-GATE-EMERGENT'?'<p>Tell the 911 dispatcher or the emergency team exactly this.</p>':''}</div>`:'';
@@ -813,7 +821,7 @@ function renderTerminal(id){
  app.innerHTML=`<div class="step result">${backBtn('Change an answer')}
   <section class="care ${tierId}" data-tier="${esc(t.label)}" aria-labelledby="care-t">
    <div class="care-h"><span class="care-ic">${ICON[care.ic]}</span><h2 class="care-t" id="care-t"><span class="sr">${esc(care.sr)}: </span>${esc(care.title)}</h2></div>
-   <div class="care-b"><p class="why">${esc(n.why)}</p>${tsub}${call}${hits}</div>
+   <div class="care-b"><p class="why">${esc(why0)}</p>${tsub}${call}${hits}</div>
   </section>
   ${carry}${state.freeText?`<div class="callout plain words"><span class="ci">${ICON.doctor}</span><div><h4>In your words</h4><p>“${esc(state.freeText)}”</p><p class="fine">Show this to your clinician.</p></div></div>`:''}
   ${amp}${hxAmp}${hx}${warn}${dx}${cm}${bring}${safety}${clin}
@@ -981,6 +989,114 @@ function copyHpi(){
  try{ navigator.clipboard.writeText(t).then(()=>{ b.textContent='Copied'; },fallback); }catch(e){ fallback(); }
 }
 
+/* ---- Differential from the patient's own words + OPQRST-AAA history (v0.24) ----
+   Deterministic, no AI. Every condition the app can explain (INFO) is scored
+   against (a) the free text and typed history fields, matched on word stems
+   and weighted by how specific each word is, (b) the tapped history chips,
+   via a small symptom vocabulary, and (c) the body area the text pointed to.
+   Each condition keeps the evidence that matched it, so the patient sees
+   why it is on the list. Must-not-miss conditions that match are always kept. */
+function makeFreeDx(C,FTM){
+ const {INFO,DXMAP,N,STEPS,SYS_ENTRY,FT}=C;
+ const STOP=new Set([...FT.S,'pain','feel','feeling','have','with','your','you','can','may','often','usually','more','less','get','one','that','this','from','when','also','very','some','any','not','after','before','over','into','about','than','them','which','will','most','like','sign','sym','symptom','cause','common','condition','problem','other','often','day','week','month','year','time','skin','body','area','side','part','start','make','take','need','see','look','well','new','much','often','long','short','few','lot','last','come','goe','even','still','only','both','each','what','where','there','these','those','such','being','been','its','often','down','upper','lower','worse','better','behind','first','all','always','lot','really','bit','little','kind','sort','thing','keep','going','got','gets','went','since','ago','right','left','bad','hurt','hurts','sore','ache','aches']);
+ const LOC=[['head','scalp','forehead','temple'],['face','cheek','jaw','mouth','lip','perioral','tongue','gum','tooth','teeth'],['eye','eyelid'],['ear'],['nose','nostril','sinus'],['throat','neck'],['chest','breast','rib'],['back','spine','lumbar'],['stomach','belly','abdomen','abdominal','tummy','gut'],['arm','elbow','shoulder','wrist','hand','finger'],['leg','knee','thigh','calf','ankle','hip'],['foot','feet','heel','toe','sole'],['groin','genital','vagina','vaginal','penis','scrotum','testicle','vulva','pee','urine','bladder']].map(g=>new Set(g.map(w=>FTM.stem(w))));
+ const locOf=ss=>{ const out=new Set(); ss.forEach(s=>LOC.forEach((g,i)=>{ if(g.has(s)) out.add(i); })); return out; };
+ const NEG=new Set(FT.N);
+ const st2=w=>{ let s=FTM.stem(w); if(/(ness|ful|ly)$/.test(s)&&s.length>6) s=FTM.stem(s.replace(/(ness|ful|ly)$/,'')); return s; }; // stiffness -> stiff
+ const toks=t=>FTM.words(FTM.norm(t)).filter(w=>w.length>2&&!/^\d+$/.test(w));
+ const stems=t=>toks(t).map(st2).filter(s=>!STOP.has(s)&&s.length>2);
+ // negation: drop words within 4 after "no / not / without / never" in the same clause
+ const liveStems=t=>{ const out=[]; FTM.norm(t||'').split(/[.,;:!?\n()]+|\bbut\b/).forEach(cl=>{ let left=0;
+   FTM.words(cl).forEach(w=>{ if(NEG.has(w)){ left=4; return; } if(left>0){ left--; return; }
+    const s=st2(w); if(w.length>2&&!STOP.has(s)&&s.length>2&&!/^\d+$/.test(w)) out.push({s,w}); }); }); return out; };
+ // ---- documents: names count double
+ const names={}; Object.entries(DXMAP).forEach(([n,k])=>(names[k]=names[k]||[]).push(n));
+ const keys=Object.keys(INFO), doc={}, df={};
+ keys.forEach(k=>{ const f=INFO[k], m=new Map();
+  const add=(t,w)=>liveStems(t).forEach(({s})=>m.set(s,Math.max(m.get(s)||0,w)));
+  add([f.about,...(f.signs||[])].join(' '),1); if(Array.isArray(f.act)) add(f.act.join(' '),.5); add((names[k]||[]).join(' ')+' '+(f.ml||''),2);
+  doc[k]=m; m.forEach((_,s)=>df[s]=(df[s]||0)+1); });
+ const idf=s=>Math.log(1+keys.length/(df[s]||keys.length));
+ // ---- which body areas each condition belongs to, and which are must-not-miss
+ const area={}, danger=new Set(), seenS=new Set();
+ const walk=(id,sys)=>{ const n=N[id]; if(n){ (n.ranked||[]).forEach(r=>{ const nm=r.replace(/^!/,''), k=DXMAP[nm]; if(!k) return;
+    (area[k]=area[k]||new Set()).add(sys); if(r[0]==='!') danger.add(k); }); return; }
+  const s=STEPS[id]; if(!s||seenS.has(sys+id)) return; seenS.add(sys+id);
+  (JSON.stringify(s).match(/[A-Za-z0-9_\-]+/g)||[]).forEach(t=>{ if(t!==id&&(N[t]||STEPS[t])) walk(t,sys); }); };
+ Object.entries(SYS_ENTRY).forEach(([sys,e])=>{ if(STEPS[e]) walk(e,sys); });
+ FT.T.forEach(t=>{ if(N[t.go]) walk(t.go,t.id); });
+ Object.values(N).forEach(n=>(n.ranked||[]).forEach(r=>{ if(r[0]==='!'&&DXMAP[r.slice(1)]) danger.add(DXMAP[r.slice(1)]); }));
+ keys.forEach(k=>{ if(INFO[k].care==='er') danger.add(k); });
+ const docLoc={}; keys.forEach(k=>docLoc[k]=locOf([...doc[k].keys()]));
+ // ---- tapped history chips -> the words a condition description would use
+ const CHIP={
+  'Suddenly, within seconds or minutes':'sudden abrupt','Gradually, over days or weeks':'gradual slowly',
+  'Today':'sudden','More than 6 months ago':'chronic longstanding','1 to 6 months ago':'weeks months',
+  'An injury or fall':'injury fall strain sprain bruise twist','Eating, or a new food':'food meal eating','A new medicine or supplement':'medicine medication drug reaction side effect',
+  'During or after an illness':'infection viral cold flu','Exercise or physical work':'exercise exertion lifting strain overuse','Stress':'stress anxiety tension',
+  'Travel':'travel flight','Being around someone sick':'contagious infection viral',
+  'Aching':'ache aching','Sharp or stabbing':'sharp stabbing','Burning':'burning burn','Throbbing or pounding':'throbbing pounding pulsing',
+  'Pressure or tightness':'pressure tightness tight squeezing','Cramping':'cramp cramping colicky','Itching':'itch itchy','Tingling or numbness':'tingling numbness pins needles',
+  'Yes, it spreads':'spread radiate','It moves around':'migratory moving','It is all over':'widespread generalized',
+  'Comes and goes':'intermittent episode attack','Only at certain times':'episode trigger','Getting worse':'worsening','Getting much worse, quickly':'rapidly worsening',
+  'Fever or chills':'fever chills','Nausea or vomiting':'nausea vomiting','Diarrhea or constipation':'diarrhea constipation bowel','Cough':'cough',
+  'Rash or skin change':'rash redness','Swelling':'swelling swollen','Numbness or weakness':'numbness weakness','Dizziness':'dizziness dizzy lightheaded vertigo',
+  'Weight loss without trying':'weight loss','Night sweats':'night sweats','Very tired':'tired fatigue tiredness','Low mood or worry':'mood worry anxiety low',
+  'Moving':'movement moving','Eating':'eating meal food','Over-the-counter pain medicine':'painkiller','Nothing has helped':'persistent','Walking or exercise':'exercise walking exertion','Lying down':'lying down night','Breathing in deeply':'breathing deep breath inspiration',
+  'Touch or pressure':'tender tenderness touch','Rest':'rest','Heat or ice':'heat ice','Eating, or an antacid':'antacid food','Changing position':'position posture'};
+ const LABEL={trigger:'set off by',quality:'feels',spread:'',pattern:'',trend:'',assoc:'with',worse:'worse with',better:'better with',when:'started',how:'started'};
+ return function freeDx(text,A){
+  A=A||{}; const ev=new Map(), q=[];   // q: {s, w, src} query stems with where they came from
+  const addText=(t,src)=>liveStems(t).forEach(x=>q.push({...x,src}));
+  addText(text,'you wrote'); ['where','quality_txt','trigger_txt','worse_txt','tried'].forEach(k=>A[k]&&addText(A[k],'you wrote'));
+  Object.entries(A).forEach(([k,v])=>[].concat(v).forEach(o=>{ if(typeof o!=='string'||!CHIP[o]) return;
+   stems(CHIP[o]).forEach(s=>q.push({s,w:o.toLowerCase(),src:k,chip:o})); }));
+  const ar=FTM.analyze([text,A.where||''].join('. ')).ranked, atop=ar.length?ar[0].score:1;
+  const hasText=q.some(x=>!x.chip), qLoc=locOf(q.filter(x=>!x.chip).map(x=>x.s));
+  const aset=new Set(ar.filter(a=>a.score>=.6*atop).map(a=>a.id));
+  const score={};
+  keys.forEach(k=>{ const d=doc[k]; let sc=0; const hit=new Map();
+   const byS=new Map();                     // each word counts once, typed beats tapped
+   q.forEach(x=>{ const w=d.get(x.s); if(!w) return; const v=idf(x.s)*(x.chip?.7*Math.min(w,1):w); // a tapped answer matching a condition's name is not a diagnosis
+    if(!byS.has(x.s)||byS.get(x.s).v<v) byS.set(x.s,{v,x}); });
+   byS.forEach(h=>{ const key=h.x.chip||h.x.w; if(!hit.has(key)||hit.get(key).v<h.v) hit.set(key,h); });
+   hit.forEach(h=>sc+=h.v);
+   const texty=[...hit.values()].filter(h=>!h.x.chip).length;
+   if(hasText&&!texty) return;              // history chips alone never put a condition on the list
+   const ab=ar.find(a=>aset.has(a.id)&&area[k]&&area[k].has(a.id)); if(ab&&sc>0) sc+=2.2*ab.score/atop;
+   if(hit.size<2) sc*=ab?.6:.5;              // one matching word is weak evidence
+   if(qLoc.size&&docLoc[k].size&&![...docLoc[k]].some(i=>qLoc.has(i))) sc*=.45; // a different part of the body
+   if(aset.size&&!ab) sc*=.6;               // outside the area the words point to
+   if(danger.has(k)&&(texty<2||!ab&&hit.size<3)) return; // a must-not-miss needs two of your own words and the right area (or strong evidence)
+   if(sc>0){ score[k]=sc; ev.set(k,{words:[...hit.values()].sort((a,b)=>b.v-a.v).map(h=>h.x),area:ab?ab.id:null}); } });
+  const order=Object.keys(score).sort((a,b)=>score[b]-score[a]);
+  if(!order.length) return [];
+  const lead=score[order.find(k=>!danger.has(k))||order[0]];
+  const leadK=order.find(k=>!danger.has(k))||order[0];
+  if(lead<6||ev.get(leadK).words.filter(x=>!x.chip).length<2&&lead<12) return []; // too little to go on: say so instead of guessing
+  const common=order.filter(k=>!danger.has(k)&&score[k]>=Math.max(5,.4*lead)).slice(0,5);
+  const dang=order.filter(k=>danger.has(k)&&score[k]>=Math.max(6,.5*lead)).slice(0,2);
+  const pick=[...common,...dang].sort((a,b)=>score[b]-score[a]);
+  return pick.map(k=>{ const e=ev.get(k), r=score[k]/lead;
+   const yours=[], hx=[];
+   e.words.forEach(x=>{ if(x.chip){ const p=LABEL[x.src]; const t=(p?p+' ':'')+x.chip.toLowerCase(); if(!hx.includes(t)) hx.push(t); }
+    else if(!yours.includes(x.w)) yours.push(x.w); });
+   return {key:k,name:(names[k]||[k]).slice().sort((a,b)=>a.length-b.length)[0],danger:danger.has(k),
+    lvl:danger.has(k)?0:r>=.75?3:r>=.45?2:1,score:Math.round(score[k]*10)/10,why:{yours:yours.slice(0,4),hx:hx.slice(0,4),area:e.area}}; });
+ };
+}
+const freeDx=makeFreeDx(CONTENT,FTM);
+const AREA_T=Object.fromEntries(AREAS.map(x=>[x.id,x.t]));
+// plain "why it is on your list" sentence for one matched condition
+function fdWhy(x,html){ const q=w=>html?'“'+esc(w)+'”':'"'+w+'"', P=[];
+ if(x.why.yours.length) P.push('You wrote '+x.why.yours.map(q).join(', ')+'.');
+ if(x.why.hx.length) P.push('Your history: '+(html?x.why.hx.map(esc):x.why.hx).join(html?' · ':'; ')+'.');
+ if(x.why.area&&AREA_T[x.why.area]) P.push('It fits the '+(html?esc(AREA_T[x.why.area].toLowerCase()):AREA_T[x.why.area].toLowerCase())+' area.');
+ return P.join(' '); }
+// first sentence; a period after a lone capital (H. pylori) or e.g./i.e./vs. does not end it
+const about1=name=>{ const f=INFO[DXMAP[name]]; if(!f) return ''; const t=f.about.replace(/\b(e\.g|i\.e|vs)\./g,m=>m.replace(/\./g,'\u2024'));
+ const m=t.match(/^.*?(?<!\b[A-Z])[.!?](?=\s|$)/); return (m?m[0]:t).replace(/\u2024/g,'.').trim(); };
+
 /* ---- Best guess from partial answers (v0.20) ----
    A patient can stop at any question and still get a ranked differential.
    From the current question, every path still possible (earlier answers
@@ -1125,9 +1241,10 @@ function rpData(id){
  const tier=care?(TIER_ORDER.find(t=>care.classList.contains(t))||n.tier):n.tier;
  const ct=app.querySelector('.care-t');
  const title=ct?[...ct.childNodes].filter(x=>!(x.classList&&x.classList.contains('sr'))).map(x=>x.textContent).join('').trim():(TIERS[tier]||{}).label;
- const r=n.ranked||[], last=r.length-1;
- const ranked=r.map((x,i)=>{ const danger=x.startsWith('!'), lvl=n.lvls?n.lvls[i]:(i===0?3:(i===last&&r.length>2?1:2));
-  return {name:danger?x.slice(1):x,danger,lvl,label:danger?'Must not miss':['','Less likely','Consider','Most likely'][lvl]}; });
+ const fd=id==='T-HANDOFF-GENERIC'?(state.fdx||[]):null;
+ const r=fd?fd.map(x=>(x.danger?'!':'')+x.name):(n.ranked||[]), last=r.length-1;
+ const ranked=r.map((x,i)=>{ const danger=x.startsWith('!'), name=danger?x.slice(1):x, lvl=fd?fd[i].lvl:n.lvls?n.lvls[i]:(i===0?3:(i===last&&r.length>2?1:2)), f=INFO[DXMAP[name]];
+  return {name,danger,lvl,label:danger?'Must not miss':['','Less likely','Consider','Most likely'][lvl],about:about1(name),ml:f?f.ml:'',why:fd?fdWhy(fd[i],false):''}; });
  const answers=screenStack.filter(e=>e.ans).map(e=>e.ans);
  const hpi=Object.keys(state.intake||{}).length?hpiRows().filter(x=>x.text):[];
  const screened=[...GATE_UNIVERSAL,...(GATE_EXTRA[state.sys]||[])].map(x=>x[1]), host=HOST.map(x=>x[1]);
@@ -1135,7 +1252,7 @@ function rpData(id){
  const risk=(profile&&profile.asked||[]).map(f=>({q:(ASK[f]||{}).q||f,yes:profile.conds.includes(f)}));
  const ampl=amplifiers().filter(a=>n.amplify&&n.amplify[a.k]).map(a=>a.label);
  const now=new Date();
- return {id,tier,tierLabel:(TIERS[tier]||{}).label||tier,title,why:n.why||'',area:sysName()||'General',freeText:state.freeText||'',
+ return {id,tier,tierLabel:(TIERS[tier]||{}).label||tier,title,why:(app.querySelector('.care .why')||{}).textContent||n.why||'',fromFree:!!fd,area:sysName()||'General',freeText:state.freeText||'',
   answers,hpi,screened,host,cleared,positives:(/^T-GATE-/.test(id)?state.gateHits:[]),risk,ampl,ranked,
   warn:n.warn||'',warnList:n.warnList||null,cantmiss:CANTMISS[id]||'',bring:(n.bring||[]).concat(amplifiers().map(a=>'That you have '+a.label)),
   distinguish:n.distinguish||'',source:SOURCE[id]?SOURCE[id].c:'',provisional:id==='T-BESTGUESS',
@@ -1162,7 +1279,8 @@ function rpNote(d){
  L.push('SELF-TRIAGE RESULT: '+d.tierLabel.toUpperCase()+' - '+d.title+(d.ampl.length?' [raised because of '+d.ampl.join(', ')+']':''));
  if(d.provisional) L.push('  PROVISIONAL: patient stopped before completing the pathway'+(d.stoppedAt?' (at "'+d.stoppedAt+'")':'')+'; differential pooled from the remaining branches.');
  if(d.ranked.length){ L.push(''); L.push('TOOL DIFFERENTIAL (most common first; unverified):');
-  d.ranked.forEach((r,i)=>L.push('  '+(i+1)+'. '+r.name+' - '+(r.danger?'MUST NOT MISS':r.label.toLowerCase()))); }
+  if(d.fromFree) L[L.length-1]='TOOL DIFFERENTIAL (matched from free text + OPQRST-AAA answers; best match first; unverified):';
+  d.ranked.forEach((r,i)=>{ L.push('  '+(i+1)+'. '+r.name+' - '+(r.danger?'MUST NOT MISS':r.label.toLowerCase())); if(r.why) L.push('     matched: '+r.why); }); }
  if(d.warn||d.cantmiss){ L.push(''); L.push('CAUTIONS SHOWN TO PATIENT:'); if(d.warn) L.push('  - '+d.warn); if(d.cantmiss) L.push('  - '+d.cantmiss); }
  if(d.distinguish&&!d.provisional){ L.push(''); L.push('WHAT TELLS THESE APART: '+d.distinguish); }
  if(d.source){ L.push(''); L.push('EVIDENCE BASIS (draft, pending physician sign-off): '+d.source); }
@@ -1178,7 +1296,7 @@ function rpFHIR(d,note){
  items.push(it('red-flags','Red-flag screen',[{valueString:d.positives.length?'Positive: '+d.positives.join('; '):d.cleared?'Denied all listed red flags':'Not completed'}]));
  d.risk.forEach((r,i)=>items.push(it('risk-'+(i+1),r.q,[{valueBoolean:r.yes}])));
  items.push(it('triage','Self-triage level',[{valueCoding:{system:'urn:guided-intake:triage-tier',code:d.tier,display:d.title}}]));
- if(d.ranked.length) items.push(it('differential','Tool-generated differential (unverified)',d.ranked.map(r=>({valueString:r.name+(r.danger?' [must not miss]':' ['+r.label.toLowerCase()+']')}))));
+ if(d.ranked.length) items.push(it('differential','Tool-generated differential (unverified)',d.ranked.map(r=>({valueString:r.name+(r.danger?' [must not miss]':' ['+r.label.toLowerCase()+']')+(r.why?' - matched: '+r.why:'')}))));
  items.push(it('note','Narrative note',[{valueString:note}]));
  return {resourceType:'QuestionnaireResponse',status:d.provisional?'in-progress':'completed',authored:d.now.toISOString(),
   meta:{tag:[{system:'urn:guided-intake',code:'patient-reported-unverified',display:'Patient-reported via üMed demo '+VERSION+'; not clinician-verified'}]},
@@ -1271,14 +1389,20 @@ async function rpPDF(d,note,o={}){ const cp=!!o.compact;
   let shown=d.ranked.slice(); // compact: keep must-not-miss, drop least likely first, max 5
   if(cp) for(const L of [1,2,3]) while(shown.length>5){ const k=shown.map(r=>!r.danger&&r.lvl===L).lastIndexOf(true); if(k<0) break; shown.splice(k,1); }
   const hidden=d.ranked.length-shown.length;
-  shown.forEach(r=>{ need(26);
-   if(r.danger){ fill(C.sigBg); doc.roundedRect(M,y-13,CW,22,4,4,'F'); }
-   font(r.danger?'bold':'normal',10.5); ink(C.ink); doc.text(rpTxt(r.name).slice(0,70),M+10,y+2);
+  shown.forEach(r=>{ font('normal',8.5); const sub=[];
+   const clip=(t,n)=>{ const l=wrap(t,CW-20); if(l.length>n){ l.length=n; l[n-1]=l[n-1].replace(/\s*\S*$/,'')+'...'; } return l; };
+   if(r.about) sub.push(...clip(r.about,cp?1:2));
+   if(r.why) sub.push(...clip('Why listed: '+r.why,2));
+   const xh=sub.length*LH(8.5); need(26+xh);
+   if(r.danger){ fill(C.sigBg); doc.roundedRect(M,y-13,CW,22+xh,4,4,'F'); }
+   font(r.danger?'bold':'normal',10.5); ink(C.ink); const nm=rpTxt(r.name).slice(0,70);
+   if(r.ml) doc.textWithLink(nm,M+10,y+2,{url:ML+encodeURIComponent(r.ml)}); else doc.text(nm,M+10,y+2);
+   font('normal',8.5); ink(C.muted); sub.forEach((l,k)=>doc.text(l,M+10,y+15+k*LH(8.5)));
    if(r.danger){ fill(C.sig); doc.circle(W-M-98,y-1.5,3,'F'); font('bold',8.5); ink(C.sig); doc.text('MUST NOT MISS',W-M-10,y+1.5,{align:'right'}); }
    else { [1,2,3].forEach(k=>{ fill(k<=r.lvl?C.sea:C.chip); doc.roundedRect(W-M-150+(k-1)*16,y-4,13,5,2,2,'F'); });
     font('normal',8.5); ink(C.muted); doc.text(r.label,W-M-10,y+1.5,{align:'right'}); }
-   draw(C.rule); doc.setLineWidth(.5); doc.line(M,y+(cp?6:8),W-M,y+(cp?6:8)); y+=cp?19:22; });
-  font('italic',8.5); ink(C.faint); doc.text(hidden?'Top '+shown.length+' of '+d.ranked.length+' shown - full list in the clinician note. "Must not miss" = rule out even if unlikely.':'Most common first. "Must not miss" means it has to be ruled out, even if unlikely. Not a diagnosis.',M,y+2); y+=20;
+   draw(C.rule); doc.setLineWidth(.5); doc.line(M,y+(cp?6:8)+xh,W-M,y+(cp?6:8)+xh); y+=(cp?19:22)+xh; });
+  font('italic',8.5); ink(C.faint); doc.text(hidden?'Top '+shown.length+' of '+d.ranked.length+' shown - full list in the clinician note. "Must not miss" = rule out even if unlikely.':(d.fromFree?'Best match first, from your words and history. ':'Most common first. ')+'"Must not miss" = rule out even if unlikely. Click a name to read more.',M,y+2); y+=20;
  }
  if(d.warnList) box(C.amberBg,[230,205,142],'Get care today if any of these apply (call 911 if severe)','',C.amber,d.warnList);
  else if(d.warn) box(C.amberBg,[230,205,142],'Please note',d.warn,C.amber);
@@ -1360,7 +1484,7 @@ document.getElementById('brand').onclick=renderHome;
 renderHome();
 </script>
 
-
+</body></html>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}</script>
 </body>
 </html>
