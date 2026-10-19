@@ -1,8 +1,8 @@
 // üMed — offline support.
 // Strategy: network-first for the page (so updates always arrive),
 // cache-first for static assets; everything falls back to cache offline.
-const CACHE = 'umed-v4';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-512.png', './privacy.html', './terms.html',
+const CACHE = 'umed-v5';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-512.png', './privacy.html', './terms.html', './about.html',
   './fonts.css', './jspdf.umd.min.js', './fonts/fraunces-latin-63f165.woff2', './fonts/fraunces-latin-ext-1fba8b.woff2', './fonts/inter-latin-1ab1ad.woff2', './fonts/inter-latin-ext-749a30.woff2'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

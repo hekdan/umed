@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>About, accessibility & credits — üMed</title>
+<meta name="description" content="Who publishes üMed, our accessibility commitment, and credits and licenses for fonts and libraries.">
+<link rel="canonical" href="https://hekdan.github.io/umed/about.html">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij48cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgcng9IjI2IiBmaWxsPSIjZmZmIi8+PGcgZmlsbD0iIzBCMEIwQiI+PGNpcmNsZSBjeD0iNDQiIGN5PSIzMCIgcj0iMTIiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjMwIiByPSIxMiIvPjwvZz48cGF0aCBkPSJNNDQgNTYgVjc4IGEyMCAyMCAwIDAgMCA0MCAwIFY1NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMEIwQjBCIiBzdHJva2Utd2lkdGg9IjIwIi8+PC9zdmc+">
+<link rel="stylesheet" href="fonts.css">
+<style>
+:root{color-scheme:light dark;--paper:#F4F2ED;--panel:#fff;--ink:#1B2226;--muted:#56616A;--rule:#E1DED6;--sea:#2A6570;--sea-bg:#E3EEED;--sig:#B3392D;--sig-bg:#FBEBE8}
+@media (prefers-color-scheme:dark){:root{--paper:#111518;--panel:#1A1F23;--ink:#E9E6DF;--muted:#A4ADB3;--rule:#2B3237;--sea:#8CC4CA;--sea-bg:#172A2D;--sig:#F08B7A;--sig-bg:#361E1A}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:1.4rem max(16px,env(safe-area-inset-left)) 4rem}
+.top{display:flex;align-items:center;gap:.6rem;margin-bottom:2rem;text-decoration:none;color:inherit}
+.mark{width:34px;height:34px;border-radius:10px;background:#fff;display:grid;place-items:center;box-shadow:0 0 0 1px rgba(27,34,38,.1)}
+.mark svg{width:22px;height:22px}
+.wm{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:1.25rem}
+h1{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:clamp(1.9rem,6vw,2.4rem);line-height:1.15;margin:0 0 .4rem;letter-spacing:-.015em}
+.eff{color:var(--muted);font-size:.9rem;margin:0 0 1.6rem}
+h2{font-size:1.05rem;margin:2rem 0 .5rem;color:var(--sea)}
+p,li{max-width:66ch}
+ul{padding-left:1.2rem}
+li{margin-bottom:.35rem}
+.box{background:var(--panel);border:1px solid var(--rule);border-radius:16px;padding:1rem 1.15rem;margin:1rem 0 1.6rem}
+.box.alert{background:var(--sig-bg);border-color:color-mix(in srgb,var(--sig) 35%,transparent)}
+.box p{margin:.3rem 0}
+.caps{text-transform:uppercase;font-size:.88rem;letter-spacing:.01em}
+a{color:var(--sea)}
+footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--rule);font-size:.85rem;color:var(--muted)}
+</style>
+</head>
+<body><div class="wrap">
+<a class="top" href="./"><span class="mark"><svg viewBox="0 0 128 128" aria-hidden="true"><g fill="#1B2226"><circle cx="44" cy="30" r="12"/><circle cx="84" cy="30" r="12"/></g><path d="M44 56V78a20 20 0 0 0 40 0V56" fill="none" stroke="#1B2226" stroke-width="20"/></svg></span><span class="wm">üMed</span></a>
+<h1>About üMed</h1>
+<p class="eff">Updated October 18, 2026</p>
+
+<div class="box">
+<p><b>üMed</b> is a free, educational symptom-intake tool. It helps you organize your symptoms and prepare a summary for your own clinician. It is not medical advice, and it is not for emergencies: in an emergency, call 911. For a mental health crisis, call or text 988.</p>
+</div>
+
+<h2>Who publishes üMed</h2>
+<ul>
+<li><b>Publisher:</b> üMed, Indiana, United States</li>
+<li><b>Website:</b> hekdan.github.io/umed, hosted on GitHub Pages</li>
+<li><b>Price:</b> free. No purchases, subscriptions, advertising, or sponsorships.</li>
+<li><b>Contact:</b> open an issue at <a href="https://github.com/hekdan/umed/issues" rel="noopener noreferrer">github.com/hekdan/umed</a>. Please do not include personal or health information, because issues there are public.</li>
+</ul>
+
+<h2>Accessibility</h2>
+<p>We want üMed to be usable by everyone, and we aim to meet the Web Content Accessibility Guidelines (WCAG) 2.1, level AA. Current measures:</p>
+<ul>
+<li>Text and buttons meet AA color-contrast ratios in light and dark mode.</li>
+<li>Every control can be used with a keyboard, with a visible focus outline. In the app, a “Skip to main content” link is the first item.</li>
+<li>On each new screen, focus moves to its heading, so screen readers announce where you are.</li>
+<li>Answer options and main buttons are at least 44 pixels tall.</li>
+<li>Images carry text alternatives.</li>
+<li>The layout respects your device’s text size, dark mode, and reduced-motion settings.</li>
+</ul>
+<p>If something gets in your way, please tell us through the contact above. We will work to fix it.</p>
+
+<h2>Credits and licenses</h2>
+<ul>
+<li><b>Inter</b> typeface, © 2020 The Inter Project Authors, SIL Open Font License 1.1 (<a href="licenses/Inter-OFL.txt">license</a>)</li>
+<li><b>Fraunces</b> typeface, © 2018 The Fraunces Project Authors, SIL Open Font License 1.1 (<a href="licenses/Fraunces-OFL.txt">license</a>)</li>
+<li><b>jsPDF</b> 4.2.1, which builds the visit report on your device, © 2010–2025 James Hall and © 2015–2025 yWorks GmbH, MIT License (<a href="licenses/jsPDF-LICENSE.txt">license</a>)</li>
+<li><b>Body-system icons</b> from Health Icons (healthicons.org), released into the public domain (CC0)</li>
+<li>Condition information links to <b>MedlinePlus</b>, a service of the U.S. National Library of Medicine</li>
+</ul>
+<p>üMed, the ü mark, and the app’s content are © 2014–2026 üMed. All rights reserved.</p>
+
+<footer><a href="./">Back to üMed</a> · <a href="terms.html">Terms of Use</a> · <a href="privacy.html">Privacy Policy</a></footer>
+</div></body></html>

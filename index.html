@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-HgVwdPHnU6uQGxDkzwp0Ht6tYDt4Q/C6fxkvFQasMU8=' 'sha256-ULJWgXwOsxQM38S6PAmTVEZEGdpV4bKO9qYVVV/AV1M=' 'sha256-WngoENLU8ukt51gjI1JhpShseJiPBfWn6sPvuo2pZPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-NXUSj8cgSyY6dZWV0B7YH78RaO85+YnoSWuQx+z50nA=' 'sha256-ULJWgXwOsxQM38S6PAmTVEZEGdpV4bKO9qYVVV/AV1M=' 'sha256-WngoENLU8ukt51gjI1JhpShseJiPBfWn6sPvuo2pZPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <script>/*frame-guard*/if(window.top!==window.self){try{window.top.location.replace(window.location.href)}catch(e){document.documentElement.style.display='none'}}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -302,7 +302,7 @@ textarea.cpbox{min-height:180px;margin-top:.6rem;font-size:.85rem}
 /* ===== v0.22 visual polish — soft clinical: warm paper, deep-teal gradient accents,
    layered low-contrast shadows, squircle icon tiles, one calm hero. ===== */
 :root{
-  --sea2:#3A9C93; --grad:linear-gradient(135deg,#3A9C93 0%,#2A6570 55%,#1E4B54 100%);
+  --sea2:#3A9C93; --grad:linear-gradient(135deg,#2B7D76 0%,#2A6570 55%,#1E4B54 100%);
   --tile:linear-gradient(145deg,#EAF4F2 0%,#D9EBE8 100%);
   --lift:0 1px 2px rgba(27,34,38,.04),0 2px 6px -2px rgba(27,34,38,.05),0 12px 28px -18px rgba(30,75,84,.28);
   --lift-hi:0 1px 2px rgba(27,34,38,.05),0 6px 14px -4px rgba(30,75,84,.12),0 22px 40px -22px rgba(30,75,84,.40);
@@ -469,6 +469,10 @@ details.phdet summary{list-style:none;display:flex;align-items:center;gap:.4rem;
 details.phdet summary::-webkit-details-marker{display:none}
 details.phdet summary .chev{color:var(--sea);transition:transform .15s}
 details.phdet[open] summary .chev{transform:rotate(90deg)}
+.skiplink{position:absolute;left:12px;top:-60px;z-index:100;background:var(--panel);color:var(--sea-ink);font-weight:600;padding:.6rem .9rem;border-radius:10px;box-shadow:var(--lift-hi);text-decoration:none}
+.skiplink:focus{top:calc(env(safe-area-inset-top,0px) + 10px)}
+#app h1:focus,#app h2:focus{outline:none}
+footer.legal .erase{background:none;border:none;padding:0;font:inherit;font-size:.8rem;color:var(--sea-ink);text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:24px}
 .who{margin:-.2rem 0 1.3rem}
 .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:color-mix(in srgb,var(--rule) 55%,transparent)}
 .seg button{min-height:44px;border:none;border-radius:12px;background:transparent;font-weight:500;font-size:.93rem;color:var(--muted);cursor:pointer;transition:background-color .15s,color .15s,box-shadow .15s}
@@ -485,6 +489,7 @@ details.phdet[open] summary .chev{transform:rotate(90deg)}
 .callout ul.wl li::marker{color:var(--amber)}
 .callout p.wl-f{font-size:.88rem;font-weight:500;color:var(--amber)}
 </style>
+<a class="skiplink" href="#app">Skip to main content</a>
 <header>
   <div class="hbar"><button class="brand" id="brand" aria-label="üMed, start over"><span class="umark"><svg viewBox="0 0 128 128" aria-hidden="true"><g fill="#1B2226"><circle cx="44" cy="30" r="12"/><circle cx="84" cy="30" r="12"/></g><path d="M44 56V78a20 20 0 0 0 40 0V56" fill="none" stroke="#1B2226" stroke-width="20"/></svg></span><span class="wm">üMed</span></button><span class="pill">Demo</span></div>
   <div class="prog"><i id="prog"></i></div>
@@ -493,7 +498,7 @@ details.phdet[open] summary .chev{transform:rotate(90deg)}
   <div class="trace" id="trace" hidden></div>
   <div id="app"></div>
 </div></main>
-<footer class="legal"><div class="wrap"><p><b>Educational tool, not medical advice.</b> üMed does not diagnose, and it does not replace a clinician. In an emergency, call 911. For a mental health crisis, call or text 988.</p><p><a href="https://hekdan.github.io/umed/terms.html" target="_blank" rel="noopener noreferrer">Terms of Use</a> · <a href="https://hekdan.github.io/umed/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> · © 2014–2026 üMed</p></div></footer>
+<footer class="legal"><div class="wrap"><p><b>Educational tool, not medical advice.</b> üMed does not diagnose, and it does not replace a clinician. In an emergency, call 911. For a mental health crisis, call or text 988.</p><p><a href="https://hekdan.github.io/umed/terms.html" target="_blank" rel="noopener noreferrer">Terms of Use</a> · <a href="https://hekdan.github.io/umed/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> · <a href="https://hekdan.github.io/umed/about.html" target="_blank" rel="noopener noreferrer">About, accessibility &amp; credits</a></p><p>© 2014–2026 üMed · Free, no ads, no tracking · <button type="button" class="erase" id="erase">Erase üMed data on this device</button></p></div></footer>
 <script>
 /* ===================================================================
    GUIDED INTAKE — patient triage & hand-off demo, v0.19
@@ -522,7 +527,7 @@ const CONTENT={"TIERS":{"emergent":{"cls":"emergent","label":"Emergency","ic":"<
    file only renders it and moves between screens.
    =================================================================== */
 const {TIERS,ATLAS,SYSTEMS,GATE_UNIVERSAL,GATE_EXTRA,HOST,STEPS,SYS_ENTRY,N,ASK,CANTMISS,SOURCE,INFO,DXMAP,FT,INTAKE}=CONTENT;
-const VERSION='v0.28';
+const VERSION='v0.29';
 
 /* ---- Children and pregnancy (v0.25) ----
    "Who is this for?" on the home screen: me / my child (age band) / I'm pregnant (weeks).
@@ -687,7 +692,7 @@ function drawTrace(){
 }
 function setProg(){ progEl.style.width=Math.min(state.depth*14,92)+'%'; }
 function push(t){ if(t){state.trace.push(t);drawTrace();} state.depth++; setProg(); }
-function scroll(){ window.scrollTo({top:0,behavior:'instant'}); }
+function scroll(){ window.scrollTo({top:0,behavior:'instant'}); const h=app.querySelector('h1,h2'), a=document.activeElement; if(h&&(!a||a===document.body||!a.isConnected)){ h.setAttribute('tabindex','-1'); h.focus({preventScroll:true}); } }
 
 /* ---- navigation: every screen is pushed, so Back retraces exactly ---- */
 let screenStack=[];
@@ -924,7 +929,7 @@ function renderHome(){
    <p class="eyebrow">Before your visit</p>
    <h1>What brings you in today?</h1>
    <p class="lede">A few quick questions. You'll get a clear next step and a summary to bring to your appointment.</p>
-   <ul class="trust"><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>About 2 minutes</li><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7"/></svg>Stays on this device</li><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5l5 2v3.6c0 3-2.2 5-5 5.9-2.8-.9-5-2.9-5-5.9V4.5z"/></svg>Not a diagnosis</li></ul>
+   <ul class="trust"><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>A few minutes</li><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7"/></svg>Stays on this device</li><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5l5 2v3.6c0 3-2.2 5-5 5.9-2.8-.9-5-2.9-5-5.9V4.5z"/></svg>Not a diagnosis</li></ul>
   </section>
   ${whoPicker(renderHome.nudge)}
   <p class="homecap">Choose an area</p>
@@ -1866,6 +1871,15 @@ function rpCopy(text,btn,note){
 document.head.insertAdjacentHTML('beforeend','<style>.report .primary{margin-bottom:.2rem}.report .fine{margin-bottom:.7rem}.rpmore .copy{margin-bottom:.1rem}.report{border-top:1px solid var(--rule);padding-top:1.2rem}</style>');
 
 
+/* ---- Self-serve data deletion (v0.29): nothing is held by us, so this is all there is to delete ---- */
+document.getElementById('erase').onclick=async()=>{
+ if(!confirm('Erase everything üMed keeps on this device? This clears your answers, photos, your acceptance of the terms, and the offline copy of the app.')) return;
+ photos=[]; state.intake={}; state.freeText=''; profile=null; who={kind:'adult',band:null};
+ try{ localStorage.removeItem('umed.ack'); sessionStorage.clear(); }catch(e){}
+ try{ if(window.caches){ for(const k of await caches.keys()) if(/^umed/.test(k)) await caches.delete(k); } }catch(e){}
+ try{ if(navigator.serviceWorker){ for(const r of await navigator.serviceWorker.getRegistrations()) await r.unregister(); } }catch(e){}
+ renderAck.ok=false; alert('Done. Everything üMed kept on this device has been erased.'); location.reload();
+};
 document.getElementById('brand').onclick=renderHome;
 renderHome();
 </script>
