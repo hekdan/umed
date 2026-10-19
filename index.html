@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-NXUSj8cgSyY6dZWV0B7YH78RaO85+YnoSWuQx+z50nA=' 'sha256-ULJWgXwOsxQM38S6PAmTVEZEGdpV4bKO9qYVVV/AV1M=' 'sha256-WngoENLU8ukt51gjI1JhpShseJiPBfWn6sPvuo2pZPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-xWscBlOX4HY/0FvPMn0GvRrIOQQxs2orcxHBAFiMNBE=' 'sha256-ULJWgXwOsxQM38S6PAmTVEZEGdpV4bKO9qYVVV/AV1M=' 'sha256-WngoENLU8ukt51gjI1JhpShseJiPBfWn6sPvuo2pZPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <script>/*frame-guard*/if(window.top!==window.self){try{window.top.location.replace(window.location.href)}catch(e){document.documentElement.style.display='none'}}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -474,6 +474,18 @@ details.phdet[open] summary .chev{transform:rotate(90deg)}
 #app h1:focus,#app h2:focus{outline:none}
 footer.legal .erase{background:none;border:none;padding:0;font:inherit;font-size:.8rem;color:var(--sea-ink);text-decoration:underline;text-underline-offset:2px;cursor:pointer;min-height:24px}
 .who{margin:-.2rem 0 1.3rem}
+.home h1{margin:.4rem 0 .9rem}
+.home textarea{min-height:96px;margin-bottom:.7rem;font-size:1.02rem}
+.home #nx{margin-bottom:1rem}
+.home #nx:disabled{opacity:.45;filter:saturate(.4);cursor:default;box-shadow:none}
+.who.compact{margin:0 0 1.5rem}
+.sysgrid.compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.sysgrid.compact button.sys{min-height:60px;padding:.55rem .65rem;gap:.6rem;border-radius:14px}
+.sysgrid.compact .ic{width:38px;height:38px;border-radius:12px}
+.sysgrid.compact .ic svg{width:24px;height:24px}
+.sysgrid.compact .st{font-size:.92rem;line-height:1.25;font-weight:600}
+footer.legal{margin-top:2rem;padding-top:1rem}
+footer.legal p{font-size:.78rem}
 .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:color-mix(in srgb,var(--rule) 55%,transparent)}
 .seg button{min-height:44px;border:none;border-radius:12px;background:transparent;font-weight:500;font-size:.93rem;color:var(--muted);cursor:pointer;transition:background-color .15s,color .15s,box-shadow .15s}
 .seg button[aria-pressed="true"]{background:var(--panel);color:var(--sea-ink);font-weight:600;box-shadow:var(--lift)}
@@ -498,7 +510,7 @@ footer.legal .erase{background:none;border:none;padding:0;font:inherit;font-size
   <div class="trace" id="trace" hidden></div>
   <div id="app"></div>
 </div></main>
-<footer class="legal"><div class="wrap"><p><b>Educational tool, not medical advice.</b> üMed does not diagnose, and it does not replace a clinician. In an emergency, call 911. For a mental health crisis, call or text 988.</p><p><a href="https://hekdan.github.io/umed/terms.html" target="_blank" rel="noopener noreferrer">Terms of Use</a> · <a href="https://hekdan.github.io/umed/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> · <a href="https://hekdan.github.io/umed/about.html" target="_blank" rel="noopener noreferrer">About, accessibility &amp; credits</a></p><p>© 2014–2026 üMed · Free, no ads, no tracking · <button type="button" class="erase" id="erase">Erase üMed data on this device</button></p></div></footer>
+<footer class="legal"><div class="wrap"><p>Not medical advice. Emergency? Call 911. · <a href="https://hekdan.github.io/umed/terms.html" target="_blank" rel="noopener noreferrer">Terms</a> · <a href="https://hekdan.github.io/umed/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a> · <a href="https://hekdan.github.io/umed/about.html" target="_blank" rel="noopener noreferrer">About</a> · <button type="button" class="erase" id="erase">Erase data</button></p></div></footer>
 <script>
 /* ===================================================================
    GUIDED INTAKE — patient triage & hand-off demo, v0.19
@@ -527,7 +539,7 @@ const CONTENT={"TIERS":{"emergent":{"cls":"emergent","label":"Emergency","ic":"<
    file only renders it and moves between screens.
    =================================================================== */
 const {TIERS,ATLAS,SYSTEMS,GATE_UNIVERSAL,GATE_EXTRA,HOST,STEPS,SYS_ENTRY,N,ASK,CANTMISS,SOURCE,INFO,DXMAP,FT,INTAKE}=CONTENT;
-const VERSION='v0.29';
+const VERSION='v0.30';
 
 /* ---- Children and pregnancy (v0.25) ----
    "Who is this for?" on the home screen: me / my child (age band) / I'm pregnant (weeks).
@@ -661,10 +673,10 @@ function whoFromText(t){
  if(kid) return {kind:'child',band:/newborn/.test(s)?'u3m':/\b(baby|infant|toddler)\b/.test(s)?null:null};
  return null;
 }
-function whoPicker(note){
- const seg=[['adult','Me'],['child','My child'],['preg','I’m pregnant']];
+function whoPicker(note,compact){
+ const seg=[['adult','For me'],['child','My child'],['preg','Pregnant']];
  const bands=who.kind==='adult'?'':`<div class="bands" role="group" aria-label="${who.kind==='child'?'Your child’s age':'How far along'}"><p class="bq">${who.kind==='child'?'How old is your child?':'How far along are you?'}</p>${WHO_BANDS[who.kind].map(([k,l])=>`<button type="button" class="chip" data-b="${k}" aria-pressed="${who.band===k}">${esc(l)}</button>`).join('')}</div>`;
- return `<section class="who${note?' nudge':''}" id="who"><p class="homecap">Who is this for?</p>
+ return `<section class="who${note?' nudge':''}${compact?' compact':''}" id="who">${compact?'':'<p class="homecap">Who is this for?</p>'}
   <div class="seg" role="group" aria-label="Who is this for">${seg.map(([k,l])=>`<button type="button" data-w="${k}" aria-pressed="${who.kind===k}">${l}</button>`).join('')}</div>${bands}
   ${note?`<p class="whonudge">${esc(note)}</p>`:''}</section>`;
 }
@@ -917,30 +929,37 @@ function renderAck(){
  go.onclick=()=>{ renderAck.ok=true; try{ localStorage.setItem('umed.ack',TERMS_VER); }catch(e){} renderHome(); };
  scroll();
 }
+const ACK_SCREEN=false; // first-visit terms acknowledgment (renderAck); kept for later, switched off for a simpler start
+let homeDraft='';
+function submitFree(text){
+ state.sys='gu'; push('SYS:GU'+(who.kind!=='adult'&&who.band?':'+who.kind.toUpperCase()+'-'+who.band:''));
+ state.freeText=text.trim();
+ const a=FTM.analyze(state.freeText);
+ state.freeFlags={emerg:a.emerg,crisis:a.crisis};
+ renderSuggest.noted=false; const wg=whoFromText(state.freeText); if(wg&&(who.kind!==wg.kind||(wg.band&&who.band!==wg.band))){ who={kind:wg.kind,band:wg.band||null}; renderSuggest.noted=true; }
+ push('FREE:'+state.freeText.length+(a.crisis?':CRISIS':a.emerg?':EMERG':'')+':'+(a.ranked.map(r=>r.id).join('+')||'NOMATCH'));
+ navTo(()=>renderSuggest(a),'f');
+}
 function renderHome(){
- if(!ackOK()) return renderAck();
+ if(ACK_SCREEN&&!ackOK()) return renderAck();
  photos=[];
  state={trace:[],sys:null,depth:0,skinNext:null,gateHits:[],freeText:'',freeFlags:{},intake:{}}; screenStack=[]; drawTrace(); setProg();
- app.innerHTML=`<div class="step">
-  <section class="hero"><svg class="hero-art" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="ha1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--sea2)" stop-opacity=".30"/><stop offset="1" stop-color="var(--sea)" stop-opacity=".08"/></linearGradient><linearGradient id="ha2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--amber)" stop-opacity=".22"/><stop offset="1" stop-color="var(--amber)" stop-opacity="0"/></linearGradient></defs>
-<circle cx="118" cy="78" r="70" fill="url(#ha1)"/><circle cx="62" cy="128" r="44" fill="url(#ha2)"/>
-<g transform="translate(86 46)"><path d="M32 4c13.8 0 24 9.4 24 21.6S45.8 47.2 32 47.2c-2.9 0-5.6-.4-8.2-1.2L12.6 51c-1.3.6-2.7-.8-2.1-2.1l3.4-9C10.1 35.9 8 31 8 25.6 8 13.4 18.2 4 32 4z" fill="var(--panel)" stroke="var(--sea-line)" stroke-width="1.5"/><path d="M32 15.5v20M22 25.6h20" stroke="var(--sea)" stroke-width="5" stroke-linecap="round"/></g>
-<path d="M40 70h14l6-12 9 24 6-12h10" fill="none" stroke="var(--sea2)" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-   <p class="eyebrow">Before your visit</p>
-   <h1>What brings you in today?</h1>
-   <p class="lede">A few quick questions. You'll get a clear next step and a summary to bring to your appointment.</p>
-   <ul class="trust"><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>A few minutes</li><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7"/></svg>Stays on this device</li><li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5l5 2v3.6c0 3-2.2 5-5 5.9-2.8-.9-5-2.9-5-5.9V4.5z"/></svg>Not a diagnosis</li></ul>
-  </section>
-  ${whoPicker(renderHome.nudge)}
-  <p class="homecap">Choose an area</p>
-  <div class="sysgrid">${SYSTEMS.map((s,i)=>`<button class="sys${s.id==='gu'?' else':''}" data-i="${i}">
-    <span class="ic">${ICON[s.ic]||''}</span>
-    <span class="tx"><span class="st">${esc(s.t)}</span><span class="ss">${esc(s.s)}</span></span>${CHEV}</button>`).join('')}</div>
+ app.innerHTML=`<div class="step home">
+  <h1>What’s going on?</h1>
+  <label class="sr" for="ft">Describe your symptoms</label>
+  <textarea id="ft" rows="3" maxlength="1000" placeholder="For example: burning when I pee for 2 days">${esc(homeDraft)}</textarea>
+  <button class="primary" id="nx"${homeDraft.trim()?'':' disabled'}>Continue</button>
+  ${whoPicker(renderHome.nudge,true)}
+  <p class="homecap">Or pick an area</p>
+  <div class="sysgrid compact">${SYSTEMS.map((s,i)=>s.id==='gu'?'':`<button class="sys" data-i="${i}"><span class="ic">${ICON[s.ic]||''}</span><span class="st">${esc(s.t)}</span></button>`).join('')}</div>
  </div>`;
+ const ft=document.getElementById('ft'), nx=document.getElementById('nx');
+ const needBand=()=>{ if(who.kind!=='adult'&&!who.band){ renderHome.nudge=who.kind==='child'?'Choose your child’s age first.':'Choose how far along you are first.'; renderHome(); document.getElementById('who').scrollIntoView({block:'center'}); return true; } renderHome.nudge=''; return false; };
+ ft.oninput=()=>{ homeDraft=ft.value; nx.disabled=!ft.value.trim(); };
+ nx.onclick=()=>{ if(!ft.value.trim()||needBand()) return; submitFree(ft.value); };
  wireWho(()=>{ const y=scrollY; renderHome.nudge=''; renderHome(); scrollTo(0,y); });
- app.querySelectorAll('.sys').forEach(b=>b.onclick=()=>{
-  if(who.kind!=='adult'&&!who.band){ renderHome.nudge=who.kind==='child'?'Choose your child’s age first, so the questions and advice fit.':'Choose how far along you are first, so the advice fits.'; renderHome(); document.getElementById('who').scrollIntoView({block:'center'}); return; }
-  renderHome.nudge=''; const s=SYSTEMS[+b.dataset.i];go(s.go,'SYS:'+s.id.toUpperCase()+(who.kind!=='adult'?':'+who.kind.toUpperCase()+'-'+who.band:''))});
+ app.querySelectorAll('.sys').forEach(b=>b.onclick=()=>{ if(needBand()) return;
+  const s=SYSTEMS[+b.dataset.i]; go(s.go,'SYS:'+s.id.toUpperCase()+(who.kind!=='adult'?':'+who.kind.toUpperCase()+'-'+who.band:'')); });
  if(!renderHome.keep) scroll(); renderHome.keep=false;
 }
 
@@ -1032,9 +1051,9 @@ function renderTerminal(id){
     <div class="dxi" id="dxi-${i}" hidden>${whoAdded[name]?`<p class="dxwhy"><b>Why it’s on your list.</b> ${esc(whoAddedWhy())}</p>`:''}${fdBy[name]?`<p class="dxwhy"><b>Why it’s on your list.</b> ${fdWhy(fdBy[name],true)}</p>`:''}${dxPanel(INFO[DXMAP[name]],danger)}</div></li>`;
   }).join('');
   dx=generic?`<section class="sec"><h3>What this could be, based on what you told us</h3><ul class="dx">${rows}</ul>
-   <p class="dxnote">Best match first, matched from your own words and history. Must not miss means it has to be ruled out, even if unlikely. Tap any condition to see what it is and why it’s listed.</p></section>`
+   <p class="dxnote">Tap any condition to see what it is and why it’s listed.</p></section>`
    :`<section class="sec"><h3>What this could be</h3><ul class="dx">${rows}</ul>
-   <p class="dxnote">Most common first. Must not miss means it has to be ruled out, even if unlikely. Tap any condition to learn more.</p></section>`;
+   <p class="dxnote">Tap any condition to learn more.</p></section>`;
  }
  const hits=(/^T-GATE-/.test(id)&&state.gateHits.length)?`<div class="told"><h3>What you told us</h3><ul>${state.gateHits.map(h=>`<li>${esc(h)}</li>`).join('')}</ul>${id==='T-GATE-EMERGENT'?'<p>Tell the 911 dispatcher or the emergency team exactly this.</p>':''}</div>`:'';
  const callout=(cls,ic,title,body)=>`<div class="callout ${cls}"><span class="ci">${ICON[ic]}</span><div><h4>${esc(title)}</h4><p>${esc(body)}</p></div></div>`;
@@ -1043,7 +1062,7 @@ function renderTerminal(id){
  const ff=state.freeFlags||{};
  const carry=(ff.crisis&&id!=='T-GATE-CRISIS')?callout('danger','alert','If you’re thinking about harming yourself','Call or text 988, the Suicide & Crisis Lifeline, any time. If you’re in danger right now, call 911.')
    :(ff.emerg&&tierId!=='emergent')?callout('danger','alert','You mentioned something that can be an emergency','If it is happening now, call 911 or go to the ER.'):'';
- const tsub=tierId==='handoff'?'<p class="tsub">Nothing here needs same-day care. That is not the same as ruling anything out.</p>':'';
+ const tsub='';
  const amp=bumpReasons.length?callout('amber','alert','Raised because of your health history',`You told us about ${bumpReasons.join(', ')}. For someone with that, a problem like this should be looked at sooner, so the urgency above has been raised. It is never lowered.`):'';
  const whoAmp=whoWhy?callout('amber','alert','Raised for '+(who.kind==='child'?'a child':'pregnancy'),`Because ${whoWhy}, the urgency above has been raised. It is never lowered.`):'';
  const hxAmp=hxWhy.length?callout('amber','alert','Raised because of what you told us',`Because ${hxWhy.join(', and ')}, the urgency above has been raised. It is never lowered.`):'';
@@ -1055,7 +1074,7 @@ function renderTerminal(id){
  const bring=bringList.length?`<section class="sec"><h3>Get ready for your visit</h3><ul class="todo">${bringList.map(x=>`<li>${CHECK}<span>${esc(x)}</span></li>`).join('')}</ul>
 </section>`:'';
  const phSec=(tierId==='emergent'||id==='T-GATE-CRISIS')?'':'<section class="sec photos" id="phsec"></section>';
- const safety=callout('plain safety','stethoscope','Get help sooner if',' anything gets worse, anything new appears, you develop a fever, you feel unwell overall, or something about this frightens you, whatever this result says.'.trim());
+ const safety=callout('plain safety','stethoscope','Get help sooner if','it gets worse, something new appears, or you’re worried.');
  const S=SOURCE[id];
  const clin=(n.distinguish||S)?`<details class="clin"><summary>For your clinician${CHEV}</summary>
    ${n.distinguish?`<p><b>What tells these apart:</b> ${esc(n.distinguish)}</p>`:''}
@@ -1071,7 +1090,7 @@ function renderTerminal(id){
   <button class="restart" id="again">Start over</button>
  </div>`;
  document.getElementById('bk').onclick=back;
- document.getElementById('again').onclick=renderHome;
+ document.getElementById('again').onclick=()=>{ homeDraft=''; renderHome(); };
  phRender();
  const cp=document.getElementById('cp'); if(cp) cp.onclick=copyHpi;
  app.querySelectorAll('.dxbtn').forEach(b=>b.onclick=()=>{
@@ -1391,10 +1410,10 @@ function phRender(){
   +photos.filter(p=>p.kind==='extra').map(card).join('')
   +(photos.length<PHOTO_MAX&&PH_KINDS.every(g=>photos.some(p=>p.kind===g.k))?`<div class="phslot more">${pick('extra','Add another photo')}</div>`:'');
  const vis=PH_VISUAL.has(state.sys==='gu'?'':(state.sys||''));
- const body=`<p class="note">Optional. A few clear photos help your clinician, especially if it may change or be gone by your visit. They stay on this device and go only into the report you download; location data is removed.</p>
+ const body=`<p class="note">Optional. Photos stay on this device.</p>
   <ol class="phguide">${PH_KINDS.map((g,i)=>`<li class="phg">${g.k==='close'?PG_CLOSE:(PG[g.k]||'')}<div><b><span class="phn">${i+1}</span>${esc(g.label)}</b><span class="phd">${esc(g.dist)}.</span> ${esc(g.tip)}</div></li>`).join('')}</ol>
-  <ul class="phtips"><li>Daylight near a window; no flash or filters</li><li>A plain background, and hold the phone steady</li><li>Retake anything blurry. If it changes, take the same photos again later.</li></ul>
-  <p class="phwarn"><b>Keep it private:</b> don’t photograph anyone’s genitals or a child’s private areas. Describe it instead, or show your clinician in person. Leave faces out unless the problem is on the face.</p>
+  <ul class="phtips"><li>Daylight, no flash. Hold steady.</li></ul>
+  <p class="phwarn">Don’t photograph genitals or a child’s private areas.</p>
   <div class="phgrid">${slots}</div><p class="fine" id="phmsg" aria-live="polite"></p>`;
  el.innerHTML=vis?`<h3>Photos for your clinician</h3>${body}`:`<details class="phdet"${photos.length?' open':''}><summary>${CHEV}<span>Add a photo for your clinician (optional)</span></summary>${body}</details>`;
  const msg=el.querySelector('#phmsg');
@@ -1873,14 +1892,14 @@ document.head.insertAdjacentHTML('beforeend','<style>.report .primary{margin-bot
 
 /* ---- Self-serve data deletion (v0.29): nothing is held by us, so this is all there is to delete ---- */
 document.getElementById('erase').onclick=async()=>{
- if(!confirm('Erase everything üMed keeps on this device? This clears your answers, photos, your acceptance of the terms, and the offline copy of the app.')) return;
- photos=[]; state.intake={}; state.freeText=''; profile=null; who={kind:'adult',band:null};
+ if(!confirm('Erase everything üMed keeps on this device? This clears your answers, photos, and the offline copy of the app.')) return;
+ photos=[]; state.intake={}; state.freeText=''; homeDraft=''; profile=null; who={kind:'adult',band:null};
  try{ localStorage.removeItem('umed.ack'); sessionStorage.clear(); }catch(e){}
  try{ if(window.caches){ for(const k of await caches.keys()) if(/^umed/.test(k)) await caches.delete(k); } }catch(e){}
  try{ if(navigator.serviceWorker){ for(const r of await navigator.serviceWorker.getRegistrations()) await r.unregister(); } }catch(e){}
  renderAck.ok=false; alert('Done. Everything üMed kept on this device has been erased.'); location.reload();
 };
-document.getElementById('brand').onclick=renderHome;
+document.getElementById('brand').onclick=()=>{ homeDraft=''; renderHome(); };
 renderHome();
 </script>
 
