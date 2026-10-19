@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-xWscBlOX4HY/0FvPMn0GvRrIOQQxs2orcxHBAFiMNBE=' 'sha256-ULJWgXwOsxQM38S6PAmTVEZEGdpV4bKO9qYVVV/AV1M=' 'sha256-WngoENLU8ukt51gjI1JhpShseJiPBfWn6sPvuo2pZPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-JvW9cOeQQORZQ2G8Fmw1WNZBNntm9jw0Obi0Xa1rGoY=' 'sha256-ULJWgXwOsxQM38S6PAmTVEZEGdpV4bKO9qYVVV/AV1M=' 'sha256-WngoENLU8ukt51gjI1JhpShseJiPBfWn6sPvuo2pZPs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <script>/*frame-guard*/if(window.top!==window.self){try{window.top.location.replace(window.location.href)}catch(e){document.documentElement.style.display='none'}}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -539,7 +539,7 @@ const CONTENT={"TIERS":{"emergent":{"cls":"emergent","label":"Emergency","ic":"<
    file only renders it and moves between screens.
    =================================================================== */
 const {TIERS,ATLAS,SYSTEMS,GATE_UNIVERSAL,GATE_EXTRA,HOST,STEPS,SYS_ENTRY,N,ASK,CANTMISS,SOURCE,INFO,DXMAP,FT,INTAKE}=CONTENT;
-const VERSION='v0.30';
+const VERSION='v0.31';
 
 /* ---- Children and pregnancy (v0.25) ----
    "Who is this for?" on the home screen: me / my child (age band) / I'm pregnant (weeks).
@@ -562,7 +562,7 @@ Object.assign(INFO,{
  intussusception:{care:'er',kids:1,about:'One part of the bowel slides into the next and blocks it. It is most common between 6 months and 3 years.',signs:['Sudden bouts of hard crying with the knees drawn up, every 15 to 20 minutes','Vomiting, sometimes green','Red, jelly-like poop; pale and sleepy between bouts'],act:'This is an emergency. Go to the ER now.',ml:'Intussusception'},
  hfmd:{care:'otc',kids:1,about:'Hand, foot and mouth disease: a common, mild viral infection in young children.',signs:['Fever and a sore mouth','Small blisters or spots on the hands, feet and diaper area','Not wanting to eat or drink'],act:['Cold drinks and soft foods for a sore mouth; keep fluids going','Acetaminophen or ibuprofen dosed by your child’s weight, never aspirin','Keep your child home until the fever is gone; wash hands well'],ml:'Hand, foot, and mouth disease'},
  kawasaki:{care:'doc',kids:1,about:'Kawasaki disease: inflammation of blood vessels in young children that can damage the heart’s arteries if it is not treated in time.',signs:['Fever lasting 5 days or more','Red eyes without discharge; red, cracked lips or a strawberry tongue','A rash, swollen red hands or feet, or a swollen gland in the neck'],act:'Needs to be seen the same day. Treatment within the first 10 days of fever protects the heart.',ml:'Kawasaki disease'},
- uti_child:{care:'doc',kids:1,about:'A urine infection in a young child. It can be the only cause of a fever, and it needs prompt treatment to protect the kidneys.',signs:['Fever with no other obvious cause','Vomiting, poor feeding, or irritability','Pain when peeing, wetting again, or smelly urine in older children'],act:'Needs a urine test the same day. Young children usually need antibiotics promptly.',ml:'Urinary tract infection - children'},
+ uti_child:{care:'doc',kids:1,about:'A urine infection in a child. In young children it can be the only cause of a fever, and it needs prompt treatment to protect the kidneys.',signs:['Fever with no other obvious cause','Vomiting, poor feeding, or irritability','Pain, burning or stinging when peeing, wetting again, or smelly urine in older children'],act:'Needs a urine test the same day. Young children usually need antibiotics promptly.',ml:'Urinary tract infection - children'},
  serious_infection_infant:{care:'er',kids:1,about:'Babies under 3 months can have serious infections of the blood, urine or brain lining with very few signs.',signs:['A temperature of 100.4°F (38°C) or higher, or too cold','Feeding poorly, unusually sleepy, floppy or irritable','A rash, or breathing that looks hard'],act:'A baby under 3 months with a fever needs emergency care, even if they seem well.',ml:'Fever'},
  scfe:{care:'doc',kids:1,about:'Slipped capital femoral epiphysis (SCFE): the growth plate at the top of the thigh bone slips. It happens between about 10 and 16 years.',signs:['Pain in the hip, thigh or knee','A limp, or the foot turning outward','Pain that started slowly or after a minor fall'],act:'Stop sports, avoid walking on it, and get an X-ray the same day. Knee pain in a teenager can come from the hip.',ml:'Slipped capital femoral epiphysis'},
  transient_synovitis:{care:'doc',kids:1,about:'Irritable hip (transient synovitis): short-lived inflammation of the hip, often after a cold, usually in children 3 to 10.',signs:['A sudden limp or refusing to walk','Hip, thigh or knee pain','Otherwise fairly well, without a high fever'],act:'Must be checked, because a hip joint infection can look the same, especially with a fever. It usually settles within 1 to 2 weeks with rest.',ml:'Transient synovitis'},
@@ -603,8 +603,9 @@ const POP={
   skin:[['Pregnancy rash (PUPPP)',0,['ge20','unk']],['Itching of pregnancy (cholestasis)',1,['ge20','unk']]],
   msk:[['Pelvic girdle or back pain of pregnancy',0,P3]]}};
 // minimum urgency (escalate only) by group and area, with the reason shown to the patient
-function whoFloor(sys){
+function whoFloor(sys,n){
  const b=who.band, f=(tier,why)=>({tier,why});
+ if(who.kind==='child'&&n&&n.peds){ if(b==='u3m'&&!n.infantOK) return f(feverSaid()?'emergent':'urgent',feverSaid()?'a baby under 3 months with a fever needs emergency care, even if they seem well':'a baby under 3 months should be seen the same day for any illness'); return null; }
  if(who.kind==='child'){
   if(b==='u3m') return f(feverSaid()?'emergent':'urgent',feverSaid()?'a baby under 3 months with a fever needs emergency care, even if they seem well':'a baby under 3 months should be seen the same day for any illness');
   if(b==='3m2y'&&['resp','gi'].includes(sys)) return f('urgent','babies and toddlers get short of breath and dehydrated faster than adults');
@@ -621,10 +622,10 @@ function whoFloor(sys){
  }
  return null;
 }
-const feverSaid=()=>/fever|temperature|\btemp\b|feels? (very )?hot|hot to (the )?touch|burning up|febrile|\b(100\.[4-9]|10[1-6](\.\d)?)\s*(°|deg|f\b)|\b3[89](\.\d)?\s*(°|deg|c\b)/i.test(state.freeText||'')||((state.intake||{}).assoc||[]).includes('Fever or chills');
+const feverSaid=()=>state.trace.some(t=>/^FEVER:(YES|LOW)/.test(t))||/fever|temperature|\btemp\b|feels? (very )?hot|hot to (the )?touch|burning up|febrile|\b(100\.[4-9]|10[1-6](\.\d)?)\s*(°|deg|f\b)|\b3[89](\.\d)?\s*(°|deg|c\b)/i.test(state.freeText||'')||((state.intake||{}).assoc||[]).includes('Fever or chills');
 // body-part words in the patient's own text name the area more reliably than topic matching
-const WHO_SYS=[['gi',/belly|abdom|stomach|tummy|cramp|pelvi|spotting|vaginal bleed|bleeding|vomit|throw(ing)? up|nausea|diarrh|poop|constipat/],['uti',/\bpee|urin|bladder|wee\b/],['head',/head ?ache|migraine|\bhead\b/],['ent',/\bears?\b|throat|tonsil|nose|sinus/],['eye',/\beyes?\b|vision|blurr/],['resp',/cough|breath|wheez|chest cold/],['skin',/rash|itch|spots|hives|blister|skin/],['msk',/knee|hip|limp|\blegs?\b|ankle|joint|\bback\b|arm|shoulder/],['cv',/chest pain|heart|palpit|swollen (leg|ankle|feet|hands|face)|swelling/],['nv',/dizz|numb|faint|tingl|vision change/]];
-const whoSys=t=>{ const s=(t||'').toLowerCase(); const h=WHO_SYS.find(([,re])=>re.test(s)); return h?h[0]:''; };
+const WHO_SYS=[['gi',/belly|abdom|stomach|tummy|cramp|pelvi|spotting|vaginal bleed|bleeding|vomit|throw(ing)? up|nausea|diarrh|poop|constipat/],['uti',/\bpee|urin|bladder|wee\b/],['head',/head ?ache|migraine|\bhead\b/],['ent',/\bears?\b|throat|tonsil|nose|sinus/],['eye',/\beyes?\b|vision|blurr/],['resp',/cough|breath|wheez|chest cold/],['skin',/rash|itch|spots|hives|blister|skin/],['msk',/knee|hip|limp|\blegs?\b|ankle|joint|\bback\b|arm|shoulder/],['cv',/chest pain|heart|palpit|swollen (leg|ankle|feet|hands|face)|swelling/],['nv',/dizz|numb|faint|tingl|vision change/],['fever',/fever|temperature|\btemp\b|hot to (the )?touch|burning up/]];
+const whoSys=t=>{ const s=(t||'').toLowerCase(); const h=WHO_SYS.find(([k,re])=>re.test(s)&&(k!=='fever'||who.kind==='child')); return h?h[0]:''; };
 // the extra conditions for this person in this area: [{name,danger}]
 function whoExtras(sys){
  if(who.kind==='adult'||!who.band) return [];
@@ -635,9 +636,10 @@ function whoExtras(sys){
 // merge into a node's ranked list: common ones join as "Consider", must-not-miss ones are flagged
 // conditions of adult life, hidden for children (teens keep sexual-health ones); asthma is not diagnosed in babies
 const ADULT_ONLY=/malignan|cancer|carcinoma|lymphoma|myeloma|pemphigoid|prostat|giant cell|polymyalgia|COPD|atrial fib|atrial flutter|heart failure|heart attack|coronary|angina|aortic|stroke|\bTIA\b|vertebral fracture|osteopor|catheter|spondyl|degenerat|menopaus|erectile|presbyop|cataract|glaucoma|macular|diabetic|medication-overuse|hypertensi|white.coat|syphilis|\bSTI\b|urethritis/i;
-const whoHide=name=>who.kind==='child'&&(who.band==='12y17'?ADULT_ONLY.test(name)&&!/syphilis|\bSTI\b|urethritis/i.test(name):ADULT_ONLY.test(name)||(['u3m','3m2y'].includes(who.band)&&/asthma|migraine|strain|disc/i.test(name)));
-function whoRanked(rk,lv,sys){
- const ex=whoExtras(sys);
+const whoHide=name=>who.kind==='child'&&((typeof PEDS_BANDS!=='undefined'&&!!PEDS_BANDS[name]&&!!who.band&&!PEDS_BANDS[name].includes(who.band))
+ ||(who.band==='12y17'?ADULT_ONLY.test(name)&&!/syphilis|\bSTI\b|urethritis/i.test(name):ADULT_ONLY.test(name)||(['u3m','3m2y'].includes(who.band)&&/asthma|migraine|strain|disc/i.test(name))));
+function whoRanked(rk,lv,sys,peds){
+ const ex=peds?[]:whoExtras(sys);
  let R0=(rk||[]).slice(), L0=(lv||R0.map((_,i)=>i===0?3:2)).slice();
  if(who.kind==='child'){ const keep=R0.map(x=>!whoHide(x.replace(/^!/,''))); R0=R0.filter((_,i)=>keep[i]); L0=L0.filter((_,i)=>keep[i]); if(L0.length&&!R0[0].startsWith('!')) L0[0]=Math.max(L0[0],3); }
  if(!ex.length) return {rk:R0,lv:L0,added:{}};
@@ -685,6 +687,594 @@ function wireWho(rerender){
  app.querySelectorAll('.who [data-b]').forEach(b=>b.onclick=()=>{ who.band=b.dataset.b; rerender(); });
 }
 
+/* ---- Pediatric question branches (v0.31) ----
+   For a child, these replace the adult first question in nine areas (PEDS_ENTRY):
+   fever without a source, cough or breathing, ear, sore throat, vomiting or
+   diarrhea, belly pain, rash with fever, limp or joint, and headache.
+   Each branch starts with the signs of a seriously ill child (NICE NG143
+   "traffic light" red, then amber) and only then sorts the common causes, by age
+   band. Babies under 3 months always go through the fever question first.
+   Router steps never show a screen: {byBand:{band|'*':next}} picks by age band,
+   {ifTrace:[[tag,next]],else} by an earlier answer. Options and score items
+   can be limited to bands (o.bands). Draft clinical content; every citation
+   marked † is not yet checked against the original document; physician
+   sign-off pending. */
+const PEDS_ENTRY={fever:'pf_start',resp:'pr_start',ent:'pe_start',gi:'pg_start',skin:'ps_start',msk:'pl_start',head:'ph_start'};
+SYSTEMS.unshift({id:'fever',t:'Fever',s:'A high temperature in a child',ic:'general',go:'sys:fever',kids:1});
+// conditions that only fit some ages; hidden for a child outside these bands (whoHide)
+const PEDS_BANDS={
+ 'Bronchiolitis':['u3m','3m2y'],'Croup':['3m2y','2y11'],'Viral wheeze':['3m2y','2y11'],'Roseola':['3m2y','2y11'],'Teething':['3m2y'],
+ 'Colic':['u3m','3m2y'],'Reflux in babies (spitting up)':['u3m','3m2y'],'Pyloric stenosis':['u3m'],'Intussusception':['3m2y','2y11'],
+ 'Twisted bowel (malrotation with volvulus)':['u3m','3m2y'],'Toddler’s fracture':['3m2y','2y11'],'Irritable hip (transient synovitis)':['3m2y','2y11'],
+ 'Perthes disease':['2y11'],'Slipped growth plate at the hip (SCFE)':['2y11','12y17'],'Growing pains':['2y11'],
+ 'Growth plate overuse pain (Osgood-Schlatter or Sever’s)':['2y11','12y17'],'Infectious mononucleosis':['2y11','12y17'],
+ 'Streptococcal pharyngitis':['2y11','12y17'],'Scarlet fever':['2y11','12y17'],'Period pain':['12y17'],'Ovary twist or burst cyst':['2y11','12y17'],
+ 'Ectopic pregnancy':['12y17'],'Pelvic inflammatory disease':['12y17'],'Urine infection in a young child':['u3m','3m2y','2y11'],
+ 'Serious infection in a young baby':['u3m'],'New-onset asthma':['2y11','12y17'],'Asthma flare in a child':['2y11','12y17'],
+ 'Migraine in a child':['2y11','12y17'],'Tension-type headache in a child':['2y11','12y17'],'Rebound headache from frequent pain medicine':['2y11','12y17'],
+ 'Kawasaki disease':['u3m','3m2y','2y11'],'MIS-C (inflammation after COVID-19)':['3m2y','2y11','12y17'],'Hand, foot and mouth disease':['3m2y','2y11'],
+ 'Middle ear infection (child)':['3m2y','2y11','12y17'],'Acute viral laryngitis':['2y11','12y17'],'Juvenile idiopathic arthritis':['3m2y','2y11','12y17'],
+ 'Testicle twist (testicular torsion)':['3m2y','2y11','12y17'],'Concussion':['3m2y','2y11','12y17'],'Pertussis in a baby':['u3m'],'Laryngomalacia':['u3m','3m2y'],'Vascular ring':['u3m','3m2y'],'Vocal cord paralysis (infant)':['u3m','3m2y'],'Subglottic narrowing (subglottic stenosis)':['u3m','3m2y','2y11']};
+const BAND_ALL=['u3m','3m2y','2y11','12y17'];
+// fever and pain medicine, by weight (AAP); shown with every home-care panel for a child
+function pedsDose(){
+ if(who.band==='u3m') return 'Medicine: do not give any medicine to a baby under 3 months unless a clinician tells you to. A fever at this age needs to be checked first.';
+ return 'Fever or pain medicine is dosed by weight, not age: acetaminophen (Tylenol) 15 mg per kg every 4 to 6 hours, no more than 5 doses in 24 hours'
+  +(who.band==='3m2y'?'; ibuprofen (Motrin, Advil) 10 mg per kg every 6 to 8 hours, only from 6 months old':'; or ibuprofen (Motrin, Advil) 10 mg per kg every 6 to 8 hours')
+  +', if your child is drinking. Use the syringe or cup that comes with the medicine and check the strength on the label. Treat discomfort, not the number on the thermometer. Never give aspirin to anyone under 18. No cough or cold medicines under age 4.';
+}
+const PN=(tier,why,ranked,x)=>Object.assign({tier,why,ranked,peds:1},x||{});
+const HOME='Usually fine to care for at home';
+const PSTEPS={
+ // babies under 3 months: the temperature question comes first in every area
+ pu_fever:{q:'Has your baby had a temperature of 100.4°F (38°C) or higher, or felt cold and floppy?',lede:'A rectal temperature is the most accurate at this age.',opts:[
+  {t:'Yes',go:'T-PF-INFANT',tr:'FEVER:YES'},
+  {t:'No, the temperature was normal',go:'pu_area',tr:'FEVER:NO'},
+  {t:'Not measured yet',go:'T-PF-INFANT-CHECK',tr:'FEVER:UNMEASURED'}]},
+ pu_area:{ifTrace:[['SYS:FEVER','T-PF-INFANT-CHECK']],bySys:{resp:'pr_infant',gi:'pv_u3m',msk:'T-PL-INFANT',skin:'skin_morph'},else:'T-PU-GENERIC'},
+
+ // ---- fever without a source (NICE NG143 traffic light; AAP febrile infant 2021)
+ pf_start:{byBand:{u3m:'pf_u3m','*':'pf_red'}},
+ pf_u3m:{q:'What was your baby’s temperature?',lede:'A rectal temperature is the most accurate at this age.',opts:[
+  {t:'100.4°F (38°C) or higher',go:'T-PF-INFANT',tr:'FEVER:YES'},
+  {t:'Below 97.5°F (36.4°C), or cold and floppy',go:'T-PF-INFANT',tr:'FEVER:LOW'},
+  {t:'Not measured yet, but my baby feels hot or seems unwell',go:'T-PF-INFANT-CHECK',tr:'FEVER:UNMEASURED'}]},
+ pf_red:{q:'Is any of this happening now?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Pale, blotchy, grey or blue skin, lips or tongue',1],
+  ['Very sleepy, floppy, hard to wake, or doesn’t respond to you',1],
+  ['A weak, high-pitched or nonstop cry',1],
+  ['Grunting, or working hard to breathe (the ribs suck in, the head bobs)',1],
+  ['A rash that doesn’t fade when you press a glass on it',1],
+  ['A stiff neck, or a bulging soft spot on a baby’s head',1],
+  ['A seizure (fit), or confused',1]],rules:[{min:1,go:'T-PF-RED'}],else:'pf_days',tag:'NICE-RED'}},
+ pf_days:{q:'How long has your child had a fever?',opts:[
+  {t:'Less than 2 days',go:'pf_amber',tr:'PF:DUR<2'},
+  {t:'2 to 4 days',go:'pf_amber',tr:'PF:DUR2-4'},
+  {t:'5 days or more',go:'pf_kd',tr:'PF:DUR5+'}]},
+ pf_amber:{q:'Any of these?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Less active than usual, not smiling, or only wakes if you keep trying',1],
+  ['Breathing faster than usual, or the nostrils flare',1],
+  ['Drinking much less, a dry mouth, or fewer wet diapers or pees',1],
+  ['Shaking chills (shivering fits)',1],
+  ['Not using an arm or leg, won’t stand on it, or a swollen joint',1],
+  ['Under 6 months old, with a temperature of 102.2°F (39°C) or higher',1,['3m2y']],
+  ['A long-term illness, a weak immune system, or not up to date with vaccines',1]],rules:[{min:1,go:'T-PF-AMBER'}],else:'pf_source',tag:'NICE-AMBER'}},
+ pf_kd:{q:'Since the fever started, has your child had any of these?',lede:'Tick any that apply. Doctors look for these together when a fever lasts 5 days or more.',score:{items:[
+  ['Red eyes, without pus or crusting',1],
+  ['Red, dry or cracked lips, or a bright red “strawberry” tongue',1],
+  ['A rash anywhere on the body',1],
+  ['Red, swollen hands or feet, or peeling skin on the fingers or toes',1],
+  ['A swollen gland on one side of the neck',1]],rules:[{min:2,go:'T-PF-KAWASAKI'}],else:'T-PF-PROLONGED',tag:'KD'}},
+ pf_source:{q:'Is anything else going on?',lede:'Pick the main one.',opts:[
+  {t:'A runny or stuffy nose and a mild cough',go:'T-PF-COLD',tr:'PF:COLD'},
+  {t:'A cough, wheeze or fast breathing',go:'pr_type',tr:'PF:CHEST'},
+  {t:'Ear pain, or pulling at an ear',go:'pe_ear',tr:'PF:EAR'},
+  {t:'A sore throat, or not wanting to swallow',go:'pt_red',tr:'PF:THROAT'},
+  {t:'Vomiting or diarrhea',go:'pv_red',tr:'PF:GI'},
+  {t:'Belly pain',go:'pb_red',tr:'PF:BELLY'},
+  {t:'A rash',go:'ps_pattern',tr:'PF:RASH'},
+  {t:'Pain or stinging when peeing, or smelly pee',go:'T-PF-UTI',tr:'PF:URINE'},
+  {t:'A limp, or a sore joint',go:'pl_red',tr:'PF:LIMP'},
+  {t:'A headache',go:'ph_red',tr:'PF:HEAD'},
+  {t:'Nothing else, just the fever',go:'pf_nosrc',tr:'PF:NOSOURCE'}]},
+ pf_nosrc:{ifTrace:[['PF:DUR2-4','pf_nosrc_long']],else:'pf_nosrc_short'},
+ pf_nosrc_short:{byBand:{'12y17':'T-PF-NOSOURCE-TEEN','*':'T-PF-NOSOURCE'}},
+ pf_nosrc_long:{byBand:{'3m2y':'T-PF-NOSOURCE-UTI','*':'T-PF-NOSOURCE-2D'}},
+
+ // ---- cough or breathing (AAP bronchiolitis 2014; NICE NG9; croup TOP; NAEPP/GINA)
+ pr_start:{byBand:{u3m:'pu_fever','*':'pr_red'}},
+ pr_red:{q:'Is any of this happening now?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Struggling to breathe: the ribs or the base of the neck suck in, the head bobs, or grunting',1],
+  ['Blue or grey lips, or pauses in breathing',1],
+  ['Too breathless to talk, eat or feed',1],
+  ['A harsh, noisy breath in (stridor) at rest that is new or getting worse',1],
+  ['Drooling, can’t swallow, or sitting forward to breathe',1],
+  ['Very sleepy, floppy or hard to wake',1],
+  ['Choked on something, or it started suddenly while eating or playing',1]],rules:[{min:1,go:'T-PR-RED'}],else:'pr_type',tag:'RESP-RED'}},
+ pr_infant:{q:'What sounds most like it?',opts:[
+  {t:'Noisy, squeaky breathing in, since the first weeks; worse when feeding, crying or lying on the back',go:'pr_stridor',tr:'PR:STRIDOR'},
+  {t:'A cough, a stuffy nose, or a cold',go:'T-PR-INFANT',tr:'PR:INFANTCOLD'},
+  {t:'Coughing fits, gagging, or going red or blue with coughing',go:'T-PR-INFANT',tr:'PR:INFANTFITS'}]},
+ // noisy breathing in a young baby (laryngomalacia; IPOG 2016)
+ pr_stridor:{q:'Any of these?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Pauses in breathing, or the lips or face turn blue or grey',3],
+  ['The skin between the ribs or at the base of the neck sucks in, or working hard to breathe',3],
+  ['Choking, gagging or coughing with feeds, or feeds take very long',1],
+  ['Feeding poorly, or not gaining weight',1],
+  ['The noisy breathing is there even when calm, and getting worse',1]],rules:[{min:3,go:'T-PR-STRIDOR-RED'},{min:1,go:'T-PR-STRIDOR-SEEN'}],else:'T-PR-LARYNGO',tag:'STRIDOR'}},
+ pr_type:{q:'What sounds most like it?',opts:[
+  {t:'Noisy, squeaky breathing in, since the first weeks; worse when feeding, crying or lying on the back',go:'pr_stridor',tr:'PR:STRIDOR',bands:['3m2y']},
+  {t:'A cough and runny nose, breathing normally',go:'T-PR-COLD',tr:'PR:COLD'},
+  {t:'A cold that has gone to the chest: breathing faster or harder',go:'pr_lrti',tr:'PR:LRTI'},
+  {t:'A cough with a fever, without wheeze',go:'pr_lrti',tr:'PR:FEVER'},
+  {t:'A barking, seal-like cough, or a hoarse voice',go:'pr_croup',tr:'PR:BARK'},
+  {t:'Wheezing (a whistle breathing out), or a tight chest',go:'pr_wheeze',tr:'PR:WHEEZE'},
+  {t:'Coughing fits, with a “whoop” or vomiting after',go:'T-PR-PERTUSSIS',tr:'PR:FITS'},
+  {t:'A cough that has lasted more than 3 weeks',go:'T-PR-CHRONIC',tr:'PR:>3W'}]},
+ pr_lrti:{byBand:{'3m2y':'pr_bronch','*':'pr_pneu'}},
+ pr_bronch:{q:'Any of these?',lede:'These tell a mild chest cold from one that needs a doctor today. Tick any that apply.',score:{items:[
+  ['Breathing much faster than usual, or the skin between the ribs sucks in',1],
+  ['Taking less than half of the usual feeds or drinks',1],
+  ['No wet diaper for 12 hours',1],
+  ['Born early (before 35 weeks), or has a heart, lung or immune condition',1],
+  ['A temperature of 102.2°F (39°C) or higher',1]],rules:[{min:1,go:'T-PR-BRONCH-SEEN'}],else:'T-PR-BRONCH-HOME',tag:'BRONCH'}},
+ pr_pneu:{q:'Any of these?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Breathing fast even when resting (over 40 breaths a minute under age 5, over 30 from age 5)',1],
+  ['A temperature of 102.2°F (39°C) or higher, or a fever for more than 3 days',1],
+  ['Pain in the chest or belly when breathing in or coughing',1],
+  ['Looks unwell, much less active, or drinking much less',1]],rules:[{min:1,go:'T-PR-PNEU'}],else:'T-PR-LRTI-HOME',tag:'PNEU'}},
+ pr_croup:{q:'When your child is calm and resting, how is the breathing?',opts:[
+  {t:'Quiet; just the barking cough',go:'T-PR-CROUP',tr:'CROUP:MILD'},
+  {t:'A harsh noise breathing in, but only when upset or crying',go:'T-PR-CROUP',tr:'CROUP:AGITATED'},
+  {t:'A harsh noise breathing in even at rest, or the ribs suck in',go:'T-PR-CROUP-SEVERE',tr:'CROUP:REST'},
+  {t:'Drooling, can’t swallow, or very unwell with a high fever',go:'T-PR-EPIGLOTTITIS',tr:'CROUP:TOXIC'}]},
+ pr_wheeze:{byBand:{'3m2y':'pr_wheeze_new','*':'pr_asthma'}},
+ pr_asthma:{q:'Has your child been diagnosed with asthma, or used a reliever inhaler before?',opts:[
+  {t:'Yes',go:'pr_asthma_known',tr:'ASTHMA:KNOWN'},
+  {t:'No, this is new',go:'pr_wheeze_new',tr:'ASTHMA:NEW'}]},
+ pr_asthma_known:{q:'After the reliever inhaler (usually blue), how is your child?',opts:[
+  {t:'Better, and it lasts 4 hours or more',go:'T-PR-ASTHMA-GREEN',tr:'ASTHMA:GREEN'},
+  {t:'Needs it again within 4 hours, or the wheeze keeps coming back',go:'T-PR-ASTHMA-YELLOW',tr:'ASTHMA:YELLOW'},
+  {t:'No better, or too breathless to talk in sentences',go:'T-PR-ASTHMA-RED',tr:'ASTHMA:RED'}]},
+ pr_wheeze_new:{q:'Which fits best?',opts:[
+  {t:'Came on with a cold; breathing a bit fast, but talking or feeding and playing',go:'T-PR-WHEEZE-NEW',tr:'WHEEZE:VIRAL'},
+  {t:'Started within minutes of a food, sting or medicine, with hives or swelling',go:'T-PR-ANAPHYLAXIS',tr:'WHEEZE:ALLERGY'},
+  {t:'Started suddenly while eating or playing with small things',go:'T-PR-FB',tr:'WHEEZE:FB'},
+  {t:'Breathing hard: the ribs suck in, or can’t talk or feed',go:'T-PR-ASTHMA-RED',tr:'WHEEZE:SEVERE'}]},
+
+ // ---- ear, nose and throat
+ pe_start:{byBand:{u3m:'pu_fever','*':'pe_type'}},
+ pe_type:{q:'Which fits best?',opts:[
+  {t:'Ear pain, pulling at an ear, or fluid from an ear',go:'pe_ear',tr:'PE:EAR'},
+  {t:'A sore throat',go:'pt_red',tr:'PE:THROAT'},
+  {t:'A runny or blocked nose',go:'pe_nose',tr:'PE:NOSE'},
+  {t:'A hoarse voice or a barking cough',go:'pr_croup',tr:'PE:VOICE'}]},
+ pe_ear:{q:'Which fits best?',opts:[
+  {t:'Ear pain with a cold or a fever',go:'pe_aom',tr:'EAR:AOM'},
+  {t:'Swelling, redness or pain behind the ear, or the ear sticks out',go:'T-PE-MASTOID',tr:'EAR:MASTOID'},
+  {t:'Hurts when the outer ear is pulled or pressed, often after swimming',go:'T-PE-OE',tr:'EAR:OE'},
+  {t:'Fluid or pus coming out of the ear',go:'T-PE-DRAIN',tr:'EAR:DRAIN'},
+  {t:'Something may be stuck in the ear or nose',go:'pe_fb',tr:'EAR:FB'},
+  {t:'Muffled hearing or a full ear, without much pain',go:'T-PE-OME',tr:'EAR:FULL'},
+  {t:'Pulling at the ear, with no other symptoms',go:'T-PE-TUG',tr:'EAR:TUG'}]},
+ pe_aom:{q:'Any of these?',lede:'Tick any that apply. They decide whether antibiotics are needed now or waiting is safe.',score:{items:[
+  ['Under 6 months old',2,['3m2y']],
+  ['Ear pain for 2 days (48 hours) or more',1],
+  ['Severe pain, or very upset',1],
+  ['A temperature of 102.2°F (39°C) or higher',1],
+  ['Both ears hurt, in a child under 2',1,['3m2y']],
+  ['Fluid coming out of the ear',1]],rules:[{min:1,go:'T-PE-AOM-SEEN'}],else:'T-PE-AOM-WAIT',tag:'AOM'}},
+ pe_fb:{q:'What might it be?',opts:[
+  {t:'A button battery or a magnet, or I’m not sure',go:'T-PE-BATTERY',tr:'FB:BATTERY'},
+  {t:'Something else: a bead, food, a toy part or an insect',go:'T-PE-FB',tr:'FB:OTHER'}]},
+ pe_nose:{q:'Which fits best?',opts:[
+  {t:'Less than 10 days, and steady or getting better',go:'T-PR-COLD',tr:'NOSE:<10D'},
+  {t:'10 days or more without getting better',go:'T-PE-SINUS',tr:'NOSE:PERSIST'},
+  {t:'Got better, then worse again with a new fever',go:'T-PE-SINUS',tr:'NOSE:WORSE'},
+  {t:'Swelling or redness around one eye',go:'T-PE-ORBITAL',tr:'NOSE:EYE'}]},
+ pt_red:{q:'Is any of this happening now?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Drooling, or can’t swallow their own spit',1],
+  ['A muffled “hot potato” voice, or can’t open the mouth fully',1],
+  ['A stiff, painful neck, or won’t move the neck',1],
+  ['Noisy breathing in, or struggling to breathe',1]],rules:[{min:1,go:'T-PT-RED'}],else:'pt_age',tag:'THROAT-RED'}},
+ pt_age:{byBand:{'3m2y':'pt_young','*':'pt_score'}},
+ pt_young:{q:'Which fits best?',opts:[
+  {t:'Sores or blisters in the mouth, maybe spots on the hands and feet',go:'T-PT-MOUTH',tr:'THROAT:SORES'},
+  {t:'Drinking much less, or fewer wet diapers',go:'T-PT-DRINK',tr:'THROAT:DRY'},
+  {t:'A cold with a sore throat, drinking OK',go:'T-PT-VIRAL',tr:'THROAT:COLD'}]},
+ pt_score:{q:'Which of these does your child have?',lede:'Tick all that apply. Doctors use these to decide who needs a strep test.',score:{items:[
+  ['A temperature of 100.4°F (38°C) or higher',1],
+  ['Swollen, tender glands at the front of the neck',1],
+  ['Swollen tonsils, or white patches or pus on them',1],
+  ['No cough',1],
+  ['A fine, rough, sandpapery red rash',2],
+  ['A runny nose, hoarse voice, mouth ulcers or red eyes',-1]],bandPts:{'2y11':1,'12y17':0},rules:[{min:3,go:'T-PT-STREP'}],else:'pt_more',tag:'MCISAAC'}},
+ pt_more:{q:'Which fits best?',opts:[
+  {t:'Very tired, with swollen glands, for a week or more',go:'T-PT-MONO',tr:'THROAT:MONO',bands:['2y11','12y17']},
+  {t:'Drinking much less, or peeing much less',go:'T-PT-DRINK',tr:'THROAT:DRY'},
+  {t:'None of these',go:'T-PT-VIRAL',tr:'THROAT:VIRAL'}]},
+
+ // ---- stomach: vomiting or diarrhea, or belly pain (NICE CG84; CDC 2003; PAS)
+ pg_start:{byBand:{u3m:'pu_fever','*':'pg_type'}},
+ pg_type:{q:'What is the main problem?',opts:[
+  {t:'Vomiting or diarrhea',go:'pv_red',tr:'PG:VD'},
+  {t:'Belly pain',go:'pb_red',tr:'PG:PAIN'},
+  {t:'Constipation: hard poop, pooping less often, or straining',go:'pb_const',tr:'PG:CONST'},
+  {t:'Heartburn or indigestion',go:'gi_type',tr:'PG:ADULT',bands:['12y17']}]},
+ pv_u3m:{q:'Which fits best?',opts:[
+  {t:'Green (or yellow-green) vomit',go:'T-PV-BILIOUS',tr:'INF:BILE'},
+  {t:'Forceful vomits that shoot out after feeds, and still hungry',go:'T-PV-PYLORIC',tr:'INF:PROJECTILE'},
+  {t:'Diarrhea, or vomiting with diarrhea',go:'T-PV-INFANT',tr:'INF:GASTRO'},
+  {t:'Spitting up small amounts after feeds; otherwise feeding and growing well',go:'T-PV-REFLUX',tr:'INF:SPITUP'},
+  {t:'Crying as if in pain, and hard to settle',go:'T-PB-INFANT',tr:'INF:CRYING'}]},
+ pv_red:{q:'Is any of this happening now?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Green vomit, or vomit with blood or “coffee grounds”',1],
+  ['Very sleepy, floppy, or hard to wake',1],
+  ['Bouts of screaming with the knees pulled up, or red jelly-like poop',1,['3m2y','2y11']],
+  ['Severe, constant belly pain, or a swollen, hard belly',1],
+  ['Vomiting after a head injury',1],
+  ['A stiff neck, a rash that doesn’t fade, or a severe headache',1],
+  ['Very thirsty, peeing a lot, or losing weight lately',1]],rules:[{min:1,go:'T-PV-RED'}],else:'pv_dehyd',tag:'GI-RED'}},
+ pv_dehyd:{q:'Any signs of drying out?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Fewer wet diapers or pees than usual, or dark pee',1],
+  ['A dry mouth or lips, or crying without tears',1],
+  ['Sunken eyes, or a sunken soft spot on a baby’s head',1],
+  ['More tired, cranky or less active than usual',1],
+  ['Vomiting even small sips, for 4 hours or more',1]],rules:[{min:1,go:'T-PV-DEHYD'}],else:'pv_more',tag:'DEHYD'}},
+ pv_more:{q:'Which fits best?',opts:[
+  {t:'Vomiting and diarrhea, and drinking OK',go:'T-PV-GASTRO',tr:'PV:GASTRO'},
+  {t:'Diarrhea only, drinking OK',go:'T-PV-GASTRO',tr:'PV:DIARR'},
+  {t:'Blood in the poop',go:'T-PV-BLOODY',tr:'PV:BLOOD'},
+  {t:'Vomiting with no diarrhea, for more than a day',go:'T-PV-VOMIT-ONLY',tr:'PV:VOMITONLY'},
+  {t:'Diarrhea for more than 7 days',go:'T-PV-PROLONGED',tr:'PV:>7D'}]},
+ pb_red:{q:'Is any of this happening now?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Green vomit, or vomit with blood',1],
+  ['Bouts of screaming or pulling the knees up every 10 to 20 minutes, pale or floppy in between',1,['3m2y','2y11']],
+  ['Red, jelly-like or bloody poop',1],
+  ['A swollen, hard belly, or pain so bad your child won’t move',1],
+  ['Pain or swelling in the testicles (scrotum) or groin',1],
+  ['After a fall, crash or blow to the belly',1],
+  ['Very sleepy, floppy, or hard to wake',1]],rules:[{min:1,go:'T-PB-RED'}],else:'pb_where',tag:'BELLY-RED'}},
+ pb_where:{q:'Which fits best?',opts:[
+  {t:'Started around the belly button, then moved to the lower right side',go:'pb_app',tr:'PB:MIGRATE'},
+  {t:'Constant pain on the lower right, getting worse',go:'pb_app',tr:'PB:RLQ'},
+  {t:'With vomiting or diarrhea',go:'pv_red',tr:'PB:GASTRO'},
+  {t:'Low in the belly, with stinging or peeing often',go:'T-PB-UTI',tr:'PB:URINE'},
+  {t:'Comes and goes, with hard poop, pooping less often, or straining',go:'pb_const',tr:'PB:CONST'},
+  {t:'With a sore throat or a fever',go:'T-PB-THROAT',tr:'PB:THROAT'},
+  {t:'Low in the belly, around a period, or she could be pregnant',go:'T-PB-TEEN-GIRL',tr:'PB:GYN',bands:['12y17']},
+  {t:'Comes and goes for weeks; otherwise well and growing',go:'T-PB-FUNCTIONAL',tr:'PB:RECURRENT',bands:['2y11','12y17']}]},
+ pb_app:{q:'Which of these does your child have?',lede:'Tick all that apply.',score:{items:[
+  ['Hurts more when coughing, hopping or going over bumps',2],
+  ['Not hungry, or won’t eat',1],
+  ['Has vomited',1],
+  ['A temperature of 100.4°F (38°C) or higher',1],
+  ['Pain for more than 12 hours and getting worse',1]],rules:[{min:2,go:'T-PB-APPY'}],else:'T-PB-APPY-POSS',tag:'PAS'}},
+ pb_const:{q:'Any of these?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Constipated since the first weeks of life, or the first poop was late (after 2 days)',1],
+  ['A swollen belly, with vomiting',1],
+  ['Weak legs, back problems, or new trouble walking',1],
+  ['Losing weight, or not growing well',1],
+  ['Blood in the poop, more than a streak',1]],rules:[{min:1,go:'T-PB-CONST-RED'}],else:'T-PB-CONST',tag:'CONST'}},
+
+ // ---- rash with fever (NICE NG143 / meningitis; AHA Kawasaki; CDC)
+ ps_start:{q:'Has your child had a fever with this rash, now or in the last few days?',opts:[
+  {t:'Yes',go:'ps_band',tr:'RASH:FEVER'},
+  {t:'No',go:'skin_morph',tr:'RASH:NOFEVER'}]},
+ ps_band:{byBand:{u3m:'T-PF-INFANT','*':'ps_red'}},
+ ps_red:{q:'Is any of this happening now?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Spots that don’t fade when you press a glass on them (purple or red-brown dots, or bruises)',1],
+  ['Very sleepy or floppy, cold hands and feet, or pale or blotchy skin',1],
+  ['Blisters, peeling or raw skin, or sores in the mouth and eyes',1],
+  ['Bright red skin all over, like sunburn, and very unwell',1],
+  ['Swollen lips or face, or trouble breathing',1]],rules:[{min:1,go:'T-PS-RED'}],else:'ps_pattern',tag:'RASH-RED'}},
+ ps_pattern:{q:'What does the rash look like?',opts:[
+  {t:'Small spots or blisters on the hands, feet and in the mouth',go:'T-PS-HFMD',tr:'RASH:HFMD'},
+  {t:'Itchy spots that turn into blisters, then crusts, in waves',go:'T-PS-CHICKENPOX',tr:'RASH:VZV'},
+  {t:'A fine, rough, sandpapery red rash, with a sore throat',go:'T-PS-SCARLET',tr:'RASH:SCARLET',bands:['2y11','12y17']},
+  {t:'Appeared just as a high fever of 3 days went away',go:'T-PS-ROSEOLA',tr:'RASH:ROSEOLA',bands:['3m2y','2y11']},
+  {t:'Bright red cheeks, then a lacy rash on the body',go:'T-PS-FIFTH',tr:'RASH:FIFTH'},
+  {t:'Blotchy rash spreading down from the face, with cough, runny nose and red eyes',go:'T-PS-MEASLES',tr:'RASH:MEASLES'},
+  {t:'Fever for 5 days or more, with red eyes, red lips, or swollen hands or feet',go:'pf_kd',tr:'RASH:KD'},
+  {t:'Hives: raised, itchy welts that move around',go:'T-PS-HIVES',tr:'RASH:HIVES'},
+  {t:'Started after a new medicine, such as an antibiotic',go:'T-PS-DRUG',tr:'RASH:DRUG'},
+  {t:'A red, warm, spreading patch of skin',go:'T-PS-CELLULITIS',tr:'RASH:CELL'},
+  {t:'Flat or slightly raised pink spots, and fairly well',go:'T-PS-VIRAL',tr:'RASH:VIRAL'}]},
+
+ // ---- limp or joint (Kocher criteria; NICE CKS acute childhood limp)
+ pl_start:{byBand:{u3m:'pu_fever','*':'pl_type'}},
+ pl_type:{q:'What is the main problem?',opts:[
+  {t:'A limp, won’t walk, or pain in the hip, thigh or knee',go:'pl_red',tr:'PL:LIMP'},
+  {t:'A painful, swollen joint',go:'pl_red',tr:'PL:JOINT'},
+  {t:'Aching in both legs in the evening or night, gone by morning, walks normally',go:'T-PL-GROWING',tr:'PL:NIGHTACHE',bands:['2y11']},
+  {t:'An injury: a fall, twist or blow',go:'msk_where',tr:'PL:INJURY'},
+  {t:'Back, neck, arm or shoulder pain',go:'msk_where',tr:'PL:OTHER'}]},
+ pl_red:{q:'Any of these?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['A temperature of 101.3°F (38.5°C) or higher',1],
+  ['Won’t put any weight on the leg at all',1],
+  ['The joint is red, hot or very swollen, or won’t let anyone move it',1],
+  ['Looks unwell: very tired, pale, or not eating',1]],rules:[{min:2,go:'T-PL-SEPTIC'},{min:1,go:'T-PL-AMBER'}],else:'pl_age',tag:'KOCHER'}},
+ pl_age:{byBand:{'3m2y':'T-PL-TODDLER','12y17':'pl_teen','*':'pl_kid'}},
+ pl_kid:{q:'Which fits best?',opts:[
+  {t:'Started suddenly, often after a cold; otherwise well',go:'T-PL-SYNOVITIS',tr:'PL:SYNOV'},
+  {t:'After a fall or a twist',go:'T-PL-INJURY-KID',tr:'PL:FALL'},
+  {t:'On and off for weeks',go:'T-PL-CHRONIC',tr:'PL:WEEKS'},
+  {t:'Pain that wakes at night, with weight loss, bruising or tiredness',go:'T-PL-MALIG',tr:'PL:NIGHT'},
+  {t:'Several joints swollen or stiff, worst in the morning',go:'T-PL-JIA',tr:'PL:POLY'}]},
+ pl_teen:{q:'Which fits best?',opts:[
+  {t:'Hip, groin, thigh or knee pain, with a limp or the foot turning out',go:'T-PL-SCFE',tr:'PL:SCFE'},
+  {t:'Pain just below the kneecap or at the heel, worse with sports',go:'T-PL-OSGOOD',tr:'PL:APOPH'},
+  {t:'After a fall, twist or sports injury',go:'msk_where',tr:'PL:INJURY'},
+  {t:'Pain that wakes at night, with weight loss or tiredness',go:'T-PL-MALIG',tr:'PL:NIGHT'},
+  {t:'Several joints swollen or stiff, worst in the morning',go:'T-PL-JIA',tr:'PL:POLY'}]},
+
+ // ---- headache (AAN 2002 / AAN-AHS 2019; NICE CG150; CDC HEADS UP)
+ ph_start:{byBand:{u3m:'pu_fever','*':'ph_red'}},
+ ph_red:{q:'Is any of this happening now?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['A stiff neck with a fever, or a rash that doesn’t fade',1],
+  ['Very sleepy, confused, or hard to wake',1],
+  ['A seizure, weakness, or trouble talking, walking or seeing',1],
+  ['Came on suddenly and severely, like a thunderclap',1],
+  ['After a hit to the head, with vomiting, sleepiness or a worsening headache',1]],rules:[{min:1,go:'T-PH-RED'}],else:'ph_amber',tag:'HEAD-RED'}},
+ ph_amber:{q:'Any of these?',lede:'Tick any that apply. If none do, press Continue.',score:{items:[
+  ['Wakes your child from sleep, or is worst on waking, with vomiting',1],
+  ['Getting worse and more frequent over days or weeks',1],
+  ['Changes in behavior, balance, schoolwork, or the eyes (double vision, a new squint)',1],
+  ['Under 6 years old, with headaches that keep coming back',1,['2y11']]],rules:[{min:1,go:'T-PH-AMBER'}],else:'ph_type',tag:'HEAD-AMBER'}},
+ ph_type:{q:'Which fits best?',opts:[
+  {t:'With a fever, a cold or a sore throat',go:'T-PH-VIRAL',tr:'PH:VIRAL'},
+  {t:'Throbbing, with feeling sick or wanting a dark, quiet room; comes in attacks',go:'T-PH-MIGRAINE',tr:'PH:MIGRAINE',bands:['2y11','12y17']},
+  {t:'A tight band or pressure; can carry on with activities',go:'T-PH-TENSION',tr:'PH:TENSION',bands:['2y11','12y17']},
+  {t:'After a bump or hit to the head in the last few days',go:'T-PH-CONCUSSION',tr:'PH:INJURY'},
+  {t:'Most days for weeks, and pain medicine is used often',go:'T-PH-CHRONIC',tr:'PH:DAILY',bands:['2y11','12y17']},
+  {t:'Holding or hitting the head, or crying as if it hurts, without a fever',go:'T-PH-AMBER',tr:'PH:TODDLER',bands:['3m2y']}]}
+};
+Object.values(PSTEPS).forEach(s=>s.peds=1); Object.assign(STEPS,PSTEPS);
+
+const SAFETY_HOME=['Breathing fast or hard, or the skin between the ribs sucks in','Drinking much less, or no pee or wet diaper for 8 hours','Very sleepy, floppy, or hard to wake, or a rash that doesn’t fade when pressed','A fever for 5 days or more, or your child seems to be getting worse'];
+const BRING_FEVER=['The highest temperature, how you measured it, and when','Any medicine given, with the dose and time'];
+Object.assign(N,{
+ 'T-PU-GENERIC':PN('urgent','A baby under 3 months should be seen the same day for any new illness, even without a fever. Babies this young can become unwell quickly and show few signs.',['Common cold (child)','Viral infection with fever','!Serious infection in a young baby','!Urine infection (child or teen)'],{distinguish:'Under 3 months: low threshold for same-day review. Check temperature (rectal), feeding, urine output, tone, perfusion.',bring:BRING_FEVER}),
+ 'T-PF-INFANT':PN('emergent','A baby under 3 months with a temperature of 100.4°F (38°C) or more, or a low temperature, needs to be checked in an emergency department now, even if they seem well. Babies this young can have serious infections with very few signs.',['!Serious infection in a young baby','!Urine infection (child or teen)','!Bacterial meningitis','Viral infection with fever'],{title:'Go to the emergency department now',bring:['The temperature reading, how you measured it, and when','How much your baby has fed, and wet diapers, in the last 24 hours','Do not give fever medicine before your baby is seen unless a clinician says to'],distinguish:'AAP 2021 (8–60 days): urinalysis, blood culture and inflammatory markers (procalcitonin, ANC, CRP) stratify risk; LP and empiric antibiotics for all ≤21 days, by IM results at 22–60 days; consider HSV in the first weeks. NICE NG143: age under 3 months with temperature ≥38 °C is a red feature.'}),
+ 'T-PF-INFANT-CHECK':PN('urgent','A baby under 3 months who feels hot or seems unwell needs to be seen today. Take a rectal temperature now: if it is 100.4°F (38°C) or more, go to the emergency department instead.',['Viral infection with fever','Common cold (child)','!Serious infection in a young baby','!Urine infection (child or teen)'],{bring:BRING_FEVER,distinguish:'Confirm temperature (rectal). Any temperature ≥38 °C under 3 months = red (NICE NG143) and AAP febrile-infant pathway.'}),
+ 'T-PF-RED':PN('emergent','A child with a fever and any of these signs needs emergency care now. They are the red-flag signs doctors use to spot a serious infection such as sepsis or meningitis.',['!Meningococcal or other serious blood infection','!Bacterial meningitis','!Pneumonia','!Urine infection (child or teen)'],{bring:BRING_FEVER,distinguish:'NICE NG143 red features: colour (pale, mottled, ashen, blue); unresponsive or not rousable; weak, high-pitched or continuous cry; grunting, RR >60, moderate or severe chest indrawing; reduced skin turgor; non-blanching rash; bulging fontanelle; neck stiffness; seizures or focal signs.'}),
+ 'T-PF-AMBER':PN('urgent','One or more of these “amber” signs means your child should be checked in person today, to look for an infection that needs treatment.',['Viral infection with fever','!Urine infection (child or teen)','!Pneumonia','!Septic arthritis','!Meningococcal or other serious blood infection'],{bring:BRING_FEVER,distinguish:'NICE NG143 amber: face-to-face assessment; consider urine, bloods and chest X-ray by findings; safety-net. Not up to date with vaccines or immunocompromised raises bacteremia risk (AAP Red Book).'}),
+ 'T-PF-KAWASAKI':PN('urgent','A fever lasting 5 days or more together with these signs can be Kawasaki disease, or an inflammatory illness after COVID-19. It needs to be checked today: treatment within the first 10 days of fever protects the heart.',['!Kawasaki disease','!MIS-C (inflammation after COVID-19)','Viral exanthem','Scarlet fever'],{bring:BRING_FEVER.concat(['Photos of the rash, eyes, lips, hands and feet','The day the fever started']),distinguish:'AHA 2017: fever ≥5 days plus ≥4 of 5 principal features = complete KD; 2–3 features = evaluate for incomplete KD (CRP, ESR, albumin, ALT, platelets, WBC, urine; echo). Infants ≤6 months with fever ≥7 days and no explanation: evaluate. MIS-C: recent SARS-CoV-2, GI symptoms, shock (CDC case definition).'}),
+ 'T-PF-PROLONGED':PN('urgent','A fever lasting 5 days or more should be checked by a clinician today, even if your child seems fairly well. This is one of the “amber” signs.',['Viral infection with fever','!Urine infection (child or teen)','!Pneumonia','!Kawasaki disease'],{bring:BRING_FEVER.concat(['The day the fever started']),distinguish:'NICE NG143: fever ≥5 days is amber; assess for Kawasaki features (AHA 2017), UTI, pneumonia, occult bacterial infection.'}),
+ 'T-PF-COLD':PN('handoff','A fever with a runny nose and a mild cough, without any warning signs, is most often a cold or flu-like virus. Most children are better within a few days. Use the advice below and check on your child regularly, including overnight.',['Common cold (child)','Influenza','COVID-19','Middle ear infection (child)'],{title:HOME,warnList:SAFETY_HOME,bring:BRING_FEVER,distinguish:'NICE NG143 green: home care with safety-netting. Influenza antivirals for high-risk children (CDC).'}),
+ 'T-PF-NOSOURCE':PN('handoff','A fever with no other symptoms, in a child who is drinking, plays at times and has no warning signs, is usually a virus that settles in 2 to 3 days. Some viruses, like roseola, cause a high fever for a few days before a rash appears.',['Viral infection with fever','Roseola','!Urine infection (child or teen)'],{title:HOME,warnList:['A fever lasting more than 2 days in a child under 2, or more than 3 days at any age: get a urine test'].concat(SAFETY_HOME),bring:BRING_FEVER,distinguish:'Fever without source, no amber or red features (NICE NG143 green). Children 2–24 months: UTI prevalence ~5% in febrile children without a source; urinalysis if fever persists or risk factors (AAP 2011).'}),
+ 'T-PF-NOSOURCE-TEEN':PN('handoff','A fever with no other symptoms, and no warning signs, is usually a virus that settles in 2 to 3 days.',['Viral infection with fever','Influenza','COVID-19','Infectious mononucleosis','!Urine infection (child or teen)'],{title:HOME,warnList:['A fever lasting more than 3 days'].concat(SAFETY_HOME),bring:BRING_FEVER,distinguish:'Adolescent fever without source: viral most common; consider EBV, UTI, STI/PID in sexually active teens.'}),
+ 'T-PF-NOSOURCE-UTI':PN('urgent','A fever for 2 days or more with no other cause, in a child under 2, needs a urine test today. A urine infection is the most common hidden cause at this age, and it needs prompt treatment to protect the kidneys.',['Viral infection with fever','!Urine infection (child or teen)','Roseola','!Pneumonia'],{bring:BRING_FEVER.concat(['Wet diapers in the last 24 hours']),distinguish:'AAP 2011 UTI CPG (2–24 months): estimate UTI likelihood (e.g. UTICalc) and obtain catheter or suprapubic urine when testing; fever ≥48 h and ≥39 °C raise risk.'}),
+ 'T-PF-NOSOURCE-2D':PN('prompt','A fever for 2 to 4 days with no other cause should be checked in the next day or two, mainly to test the urine and listen to the chest.',['Viral infection with fever','!Urine infection (child or teen)','!Pneumonia','Infectious mononucleosis'],{title:'Get seen in the next day or two',warnList:SAFETY_HOME,bring:BRING_FEVER,distinguish:'Fever without source 2–4 days, no amber/red features: urinalysis, chest exam; consider EBV in older children.'}),
+ 'T-PF-UTI':PN('urgent','A fever with pain or stinging when peeing, or smelly pee, can be a kidney infection. Your child needs a urine test today, and usually antibiotics.',['!Urine infection (child or teen)','Viral infection with fever','Vulvovaginitis','Constipation in a child'],{bring:BRING_FEVER.concat(['A urine sample in a clean container, if you can']),distinguish:'Febrile UTI = presumed pyelonephritis. AAP 2011 (2–24 months); NICE NG224 (under 16s). Constipation and vulvovaginitis are common mimics.'}),
+
+ 'T-PR-INFANT':PN('urgent','A baby under 3 months with a cough or breathing problem should be seen today. Babies this young can tire quickly, and some have pauses in breathing.',['Bronchiolitis','Common cold (child)','!Pertussis in a baby','!Pneumonia'],{bring:['How much your baby has fed, and wet diapers, in the last 24 hours','A video of the breathing, if you can'],distinguish:'Age <3 months is a risk factor for severe bronchiolitis and apnea (AAP 2014; NICE NG9). Paroxysmal cough, apnea or cyanosis: consider pertussis.'}),
+ 'T-PR-LARYNGO':PN('prompt','Noisy, squeaky breathing in that started in the first weeks, is worse when feeding, crying or lying on the back, in a baby who feeds and grows well, is most often laryngomalacia: a floppy voice box that babies grow out of, usually by 12 to 18 months. It still needs a clinician to listen and confirm it.',['Laryngomalacia','Croup','Subglottic narrowing (subglottic stenosis)','Vocal cord paralysis (infant)','Vascular ring'],{lvls:[3,1,1,1,1],title:'Get it checked in the next few days',bring:['A video of the noisy breathing, awake and asleep','Your baby’s weights, and how feeds are going'],warnList:['Pauses in breathing, or blue or grey lips: call 911','The ribs or the base of the neck sucking in','Choking or coughing with feeds, poor feeding, or not gaining weight','The noise getting louder, or there even when calm'],distinguish:'Typical laryngomalacia: inspiratory stridor from the first 2 weeks, peaks 4–8 months, worse supine/feeding/agitation, better prone. Biphasic or expiratory stridor, hoarse/weak cry, onset after 4 months, or severe features → airway endoscopy (subglottic stenosis, vocal cord paralysis, vascular ring, hemangioma). GERD commonly coexists.'}),
+ 'T-PR-STRIDOR-SEEN':PN('urgent','Noisy breathing with feeding trouble, poor weight gain, or noise that is there at rest and getting worse, needs to be checked today. It can be a more severe floppy voice box (laryngomalacia) or another narrowing of the airway, and some babies need a specialist look with a small camera.',['Laryngomalacia','Subglottic narrowing (subglottic stenosis)','Vocal cord paralysis (infant)','Vascular ring','Croup','!Inhaled object (choking)'],{lvls:[3,2,1,1,1,0],bring:['A video of the noisy breathing and of a feed','Your baby’s weights'],distinguish:'Severe-feature laryngomalacia (feeding difficulty, FTT, aspiration) → ENT referral for flexible laryngoscopy ± supraglottoplasty (IPOG 2016). Consider other fixed lesions and, in older infants, foreign body.'}),
+ 'T-PR-STRIDOR-RED':PN('emergent','Pauses in breathing, blue or grey spells, or the ribs sucking in with noisy breathing mean the airway is too narrow. Call 911 or go to the emergency department now.',['!Laryngomalacia','!Subglottic narrowing (subglottic stenosis)','!Vascular ring','!Vocal cord paralysis (infant)','!Inhaled object (choking)'],{distinguish:'Infant stridor with apnea, cyanosis or significant retractions: airway emergency; urgent airway endoscopy.'}),
+ 'T-PR-RED':PN('emergent','These signs mean your child is struggling to breathe or may have something blocking the airway. Call 911 or go to the emergency department now.',['!Bronchiolitis','!Croup','!Severe asthma attack','!Inhaled object (choking)','!Epiglottitis or bacterial tracheitis','!Pneumonia'],{bring:['A video of the breathing, if you can do it safely','Any inhaler or medicine used, and when'],distinguish:'Severe respiratory distress, apnea, stridor at rest, drooling/tripod (epiglottitis, tracheitis), or witnessed choking (foreign body).'}),
+ 'T-PR-COLD':PN('handoff','A cough and runny nose with normal breathing is most often a cold. Coughs from colds can last 2 to 3 weeks. Use the advice below and watch for the warning signs.',['Common cold (child)','Influenza','COVID-19','Middle ear infection (child)'],{title:HOME,warnList:SAFETY_HOME,distinguish:'Uncomplicated URTI. No OTC cough/cold medicines under 4 (AAP; FDA under 2). Honey from 12 months.'}),
+ 'T-PR-BRONCH-HOME':PN('handoff','This sounds like bronchiolitis, a chest cold that is very common under age 2. It usually gets worse until day 3 to 5, then slowly better; the cough can last 3 weeks. Most babies and toddlers get through it at home.',['Bronchiolitis','Common cold (child)','Viral wheeze','!Pneumonia'],{title:HOME,warnList:['Breathing harder or faster, the ribs sucking in, or grunting','Taking less than half the usual feeds, or no wet diaper in 12 hours','Pauses in breathing, or blue or grey lips: call 911','Getting worse after day 5, or a fever over 102.2°F (39°C)'],distinguish:'AAP 2014 / NICE NG9: supportive care; no routine bronchodilators, steroids, antibiotics or chest X-ray. Refer if RR >60, apnea, SpO2 <90–92%, intake <50–75%, or risk factors.'}),
+ 'T-PR-BRONCH-SEEN':PN('urgent','This sounds like bronchiolitis, and one or more signs mean your child should be checked today, to look at the breathing and whether they are getting enough fluid.',['Bronchiolitis','!Pneumonia','Viral wheeze','!Dehydration (young child)'],{bring:['How much your child has drunk, and wet diapers, in the last 24 hours','A video of the breathing, if you can'],distinguish:'Bronchiolitis with a severity or risk feature (prematurity <35 wk, hsCHD, chronic lung disease, immunodeficiency, intake <50%, tachypnea/recession). High fever >39 °C is unusual in bronchiolitis: consider pneumonia (NICE NG9).'}),
+ 'T-PR-PNEU':PN('urgent','A cough with these signs can be pneumonia, a chest infection that may need antibiotics. Your child should be checked today.',['Pneumonia','Viral chest infection (child)','Influenza','Asthma flare in a child'],{bring:['The highest temperature and when','How many breaths a minute while resting, if you counted'],distinguish:'IDSA/PIDS 2011: tachypnea (WHO thresholds) is the most sensitive sign; outpatient amoxicillin for presumed bacterial CAP in fully immunized children; chest X-ray not routine for outpatients.'}),
+ 'T-PR-LRTI-HOME':PN('handoff','A cough with a fever but normal breathing, in a child who is drinking and fairly well, is usually a virus. The fever should settle in 3 days; the cough can last 3 weeks.',['Viral chest infection (child)','Common cold (child)','Influenza','COVID-19','!Pneumonia'],{title:HOME,warnList:SAFETY_HOME,distinguish:'No tachypnea, high fever or ill appearance: viral LRTI likely; safety-net for pneumonia.'}),
+ 'T-PR-CROUP':PN('urgent','A barking cough with a hoarse voice is croup. It is not an emergency while your child is calm and breathing quietly, but a clinician can give one dose of steroid medicine today that shortens it and makes a night visit less likely.',['Croup','Acute viral laryngitis','!Inhaled object (choking)','!Epiglottitis or bacterial tracheitis'],{title:'Get seen today; it is not an emergency',warnList:['A harsh noise breathing in while calm and resting','The ribs sucking in, or working hard to breathe','Drooling, can’t swallow, or very unwell with a high fever','Blue or grey lips, or very sleepy: call 911'],distinguish:'Westley/Alberta TOP: mild croup (no stridor at rest) still benefits from a single dose of oral dexamethasone 0.15–0.6 mg/kg. Stridor at rest or recession: nebulized epinephrine and observation.'}),
+ 'T-PR-CROUP-SEVERE':PN('emergent','A harsh noise breathing in while calm and resting, or the ribs sucking in, means the airway is narrowed. Go to the emergency department now; call 911 if your child is tiring or turning blue.',['!Croup','!Epiglottitis or bacterial tracheitis','!Inhaled object (choking)'],{distinguish:'Moderate-severe croup: dexamethasone plus nebulized epinephrine, observe 2–4 h after epinephrine (Alberta TOP).'}),
+ 'T-PR-EPIGLOTTITIS':PN('emergent','Drooling, trouble swallowing, or looking very unwell with a high fever can mean a dangerous swelling in the throat. Call 911 or go to the emergency department now. Keep your child calm and upright; do not look in the throat.',['!Epiglottitis or bacterial tracheitis','!Deep neck infection (retropharyngeal abscess)','!Croup'],{distinguish:'Toxic appearance, drooling, tripod posture, minimal cough: epiglottitis or bacterial tracheitis. Do not examine the pharynx; secure the airway.'}),
+ 'T-PR-ASTHMA-GREEN':PN('prompt','The reliever is working, so follow your child’s asthma action plan. Book a review within a week: a flare means the everyday preventer plan may need to change.',['Asthma flare in a child','Viral wheeze','Common cold (child)','!Pneumonia'],{title:'Follow the asthma plan, and book a review this week',bring:['Your child’s inhalers and spacer, and the action plan','How many puffs of reliever in the last 24 hours'],warnList:['Needing the reliever again within 4 hours','Breathless talking or eating, or the ribs sucking in','Lips or face turning blue or grey: call 911'],distinguish:'GINA/NAEPP: review within 1 week after any exacerbation; check adherence, inhaler technique, triggers; step up controller if needed.'}),
+ 'T-PR-ASTHMA-YELLOW':PN('urgent','Needing the reliever again within 4 hours means the asthma flare is not controlled. Your child should be seen today; a short course of steroid medicine is often needed.',['Asthma flare in a child','Viral wheeze','!Pneumonia','!Inhaled object (choking)'],{bring:['Your child’s inhalers and spacer, and the action plan','How many puffs of reliever in the last 24 hours'],distinguish:'Moderate exacerbation: SABA via spacer, oral corticosteroid (prednisolone 1–2 mg/kg, max 40 mg), reassess (NAEPP 2020/GINA).'}),
+ 'T-PR-ASTHMA-RED':PN('emergent','This is a severe asthma attack. Call 911 or go to the emergency department now. While you wait, give the reliever inhaler with a spacer: 1 puff every 30 to 60 seconds, up to 10 puffs, and repeat if needed.',['!Severe asthma attack','!Inhaled object (choking)','!Severe allergic reaction (anaphylaxis)','!Pneumonia'],{distinguish:'Severe/life-threatening asthma: unable to talk, recession, SpO2 <92%, silent chest, exhaustion (BTS/SIGN, NAEPP).'}),
+ 'T-PR-WHEEZE-NEW':PN('urgent','A first wheeze should be checked today, to see how hard your child is working to breathe and whether an inhaler helps. In young children it is usually set off by a cold.',['Viral wheeze','Bronchiolitis','New-onset asthma','!Inhaled object (choking)','!Pneumonia'],{bring:['A video of the breathing, if you can','Any family history of asthma, eczema or allergies'],distinguish:'Preschool viral wheeze vs bronchiolitis (<12–24 months) vs asthma; unilateral wheeze or sudden onset: foreign body.'}),
+ 'T-PR-ANAPHYLAXIS':PN('emergent','Wheezing with hives or swelling that started soon after a food, sting or medicine can be anaphylaxis, a severe allergic reaction. Use an epinephrine auto-injector now if you have one, and call 911.',['!Severe allergic reaction (anaphylaxis)','!Severe asthma attack','Acute urticaria'],{title:'Use an epinephrine pen if you have one, and call 911',distinguish:'Anaphylaxis criteria (WAO/NIAID): IM epinephrine 0.01 mg/kg (max 0.3 mg child, 0.5 mg adolescent); observe for biphasic reaction.'}),
+ 'T-PR-FB':PN('emergent','Breathing trouble that started suddenly while eating or playing can mean something was breathed in. Go to the emergency department now; call 911 if your child can’t breathe, cough or cry.',['!Inhaled object (choking)','Viral wheeze','!Croup'],{distinguish:'Witnessed choking, sudden onset, unilateral wheeze or reduced air entry: bronchoscopy; normal chest X-ray does not exclude.'}),
+ 'T-PR-PERTUSSIS':PN('urgent','Coughing fits with a “whoop” or vomiting afterwards can be whooping cough. It needs testing and antibiotics, which also protect babies and pregnant people around your child. Call ahead before going in.',['!Whooping cough (pertussis)','Viral chest infection (child)','Post-infectious cough','!Inhaled object (choking)'],{title:'Get seen today; call ahead first',bring:['A video of a coughing fit, if you can','Vaccination record','Babies or pregnant people at home'],distinguish:'CDC: test (PCR) within 3 weeks of cough onset; treat with azithromycin; prophylaxis for household contacts, especially infants and pregnant people. Infants may have apnea without whoop.'}),
+ 'T-PR-CHRONIC':PN('prompt','A cough lasting more than 3 weeks should be checked. Most are a slow-to-settle cough after a virus, but a wet cough that persists, asthma, whooping cough or something breathed in all need a clinician.',['Post-infectious cough','Protracted bacterial bronchitis','Cough-variant asthma','!Whooping cough (pertussis)','!Inhaled object (choking)'],{bring:['When it started and whether it is wet or dry','Any choking episode, even weeks ago','Smoke or vaping at home'],distinguish:'CHEST 2017/2020 pediatric chronic cough: chronic wet cough >4 weeks without other features → 2 weeks of antibiotics for PBB; specific pointers (digital clubbing, failure to thrive, choking history) → investigate.'}),
+
+ 'T-PE-AOM-WAIT':PN('handoff','This sounds like a middle ear infection. Most get better in 2 to 3 days without antibiotics, so for a child like yours it is safe to treat the pain and wait. If it is not better in 2 to 3 days, see a clinician.',['Middle ear infection (child)','Common cold (child)','Otitis media with effusion','Teething'],{title:'Usually fine to treat the pain and wait 2 to 3 days',warnList:['Not better after 2 to 3 days, or worse at any time','A fever of 102.2°F (39°C) or higher','Swelling or redness behind the ear, or the ear sticks out','Very sleepy, a stiff neck, or vomiting'],distinguish:'AAP 2013: observation with close follow-up is an option for non-severe AOM at 6–23 months (unilateral) and ≥24 months (unilateral or bilateral). Analgesia for all.'}),
+ 'T-PE-AOM-SEEN':PN('prompt','This sounds like a middle ear infection that should be looked at by a clinician in the next day: for a child like yours, antibiotics are usually recommended.',['Middle ear infection (child)','Otitis externa','Otitis media with effusion','!Mastoiditis'],{title:'Get seen in the next day',bring:['How long the ear has hurt','Any antibiotics in the last 30 days'],warnList:['Swelling or redness behind the ear, or the ear sticks out','Very sleepy, a stiff neck, or vomiting'],distinguish:'AAP 2013: antibiotics for AOM with otorrhea, severe signs (moderate-severe otalgia, otalgia ≥48 h, T ≥39 °C), bilateral AOM at 6–23 months, and all under 6 months. First-line high-dose amoxicillin (80–90 mg/kg/day) unless amoxicillin in last 30 days.'}),
+ 'T-PE-MASTOID':PN('emergent','Swelling, redness or pain behind the ear, especially if the ear is pushed forward, can mean the infection has spread to the bone behind the ear (mastoiditis). Go to the emergency department now.',['!Mastoiditis','Middle ear infection (child)','Otitis externa'],{title:'Go to the emergency department now',distinguish:'Acute mastoiditis: postauricular erythema, tenderness, fluctuance, protrusion of the pinna. IV antibiotics; CT if complications suspected.'}),
+ 'T-PE-OE':PN('prompt','Pain when the outer ear is touched, often after swimming, is usually swimmer’s ear. It usually needs prescription ear drops.',['Otitis externa','Ear-canal eczema','Middle ear infection (child)','!Foreign body'],{distinguish:'AAO-HNSF 2014: topical antimicrobial drops; no systemic antibiotics unless spread beyond the canal.'}),
+ 'T-PE-DRAIN':PN('prompt','Fluid or pus from the ear usually means a middle ear infection has burst a small hole in the eardrum, which then heals, or a canal infection. It should be checked in the next day or two.',['Middle ear infection (child)','Otitis externa','!Foreign body'],{title:'Get seen in the next day or two',distinguish:'AOM with otorrhea (antibiotics per AAP 2013) vs otitis externa; tympanostomy tubes: topical drops.'}),
+ 'T-PE-BATTERY':PN('emergent','A button battery or magnet in the ear or nose, or swallowed, can burn through tissue within hours. Go to the emergency department now. Don’t try to remove it yourself.',['!Button battery or magnet','!Foreign body'],{title:'Go to the emergency department now',distinguish:'Button battery in ear/nose/esophagus: emergency removal. National Capital Poison Center battery hotline 800-498-8666.'}),
+ 'T-PE-FB':PN('prompt','Something stuck in the ear or nose should be removed by a clinician in the next day. Don’t poke at it. A live insect in the ear can be calmed with a few drops of baby or mineral oil.',['Foreign body','Otitis externa'],{title:'Get seen in the next day',warnList:['It could be a button battery or a magnet: go to the ER now','Bleeding, severe pain, or a smelly discharge'],distinguish:'Unilateral foul nasal discharge in a young child = nasal foreign body until proven otherwise.'}),
+ 'T-PE-OME':PN('handoff','A full feeling or muffled hearing without much pain is usually fluid behind the eardrum after a cold. It usually clears by itself within 3 months. Book a routine visit if it lasts, or if you are worried about hearing or speech.',['Otitis media with effusion','Eustachian tube dysfunction','Cerumen impaction'],{distinguish:'AAO-HNSF 2016 OME: watchful waiting 3 months; hearing test if persistent or at-risk child.'}),
+ 'T-PE-TUG':PN('handoff','Pulling at an ear without fever, crying or other symptoms is very common in babies and toddlers and is rarely an ear infection. Teething, tiredness or simply discovering the ear are more likely.',['Teething','Middle ear infection (child)','Otitis media with effusion'],{title:HOME,warnList:['A fever, crying at night, or a cold with ear pulling','Fluid from the ear'],distinguish:'Ear tugging alone has poor predictive value for AOM.'}),
+ 'T-PE-SINUS':PN('prompt','A runny nose or cough that lasts 10 days without improving, or gets better then worse again with a new fever, can be a bacterial sinus infection. A clinician can decide whether antibiotics will help.',['Sinus infection in a child','Common cold (child)','Allergic rhinitis','!Foreign body'],{distinguish:'AAP 2013 sinusitis CPG: persistent (≥10 days), worsening (double-sickening), or severe onset (≥39 °C with purulent discharge ≥3 days). Imaging not needed for uncomplicated cases.'}),
+ 'T-PE-ORBITAL':PN('urgent','Swelling or redness around one eye with a cold needs to be seen today: infection can spread from the sinuses to the eye. Go to the emergency department now if the eye bulges, hurts to move, or vision changes.',['!Swelling around the eye (periorbital or orbital cellulitis)','Allergic eye disease','Hordeolum (stye)'],{distinguish:'Pre-septal vs orbital cellulitis: proptosis, painful or restricted eye movements, reduced acuity → orbital (CT, IV antibiotics).'}),
+ 'T-PT-RED':PN('emergent','These signs can mean an abscess or swelling in the throat that can block the airway. Go to the emergency department now; call 911 if your child is struggling to breathe.',['!Peritonsillar abscess (quinsy)','!Deep neck infection (retropharyngeal abscess)','!Epiglottitis or bacterial tracheitis'],{distinguish:'Trismus, hot-potato voice, uvular deviation (PTA); neck stiffness, torticollis, drooling (RPA); stridor, toxic (epiglottitis).'}),
+ 'T-PT-STREP':PN('prompt','These signs together make strep throat more likely. A quick swab test tells; if it is positive, antibiotics help your child feel better sooner and stop it spreading.',['Streptococcal pharyngitis','Viral sore throat in a child','Scarlet fever','Infectious mononucleosis'],{title:'Get a strep test in the next day or two',warnList:['Drooling, can’t open the mouth, or trouble breathing','Not drinking, or no pee for 8 hours'],distinguish:'IDSA 2012: test (RADT ± culture in children) when clinical features suggest GAS; do not test with clear viral features; amoxicillin 10 days. McIsaac ≥3 (age-adjusted).'}),
+ 'T-PT-VIRAL':PN('handoff','Most sore throats in children are caused by viruses and get better in about a week without antibiotics.',['Viral sore throat in a child','Common cold (child)','Streptococcal pharyngitis','Infectious mononucleosis'],{title:HOME,warnList:['Drooling, can’t open the mouth, or trouble breathing','Not drinking, or no pee for 8 hours','A fine, sandpapery rash, or a fever with no cough and swollen glands: get a strep test','Lasting more than a week'],distinguish:'Low McIsaac or viral features: no test, no antibiotics (IDSA 2012).'}),
+ 'T-PT-MOUTH':PN('handoff','Sore mouth blisters with a fever are usually a virus, such as hand, foot and mouth disease, or a cold-sore virus infection of the gums. The main risk is not drinking enough because it hurts.',['Hand, foot and mouth disease','Herpes mouth infection (gingivostomatitis)','Viral sore throat in a child','!Dehydration (young child)'],{title:HOME,warnList:['Fewer wet diapers, or no wet diaper for 8 hours','Not drinking at all','Very sleepy or floppy','Blisters near the eyes'],distinguish:'Herpangina/HFMD (posterior palate, hands, feet) vs primary HSV gingivostomatitis (anterior, gums, perioral): early acyclovir in HSV if drinking poorly.'}),
+ 'T-PT-DRINK':PN('urgent','A sore throat that stops your child drinking can quickly lead to drying out. Your child should be seen today.',['!Dehydration (young child)','Viral sore throat in a child','Hand, foot and mouth disease','Herpes mouth infection (gingivostomatitis)','Streptococcal pharyngitis'],{bring:['How much your child has drunk, and pees, in the last 24 hours'],distinguish:'Assess hydration (Clinical Dehydration Scale); analgesia before oral trial.'}),
+ 'T-PT-MONO':PN('prompt','Tiredness and swollen glands lasting a week or more, with a sore throat, can be glandular fever (mono). A blood test can tell. Avoid contact sports until a clinician clears it, because the spleen can swell.',['Infectious mononucleosis','Streptococcal pharyngitis','Viral sore throat in a child'],{distinguish:'EBV: heterophile test (less sensitive under 4); avoid amoxicillin (rash); no contact sports ≥3 weeks (splenic rupture).'}),
+
+ 'T-PV-INFANT':PN('urgent','A baby under 3 months with vomiting or diarrhea should be seen today, because babies this young dry out quickly.',['Stomach bug in a child (gastroenteritis)','!Dehydration (young child)','!Serious infection in a young baby','!Urine infection (child or teen)'],{bring:['Wet diapers and feeds in the last 24 hours','A photo of the vomit or diaper if unusual'],distinguish:'NICE CG84: under 6 months is a risk factor for dehydration. Vomiting without diarrhea in infants: consider UTI, sepsis, pyloric stenosis, raised ICP.'}),
+ 'T-PV-BILIOUS':PN('emergent','Green vomit in a baby can mean the bowel is twisted or blocked. This is an emergency: go to the emergency department now.',['!Twisted bowel (malrotation with volvulus)','!Bowel obstruction','!Serious infection in a young baby'],{title:'Go to the emergency department now',distinguish:'Bilious emesis in an infant = malrotation with volvulus until proven otherwise (urgent upper GI contrast study, surgical review).'}),
+ 'T-PV-PYLORIC':PN('urgent','Forceful vomits after feeds in a baby who is still hungry can be pyloric stenosis, a narrowing at the stomach exit that is common at 2 to 8 weeks. It needs to be checked today.',['Pyloric stenosis','Reflux in babies (spitting up)','Stomach bug in a child (gastroenteritis)','!Dehydration (young child)'],{bring:['Wet diapers and feeds in the last 24 hours','Your baby’s last weight'],distinguish:'Projectile non-bilious vomiting 2–8 weeks: ultrasound; hypochloremic metabolic alkalosis.'}),
+ 'T-PV-REFLUX':PN('handoff','Spitting up small amounts after feeds, in a baby who is feeding well, growing and content, is normal reflux. It peaks at around 4 months and usually stops by 12 months.',['Reflux in babies (spitting up)','Colic'],{title:'Usually normal; mention it at your baby’s next check-up',infantOK:1,warnList:['Green, bloody or forceful (shooting) vomit','Poor feeding, fewer wet diapers, or not gaining weight','Arching and screaming with feeds, or a fever','Very sleepy or floppy'],distinguish:'NASPGHAN/ESPGHAN 2018: physiologic GER in a thriving infant needs no tests or acid suppression; check red flags (bilious, hematemesis, onset after 6 months, FTT, fever, lethargy).'}),
+ 'T-PV-RED':PN('emergent','These signs can mean something more than a stomach bug: a blocked or twisted bowel, appendicitis, severe drying out, new diabetes, or an infection around the brain. Go to the emergency department now.',['!Intussusception','!Appendicitis','!Bowel obstruction','!New diabetes with ketoacidosis (DKA)','!Dehydration (young child)','!Bacterial meningitis'],{distinguish:'Bilious or bloody vomiting, peritonism, lethargy, polyuria/polydipsia (DKA), post-head-injury vomiting, meningism.'}),
+ 'T-PV-DEHYD':PN('urgent','Your child is showing signs of drying out. Start oral rehydration solution now, in small sips, and get seen today. Go to the emergency department if your child is very sleepy or floppy, or keeps vomiting everything.',['!Dehydration (young child)','Stomach bug in a child (gastroenteritis)','Bacterial food poisoning'],{bring:['Wet diapers or pees, and how much your child has drunk, in the last 24 hours','Your child’s last known weight'],distinguish:'Clinical Dehydration Scale / NICE CG84 “red flag” signs: ORT 50 mL/kg over 4 h (some dehydration); ondansetron if vomiting limits ORT; IV for shock or ORT failure.'}),
+ 'T-PV-GASTRO':PN('handoff','This sounds like a stomach bug. It usually settles within a few days: vomiting in 1 to 2 days, diarrhea within 5 to 7. The key is to keep fluids going in small sips.',['Stomach bug in a child (gastroenteritis)','Bacterial food poisoning','!Dehydration (young child)'],{title:HOME,warnList:['Fewer wet diapers or pees, a dry mouth, no tears, or more sleepy','Green vomit, or blood in the vomit or poop','Vomiting for more than 24 hours, or diarrhea for more than 7 days','Severe or constant belly pain'],distinguish:'CDC 2003 / NICE CG84: no dehydration → continue feeding and breastfeeding, ORS for ongoing losses; no antidiarrheals; antibiotics only for specific causes.'}),
+ 'T-PV-BLOODY':PN('urgent','Blood in the poop with diarrhea can be a bacterial infection. A few types, like E. coli O157, can harm the kidneys, so your child should be seen today and a stool sample tested. Don’t give anti-diarrhea medicine.',['Bacterial food poisoning','!Bloody diarrhea with kidney risk (E. coli, HUS)','Stomach bug in a child (gastroenteritis)','!Intussusception'],{bring:['A stool sample in a clean container','Recent travel, farm visits, undercooked meat or unwashed produce'],distinguish:'Bloody diarrhea: stool culture and STEC testing; avoid antibiotics and antimotility agents in suspected STEC (HUS risk); monitor urine output, CBC, creatinine.'}),
+ 'T-PV-VOMIT-ONLY':PN('urgent','Vomiting for more than a day without diarrhea is less typical of a stomach bug, so your child should be seen today to check for other causes, such as a urine infection.',['Stomach bug in a child (gastroenteritis)','!Urine infection (child or teen)','!Appendicitis','!New diabetes with ketoacidosis (DKA)'],{distinguish:'Isolated vomiting: UTI, early appendicitis, DKA, raised ICP, obstruction, toxic ingestion (NICE CG84 alternative diagnoses).'}),
+ 'T-PV-PROLONGED':PN('prompt','Diarrhea lasting more than 7 days should be checked. It is often the gut slowly recovering after a bug, but some infections and food intolerances need treatment.',['Food intolerance','Stomach bug in a child (gastroenteritis)','Chronic infection','Celiac disease'],{bring:['A stool sample in a clean container','A diary of food and poops'],distinguish:'Persistent diarrhea ≥7–14 days: stool for Giardia/Cryptosporidium, transient lactose intolerance, celiac serology if prolonged; growth.'}),
+ 'T-PB-INFANT':PN('urgent','A baby under 3 months who seems to have belly pain, or cries and can’t be settled, should be seen today.',['Colic','Constipation in a child','!Urine infection (child or teen)','!Twisted bowel (malrotation with volvulus)'],{bring:['Feeds, wet diapers and poops in the last 24 hours'],distinguish:'Inconsolable infant: exclude UTI, hernia, testicular torsion, volvulus, hair tourniquet, fracture.'}),
+ 'T-PB-RED':PN('emergent','These signs can mean a blocked or twisted bowel, appendicitis, a twisted testicle, or an injury inside the belly. Go to the emergency department now.',['!Intussusception','!Appendicitis','!Testicle twist (testicular torsion)','!Bowel obstruction','!Twisted bowel (malrotation with volvulus)'],{distinguish:'Intussusception (6 months–3 years, paroxysmal pain, currant-jelly stool, lethargy): ultrasound. Scrotal pain: testicular torsion until proven otherwise (6-hour window).'}),
+ 'T-PB-APPY':PN('emergent','Pain that started at the belly button and moved to the lower right, with these signs, can be appendicitis. Go to the emergency department now, and don’t give anything to eat or drink until a clinician says it’s OK.',['!Appendicitis','Swollen belly glands with a virus (mesenteric adenitis)','Constipation in a child','!Ovary twist or burst cyst'],{title:'Go to the emergency department now',distinguish:'Pediatric Appendicitis Score (Samuel 2002): migration, anorexia, nausea/vomiting, fever, cough/hop/percussion tenderness (2), RLQ tenderness (2), leukocytosis, neutrophilia. Ultrasound first-line imaging.'}),
+ 'T-PB-APPY-POSS':PN('urgent','Appendicitis can start like this, so your child should be checked today, even if the pain seems to ease.',['Swollen belly glands with a virus (mesenteric adenitis)','!Appendicitis','Constipation in a child','Stomach bug in a child (gastroenteritis)'],{warnList:['Pain getting worse, or worse with moving, coughing or hopping','Vomiting, a fever, or not wanting to eat'],distinguish:'Low PAS: observation with serial examination or ultrasound; safety-net.'}),
+ 'T-PB-UTI':PN('prompt','Low belly pain with stinging or peeing often is most often a urine infection. Your child needs a urine test in the next day, and usually antibiotics.',['Urine infection (child or teen)','Constipation in a child','Vulvovaginitis'],{title:'Get a urine test in the next day',bring:['A urine sample in a clean container, if you can'],warnList:['A fever, back or side pain, or vomiting: get seen today'],distinguish:'NICE NG224 / AAP 2011: urine dipstick and culture; constipation and vulvovaginitis (bubble baths, soaps) are common mimics.'}),
+ 'T-PB-THROAT':PN('prompt','Belly pain with a sore throat or a fever is common in children: strep throat and swollen glands in the belly from a virus can both cause it. Get seen in the next day or two, sooner if the pain moves to the lower right or gets worse.',['Swollen belly glands with a virus (mesenteric adenitis)','Streptococcal pharyngitis','!Appendicitis','!Urine infection (child or teen)'],{title:'Get seen in the next day or two',warnList:['Pain moving to the lower right, or worse with walking or coughing','Vomiting and not keeping fluids down'],distinguish:'GAS pharyngitis commonly causes abdominal pain in children; mesenteric adenitis is a diagnosis of exclusion versus appendicitis.'}),
+ 'T-PB-CONST':PN('handoff','This sounds like constipation, the most common cause of belly pain that comes and goes in children. More fluids, fiber, and regular sitting on the toilet after meals usually help.',['Constipation in a child','Functional belly pain','!Urine infection (child or teen)'],{title:HOME,warnList:['Vomiting, a swollen belly, or not passing gas','Blood in the poop, more than a streak','No better after 2 weeks of the steps below'],distinguish:'ESPGHAN/NASPGHAN 2014: Rome IV functional constipation; PEG first-line for disimpaction and maintenance; check alarm features (delayed meconium, FTT, neuro signs).'}),
+ 'T-PB-CONST-RED':PN('prompt','Constipation with any of these features should be checked by a clinician in the next few days, to rule out a less common cause.',['Constipation in a child','!Hirschsprung disease or another bowel cause (rare)','Celiac disease'],{distinguish:'ESPGHAN/NASPGHAN 2014 red flags: delayed meconium >48 h, onset <1 month, abdominal distension with vomiting, FTT, neurologic findings, gross blood.'}),
+ 'T-PB-TEEN-GIRL':PN('urgent','Low belly pain in a teenage girl can come from a period, but an ovary problem, an infection, appendicitis or a pregnancy outside the womb also need to be ruled out. She should be seen today, and a pregnancy test is part of the check.',['Period pain','!Ovary twist or burst cyst','!Ectopic pregnancy','!Pelvic inflammatory disease','!Appendicitis'],{bring:['The date of her last period'],distinguish:'Adolescent pelvic pain: urine hCG for all; ovarian torsion (sudden, unilateral, vomiting), PID (sexually active), ectopic, appendicitis. Confidential history.'}),
+ 'T-PB-FUNCTIONAL':PN('handoff','Belly pain that comes and goes for weeks, in a child who is otherwise well and growing, is usually “functional” belly pain: a real pain from a sensitive gut, not a dangerous disease. Book a routine visit to talk it through.',['Functional belly pain','Constipation in a child','Celiac disease','IBD'],{warnList:['Weight loss, or not growing','Pain that wakes your child at night, or is always in one spot away from the belly button','Blood in the poop, vomiting, or fevers','Diarrhea at night, or mouth ulcers or joint pains'],distinguish:'Rome IV functional abdominal pain disorders; alarm features prompt testing (CBC, CRP, celiac serology, fecal calprotectin, urinalysis).'}),
+
+ 'T-PS-RED':PN('emergent','A fever with a rash that doesn’t fade, or with these other signs, can be a serious blood infection or a severe skin reaction. Call 911 or go to the emergency department now.',['!Meningococcal or other serious blood infection','!Bacterial meningitis','!Severe blistering skin reaction (SJS/TEN)','!Toxic shock syndrome','!Severe allergic reaction (anaphylaxis)'],{distinguish:'Fever + non-blanching rash: meningococcal disease until proven otherwise (NICE NG240: parenteral antibiotics). Mucosal involvement and skin detachment: SJS/TEN. Erythroderma with shock: TSS.'}),
+ 'T-PS-HFMD':PN('handoff','This sounds like hand, foot and mouth disease, a common, mild virus in young children. It gets better by itself in 7 to 10 days. The main job is keeping fluids going while the mouth is sore.',['Hand, foot and mouth disease','Herpes mouth infection (gingivostomatitis)','Chickenpox','Viral exanthem'],{title:HOME,warnList:['Fewer wet diapers or pees, or not drinking','Very sleepy, a stiff neck, jerky movements or trouble walking','A fever lasting more than 3 days'],distinguish:'Enteroviruses (CDC). Rare neurologic complications (EV-A71). Onychomadesis can follow weeks later.'}),
+ 'T-PS-CHICKENPOX':PN('handoff','This sounds like chickenpox. In a healthy child it gets better by itself in 1 to 2 weeks. Use acetaminophen, not ibuprofen, for the fever. Keep your child home until all the spots have crusted over.',['Chickenpox','Hand, foot and mouth disease','Bite reaction','!Spreading skin infection (cellulitis)'],{title:HOME,warnList:['A spot that becomes red, hot, swollen and painful, or a fever that comes back','Breathing problems, or very sleepy, confused or unsteady','A baby under 1, a weak immune system, or eczema: call your clinician today','Someone pregnant or a newborn has been in contact: tell their clinician'],distinguish:'CDC varicella; NICE CKS: avoid NSAIDs (association with invasive GAS / necrotizing fasciitis†); aciclovir for adolescents, immunocompromised and neonates.'}),
+ 'T-PS-SCARLET':PN('prompt','A sandpapery rash with a sore throat and fever is likely scarlet fever, caused by strep bacteria. It needs a strep test and antibiotics, which help your child recover and stop it spreading.',['Scarlet fever','Streptococcal pharyngitis','Viral exanthem','!Kawasaki disease'],{title:'Get a strep test in the next day',distinguish:'GAS: RADT/culture; amoxicillin. Differentiate from Kawasaki (fever ≥5 days, conjunctivitis, extremity changes) and staphylococcal scalded skin.'}),
+ 'T-PS-ROSEOLA':PN('handoff','A rash that appears just as a high fever goes away, in a baby or toddler, is very likely roseola, a harmless virus. The rash fades in 1 to 2 days and your child can return to childcare once well.',['Roseola','Viral exanthem','Morbilliform drug eruption'],{title:HOME,warnList:SAFETY_HOME,distinguish:'HHV-6/7: 3–5 days of high fever then rash on defervescence; febrile seizures common in the febrile phase.'}),
+ 'T-PS-FIFTH':PN('handoff','Bright red cheeks followed by a lacy rash is very likely fifth disease (slapped cheek), a mild virus. By the time the rash appears it is no longer catching. Tell anyone pregnant who was in contact to call their clinician.',['Fifth disease (slapped cheek)','Viral exanthem','Scarlet fever'],{title:HOME,warnList:['Pale, very tired or short of breath (especially with sickle cell disease or other blood conditions)','Joint pains that last'],distinguish:'Parvovirus B19: aplastic crisis in hemolytic anemias; risk to the fetus (hydrops) in exposed pregnant contacts (CDC).'}),
+ 'T-PS-MEASLES':PN('urgent','A blotchy rash spreading down from the face, with fever, cough, runny nose and red eyes, can be measles. It is very catching and can be serious. Call your clinic or the emergency department before you go, so they can keep others safe.',['!Measles','Viral exanthem','!Kawasaki disease','Morbilliform drug eruption'],{title:'Call before going in, and get seen today',bring:['Vaccination record','Any travel or contact with measles in the last 3 weeks','Babies, pregnant people or anyone with a weak immune system at home'],distinguish:'CDC: airborne isolation; measles IgM and PCR; notify public health immediately; vitamin A for hospitalized children; post-exposure MMR/IG for contacts.'}),
+ 'T-PS-HIVES':PN('handoff','Hives with a fever in a child are most often set off by the virus itself, not an allergy. They come and go over a few days. Use the advice below; get help right away for any swelling of the lips or tongue, or trouble breathing.',['Acute urticaria','Viral exanthem','Bite reaction'],{title:HOME,warnList:['Swelling of the lips, tongue or face, or trouble breathing or swallowing: call 911','Vomiting or feeling faint after a food, sting or medicine','Hives that bruise or last more than 24 hours in one spot, or joint swelling'],distinguish:'Acute urticaria in children is most often post-viral; urticarial lesions lasting >24 h or bruising: urticarial vasculitis or serum-sickness-like reaction.'}),
+ 'T-PS-DRUG':PN('prompt','A rash that starts after a new medicine, often an antibiotic, is usually a mild reaction or the virus itself, but a clinician should look at it to decide whether to stop the medicine and whether it is a true allergy.',['Morbilliform drug eruption','Viral exanthem','Acute urticaria','!Severe drug reaction (DRESS)'],{title:'Call your clinician today; get seen in the next day or two',warnList:['Blisters, peeling skin, or sores in the mouth or eyes: go to the ER now','Swelling of the lips or face, or trouble breathing: call 911','A high fever, swollen glands, or the face swelling'],distinguish:'Amoxicillin rash (esp. with EBV) is usually not IgE-mediated; consider delabeling. DRESS: fever, facial edema, lymphadenopathy, eosinophilia 2–8 weeks after drug start.'}),
+ 'T-PS-CELLULITIS':PN('urgent','A red, warm, spreading patch of skin with a fever is likely a skin infection that needs antibiotics. Your child should be seen today. Draw around the edge with a pen so you can see if it spreads.',['Spreading skin infection (cellulitis)','Impetigo','!Necrotizing fasciitis','!Swelling around the eye (periorbital or orbital cellulitis)'],{distinguish:'IDSA 2014 SSTI: oral beta-lactam for non-purulent cellulitis; pain out of proportion or rapid spread: necrotizing infection.'}),
+ 'T-PS-VIRAL':PN('handoff','Flat or slightly raised pink spots with a fever, in a child who is otherwise fairly well, are very often caused by the virus itself. The rash usually fades in a few days.',['Viral exanthem','Roseola','Fifth disease (slapped cheek)','!Meningococcal or other serious blood infection'],{title:HOME,warnList:['Spots that don’t fade when you press a glass on them: call 911','A fever for 5 days or more, red eyes, red lips, or swollen hands or feet','Your child becomes very sleepy, floppy, or seems to be getting worse'],distinguish:'Viral exanthem is a diagnosis of exclusion; re-check blanching; NICE NG143 traffic light.'}),
+
+ 'T-PL-INFANT':PN('urgent','A baby under 3 months who isn’t moving an arm or leg, or cries when it is moved, needs to be seen today to check for a broken bone or a joint or bone infection.',['!Septic arthritis','!Bone infection (osteomyelitis)','Fracture'],{distinguish:'Pseudoparalysis in infancy: osteomyelitis/septic arthritis, fracture (including inflicted injury), brachial plexus injury.'}),
+ 'T-PL-SEPTIC':PN('emergent','A limp or a sore joint with these signs together can be an infection inside the joint or bone, which can damage it within days. Go to the emergency department now.',['!Septic arthritis','!Bone infection (osteomyelitis)','Irritable hip (transient synovitis)','!Slipped growth plate at the hip (SCFE)'],{title:'Go to the emergency department now',distinguish:'Kocher criteria (non-weight-bearing, fever >38.5 °C, ESR >40, WBC >12k; CRP >2 mg/dL added later): 2 → ~40%, 3 → ~93%, 4 → ~99% probability of septic arthritis. Urgent ultrasound, bloods, aspiration.'}),
+ 'T-PL-AMBER':PN('urgent','A limp or joint pain with this sign needs to be checked today, to rule out a joint or bone infection or a fracture.',['Irritable hip (transient synovitis)','!Septic arthritis','!Bone infection (osteomyelitis)','Fracture','!Slipped growth plate at the hip (SCFE)'],{distinguish:'One Kocher criterion: same-day examination, CRP/ESR/WBC ± ultrasound; NICE CKS limp: fever or non-weight-bearing needs urgent assessment.'}),
+ 'T-PL-TODDLER':PN('urgent','A new limp in a toddler should be checked today. The most common causes are a small break in the shin bone from a minor fall (often not noticed) and an irritable hip after a cold.',['Toddler’s fracture','Irritable hip (transient synovitis)','!Septic arthritis','!Bone infection (osteomyelitis)'],{bring:['Any fall or twist, even a small one','Recent cold or fever'],distinguish:'NICE CKS: under 3 years with a limp → urgent assessment. Toddler’s fracture may need oblique views; consider DDH, inflicted injury, infection.'}),
+ 'T-PL-SYNOVITIS':PN('urgent','A sudden limp after a cold, in a child who is otherwise well, is most often an irritable hip, which settles within 1 to 2 weeks. It still needs to be checked today, because a joint infection can look the same at first.',['Irritable hip (transient synovitis)','!Septic arthritis','Perthes disease','Sprain or ligament injury'],{warnList:['A fever, or your child won’t put any weight on the leg','Not better in 48 hours, or the limp lasts more than a week'],distinguish:'Kocher 0 → <0.2% septic arthritis. Transient synovitis is typically 3–10 years; review at 48 h; persistent limp → X-ray for Perthes.'}),
+ 'T-PL-INJURY-KID':PN('urgent','A limp after a fall or a twist should be checked today, because children’s growth plates and bones break more easily than ligaments tear.',['Sprain or ligament injury','Fracture','Growth plate overuse pain (Osgood-Schlatter or Sever’s)'],{distinguish:'Ottawa ankle rules are validated in children over 5; Salter-Harris injuries may be radiographically occult.'}),
+ 'T-PL-CHRONIC':PN('prompt','A limp or leg pain that comes and goes for weeks should be checked in the next few days. Most causes are not serious, but some hip conditions are easier to treat when found early.',['Perthes disease','Growth plate overuse pain (Osgood-Schlatter or Sever’s)','Juvenile idiopathic arthritis','!Leukemia or a bone tumor (rare)'],{distinguish:'Persistent limp >1 week: X-ray (AP and frog-leg), CBC/ESR/CRP; Perthes (4–10 y), JIA, tumors.'}),
+ 'T-PL-MALIG':PN('urgent','Bone or leg pain that wakes your child at night, with weight loss, bruising or tiredness, needs to be checked today, including a blood test. Most of the time it is something else, but this pattern must not be missed.',['!Leukemia or a bone tumor (rare)','!Bone infection (osteomyelitis)','Juvenile idiopathic arthritis','Growing pains'],{distinguish:'Night pain, systemic symptoms, pallor, bruising, hepatosplenomegaly: CBC with smear, LDH, uric acid, X-ray. Growing pains are bilateral, without limp or systemic features.'}),
+ 'T-PL-JIA':PN('prompt','Several swollen or stiff joints, worst in the morning, for more than a week or two, can be juvenile arthritis. It should be checked in the next few days; early treatment protects the joints and eyes.',['Juvenile idiopathic arthritis','Viral / reactive arthritis','IgA vasculitis (HSP)'],{distinguish:'JIA: arthritis ≥6 weeks before 16; uveitis screening (ACR 2019). Reactive/viral arthritis is self-limited. IgA vasculitis: palpable purpura on legs, abdominal pain, arthralgia, urinalysis.'}),
+ 'T-PL-SCFE':PN('urgent','Hip, thigh or knee pain with a limp or the foot turning out, in a teenager, can be a slipped growth plate at the hip (SCFE). Stop sports, use crutches or avoid walking on it, and get an X-ray today. Go to the emergency department if your child can’t put any weight on it.',['!Slipped growth plate at the hip (SCFE)','Muscular strain','Growth plate overuse pain (Osgood-Schlatter or Sever’s)','!Septic arthritis'],{title:'Get an X-ray today; avoid walking on it',distinguish:'AP and frog-leg lateral pelvis X-rays (both hips); unstable SCFE (cannot weight-bear) is an emergency. Isolated knee pain in a teen: examine the hip.'}),
+ 'T-PL-OSGOOD':PN('handoff','Pain just below the kneecap or at the back of the heel, worse with sports, in a growing child is usually a growth-plate overuse pain (Osgood-Schlatter at the knee, Sever’s at the heel). It settles with rest from painful activity, ice and stretching.',['Growth plate overuse pain (Osgood-Schlatter or Sever’s)','Overuse tendinopathy','!Slipped growth plate at the hip (SCFE)'],{title:HOME,warnList:['A limp, or pain in the hip or thigh','Swelling, redness, or pain at night or at rest','No better after 4 to 6 weeks of rest from sports'],distinguish:'Traction apophysitis; knee pain may be referred from the hip (SCFE).'}),
+ 'T-PL-GROWING':PN('handoff','Aching in both legs in the evening or at night, gone by morning, in a child who walks and plays normally, is typical of growing pains. They are harmless.',['Growing pains','Juvenile idiopathic arthritis','!Leukemia or a bone tumor (rare)'],{title:HOME,warnList:['A limp, or pain in only one leg','Swelling, redness or warmth of a joint','A fever, weight loss, tiredness or bruising','Pain during the day, or in the morning'],distinguish:'Growing pains: bilateral, nocturnal, normal examination, no limp; red flags exclude.'}),
+
+ 'T-PH-RED':PN('emergent','A headache with any of these signs needs emergency care now. Call 911 or go to the emergency department.',['!Bacterial meningitis','!Bleeding inside the head after an injury','!Raised intracranial pressure','!Meningococcal or other serious blood infection'],{distinguish:'Meningism, altered consciousness, focal deficit, seizure, thunderclap onset, post-traumatic red flags (PECARN).'}),
+ 'T-PH-AMBER':PN('urgent','A headache with this pattern should be checked today by a clinician who can look at the eyes and nerves, to see whether a scan is needed. Most of the time no serious cause is found.',['!Raised intracranial pressure','!Secondary headache needing imaging','Migraine in a child','Tension-type headache in a child'],{bring:['A headache diary: when, how long, what helped','Any vision, balance, behavior or school changes'],distinguish:'AAN 2002: neuroimaging for abnormal neuro exam, recent onset of severe headache, change in headache type, or features of neurologic dysfunction; occipital headache, age <6, and nocturnal waking with vomiting raise concern†.'}),
+ 'T-PH-VIRAL':PN('handoff','A headache with a fever, a cold or a sore throat is very common and usually gets better as the illness does.',['Headache with a viral illness','Streptococcal pharyngitis','Sinus infection in a child','!Bacterial meningitis'],{title:HOME,warnList:['A stiff neck, a rash that doesn’t fade, or very sleepy: call 911','A severe headache, or vomiting','Not better when the fever comes down'],distinguish:'Febrile headache without meningism or altered mental status; safety-net for meningitis.'}),
+ 'T-PH-MIGRAINE':PN('handoff','This sounds like migraine, which is common in children and often runs in families. Attacks in children are often shorter and on both sides. Ibuprofen early in an attack, and rest in a dark, quiet room, help most.',['Migraine in a child','Tension-type headache in a child','!Secondary headache needing imaging'],{title:'Usually managed at home; book a routine visit',warnList:['The headaches change, get more frequent, or wake your child','Weakness, numbness, trouble speaking or seeing that doesn’t go away','Missing school often'],distinguish:'AAN/AHS 2019 pediatric acute migraine: ibuprofen 10 mg/kg first-line; triptans for adolescents; ICHD-3 pediatric criteria (attacks 2–72 h, may be bilateral).'}),
+ 'T-PH-TENSION':PN('handoff','A pressing, band-like headache that lets your child carry on is usually a tension-type headache. Regular sleep, meals, water and screen breaks help most.',['Tension-type headache in a child','Migraine in a child'],{title:HOME,warnList:['Headaches that wake your child, or with vomiting in the morning','Getting more frequent or severe, or changes in behavior, balance or vision','Pain medicine needed on more than 2 days a week'],distinguish:'ICHD-3 TTH; screen sleep, stress, bullying, mood.'}),
+ 'T-PH-CONCUSSION':PN('prompt','A headache after a hit to the head can be a concussion. Your child should be checked in the next day, and stop sports until a clinician clears them. Go to the emergency department for any of the danger signs below.',['Concussion','Tension-type headache in a child','!Bleeding inside the head after an injury'],{title:'Get checked in the next day; no sports until cleared',warnList:['Vomiting more than once, a headache getting worse, or very sleepy: go to the ER','A seizure, weakness, slurred speech, or one pupil bigger than the other: call 911','Confusion, or not recognizing people or places'],distinguish:'CDC 2018 pediatric mTBI guideline: no routine CT (PECARN rules); gradual return to learn and play.'}),
+ 'T-PH-CHRONIC':PN('prompt','Headaches on most days for weeks should be checked. Using pain medicine on more than 2 or 3 days a week can itself keep headaches going.',['Migraine in a child','Rebound headache from frequent pain medicine','Tension-type headache in a child','!Raised intracranial pressure'],{bring:['A headache diary for 2 weeks: days, severity, medicines taken'],distinguish:'Chronic daily headache in adolescents: chronic migraine, medication overuse, IIH (obese adolescent girls, papilledema), mood and sleep.'})
+});
+
+const KIDS=(about,signs,act,ml,care)=>({care:care||(Array.isArray(act)?'otc':'doc'),kids:1,pv:1,about,signs,act,ml});
+Object.assign(INFO,{
+ peds_viral_fever:KIDS('A fever caused by a virus, the most common reason for a fever in children. The fever is the body fighting the infection and is not harmful in itself.',['A temperature of 100.4°F (38°C) or more','Tired and off food, but perks up when the fever comes down','Often a runny nose, cough or loose poop too'],['Offer plenty of fluids; breastfeed or bottle-feed as usual','Dress your child lightly; don’t sponge with cold water','Check on your child regularly, including overnight','Keep your child home from childcare or school until the fever is gone'],'Fever'),
+ peds_cold:KIDS('A cold: a mild virus of the nose and throat. Young children get 6 to 8 a year.',['Runny or stuffy nose, sneezing','A cough, often worse at night','A mild fever for the first 2 to 3 days'],['Saline nose drops and gentle suction for babies','A spoonful of honey for cough, only from age 1','Plenty of fluids and rest','The cough can last 2 to 3 weeks'],'Common cold'),
+ peds_meningitis:KIDS('Bacterial meningitis: an infection of the lining around the brain and spinal cord. It is an emergency.',['Fever, very sleepy or irritable, hard to wake','A stiff neck, a bulging soft spot, or a seizure','A rash that does not fade when pressed'],'Call 911. Treatment needs to start within the hour.','Meningitis - children','er'),
+ peds_roseola:KIDS('Roseola: a common virus in babies and toddlers. A high fever for 3 to 5 days is followed by a pink rash as the fever goes.',['High fever for 3 to 5 days, often with the child fairly well','A pink, spotty rash on the body as the fever ends','Sometimes a seizure with the fever'],['Fluids and rest','The rash does not itch and fades in 1 to 2 days','Call 911 for a seizure lasting more than 5 minutes'],'Roseola'),
+ peds_scarlet:KIDS('Scarlet fever: a strep throat infection with a rash.',['A rough, sandpapery red rash, often starting on the chest','Sore throat, fever, a red “strawberry” tongue','Flushed cheeks with pale skin around the mouth'],'Needs a strep test and antibiotics. Keep your child home until 24 hours after starting them.','Scarlet fever'),
+ peds_misc:KIDS('MIS-C: an inflammatory illness that can follow COVID-19 by 2 to 6 weeks, affecting the heart and other organs.',['A fever for 24 hours or more','Belly pain, vomiting or diarrhea; a rash or red eyes','Very tired, dizzy, or breathing fast'],'Needs same-day assessment and blood tests; go to the ER if your child seems very unwell.','Multisystem inflammatory syndrome in children','er'),
+ peds_viral_wheeze:KIDS('Viral wheeze: wheezing set off by colds in children under 5. Many grow out of it; some go on to have asthma.',['Wheeze with a cold, gone between colds','Breathing faster, sometimes a tight chest','Usually well otherwise'],'A clinician checks the breathing and may try a reliever inhaler with a spacer.','Wheezing'),
+ peds_chest:KIDS('A viral chest infection: a virus in the airways of the chest. It usually clears without antibiotics.',['A cough, sometimes with phlegm','A fever for 2 to 3 days','Breathing normally, drinking and playing at times'],['Fluids and rest','A spoonful of honey for cough, only from age 1','The cough can last 3 weeks; see a clinician if breathing becomes fast or hard'],'Acute bronchitis'),
+ peds_asthma:KIDS('An asthma flare: the airways tighten and swell, often set off by a cold, allergens or smoke.',['Wheeze, cough (often at night), tight chest','Needing the reliever inhaler more often','Breathless with play'],'Follow your child’s asthma action plan. A clinician reviews the plan after any flare; severe flares need emergency care.','Asthma in children'),
+ peds_pertussis:KIDS('Whooping cough (pertussis): a bacterial infection with long coughing fits. It is most dangerous for babies.',['Coughing fits, sometimes ending in a “whoop” or vomiting','A cold for a week or two first','Babies may stop breathing or turn blue instead of whooping'],'Needs testing and antibiotics; people around a baby may need antibiotics too. Call ahead before going in.','Pertussis'),
+ peds_pertussis_baby:KIDS('Whooping cough in a young baby: it can cause pauses in breathing rather than a whoop, and is dangerous at this age.',['Coughing fits, gagging or turning red or blue','Pauses in breathing','Poor feeding'],'Needs to be seen today; call 911 for pauses in breathing or blue lips.','Pertussis','er'),
+ peds_fb_airway:KIDS('Something breathed into the airway, such as a peanut, a small toy part or a grape.',['A choking or coughing fit that started suddenly','Wheeze or noisy breathing, sometimes on one side','A cough that won’t go away'],'Go to the ER now. Call 911 if your child can’t breathe, cough or cry, and start choking first aid.','Choking','er'),
+ peds_epiglottitis:KIDS('Epiglottitis or bacterial tracheitis: rare, serious infections that swell the airway.',['High fever, looks very unwell','Drooling, can’t swallow, muffled voice','Sitting forward to breathe, noisy breathing'],'Call 911. Keep your child calm and upright; don’t look in the throat.','Epiglottitis','er'),
+ peds_pbb:KIDS('Protracted bacterial bronchitis: a wet, rattly cough lasting more than 4 weeks from bacteria settling in the airways after a cold.',['A wet, rattly cough for more than 4 weeks','Otherwise well','Worse lying down or on waking'],'A clinician may prescribe 2 weeks of antibiotics.','Chronic cough'),
+ peds_anaphylaxis:KIDS('Anaphylaxis: a severe, fast allergic reaction affecting breathing or circulation.',['Hives or swelling of the lips, tongue or face','Wheeze, a hoarse voice, or trouble breathing or swallowing','Vomiting, pale and floppy, or fainting'],'Use an epinephrine auto-injector if you have one, then call 911.','Anaphylaxis','er'),
+ peds_aom:KIDS('A middle ear infection behind the eardrum, very common in young children after a cold. Most clear in 2 to 3 days without antibiotics.',['Ear pain, often worse lying down or at night','Pulling at the ear, crying, poor sleep','A fever'],['Treat the pain: it is the most important part','A warm cloth over the ear can soothe','Many get better in 2 to 3 days; see a clinician if not, or sooner if your child is under 2 with a high fever'],'Ear infections'),
+ peds_mastoid:KIDS('Mastoiditis: an ear infection that has spread to the bone behind the ear.',['Redness, swelling or tenderness behind the ear','The ear pushed forward or sticking out','Fever, ear pain, unwell'],'Go to the ER now; it needs antibiotics through a drip.','Mastoiditis','er'),
+ peds_teething:KIDS('Teething: new teeth coming through, usually from about 6 months.',['Drooling and chewing on things','Red, swollen gums; fussy','Ear pulling; a slightly raised temperature (not a fever over 100.4°F)'],['A chilled (not frozen) teething ring, or rubbing the gum','No teething gels with benzocaine, and no amber necklaces','A fever over 100.4°F (38°C) is not from teething: check for another cause'],'Teething'),
+ peds_sinus:KIDS('A bacterial sinus infection after a cold.',['A runny nose or daytime cough for 10 days without improving','Getting better, then worse again with a new fever','A high fever with thick nasal mucus for 3 days'],'A clinician decides whether antibiotics will help.','Sinusitis'),
+ peds_periorbital:KIDS('Infection of the skin around the eye (periorbital cellulitis), or behind the eye (orbital cellulitis), which is more serious.',['A swollen, red eyelid, often after a cold','Fever','Bulging eye, pain moving the eye, or blurred vision in the more serious kind'],'Needs to be seen today; go to the ER now for a bulging eye, painful eye movement, or vision change.','Periorbital cellulitis'),
+ peds_battery:KIDS('A button battery or magnets in the ear, nose, or swallowed. Batteries can burn tissue within 2 hours.',['Your child had access to a button battery or magnets','Ear or nose pain or discharge; drooling, vomiting or chest pain if swallowed','Sometimes no symptoms at first'],'Go to the ER now. Children over 1 who swallowed a battery can be given 2 teaspoons of honey on the way, every 10 minutes (up to 6 doses), if a clinician or poison center advises.','Button battery','er'),
+ peds_viral_throat:KIDS('A sore throat from a virus, the most common kind in children. It gets better in about a week.',['Sore throat with a cough, runny nose or hoarse voice','A mild fever','Red throat, sometimes small ulcers'],['Cold drinks, ice pops and soft foods','Warm saltwater gargles for older children','Keep fluids going even if swallowing hurts'],'Sore throat'),
+ peds_pta:KIDS('A peritonsillar abscess (quinsy): a collection of pus beside a tonsil.',['A severe sore throat on one side','Trouble opening the mouth, a muffled voice','Drooling, fever'],'Go to the ER; it usually needs draining and antibiotics.','Peritonsillar abscess','er'),
+ peds_rpa:KIDS('A deep neck infection (retropharyngeal abscess), most common under age 5.',['Fever and a sore throat','A stiff, painful neck; won’t look up or turn the head','Drooling, noisy breathing'],'Go to the ER now.','Retropharyngeal abscess','er'),
+ peds_gingivo:KIDS('A first infection with the cold-sore virus, causing painful sores on the gums and mouth, usually in toddlers.',['Swollen, red, bleeding gums; many mouth sores','A fever, drooling, not wanting to eat or drink','Sores on or around the lips'],'See a clinician today if your child isn’t drinking; an antiviral medicine helps if started early. Keep fluids going.','Gingivostomatitis'),
+ peds_gastro:KIDS('A stomach bug (viral gastroenteritis): vomiting usually lasts 1 to 2 days and diarrhea up to 7.',['Vomiting, then watery diarrhea','Belly cramps; sometimes a fever','Usually better within a week'],['Oral rehydration solution: 1 teaspoon (5 mL) every 1 to 2 minutes, more as it stays down','Keep breastfeeding; restart normal food once hungry','Avoid juice, soda and sports drinks; no anti-diarrhea medicines','Wash hands well; stay home until 48 hours after the last episode'],'Gastroenteritis'),
+ peds_pyloric:KIDS('Pyloric stenosis: the muscle at the stomach exit thickens, so milk can’t pass. It is most common at 2 to 8 weeks.',['Forceful vomiting that shoots out after feeds','Still hungry straight after','Fewer wet diapers, weight loss'],'Needs to be seen today; it is fixed with a small operation.','Pyloric stenosis'),
+ peds_reflux:KIDS('Reflux in babies: milk coming back up, normal in the first year as the stomach valve matures.',['Spitting up small amounts after feeds','Otherwise feeding well, content and growing','Peaks around 4 months, gone by about 12 months'],['Smaller, more frequent feeds; burp during feeds','Hold your baby upright for 20 to 30 minutes after feeds','Always lay your baby on the back to sleep','Medicines are rarely needed'],'Gastroesophageal reflux in infants'),
+ peds_volvulus:KIDS('A twisted bowel (malrotation with volvulus): the gut twists and cuts off its blood supply. It is most common in the first months of life.',['Green vomit','A swollen or tender belly','Blood in the poop, very unwell'],'Go to the ER now; it needs surgery quickly.','Intestinal malrotation','er'),
+ peds_hus:KIDS('Some bacteria that cause bloody diarrhea, such as E. coli O157, can damage the kidneys (hemolytic uremic syndrome).',['Bloody diarrhea, belly cramps','Peeing less, pale, very tired','Small bruises or a puffy face, a week after the diarrhea'],'Needs a stool test; avoid anti-diarrhea medicine and get seen urgently if peeing less.','Hemolytic uremic syndrome'),
+ peds_dka:KIDS('New type 1 diabetes can first show as diabetic ketoacidosis: very high sugar and acid in the blood.',['Very thirsty, peeing a lot, bedwetting again','Weight loss, very tired','Vomiting, belly pain, fast deep breathing, fruity breath'],'Go to the ER now; a finger-prick sugar test can tell quickly.','Diabetic ketoacidosis','er'),
+ peds_colic:KIDS('Colic: long bouts of crying in a healthy baby, usually from 2 weeks to 4 months.',['Crying for 3 hours or more a day, often in the evening','Pulling the legs up, going red','Feeding and growing well between bouts'],['Hold, rock, swaddle, white noise, or a car or stroller ride','It is OK to put your baby down safely and take a break','Never shake a baby; ask for help if you feel overwhelmed'],'Colic'),
+ peds_constipation:KIDS('Constipation: hard poop or pooping less often, very common in children, especially around toilet training and starting school.',['Hard, large or pellet-like poop; fewer than 3 a week','Straining, pain, or holding on','Belly pain that comes and goes; soiling'],['More water, fruit (pears, prunes), vegetables and whole grains','Sit on the toilet for 5 to 10 minutes after meals, feet on a stool','Praise, don’t punish; ask a clinician about a gentle stool softener (polyethylene glycol)'],'Constipation in children'),
+ peds_fap:KIDS('Functional belly pain: real, recurring pain from a sensitive gut, without a disease to find. It is very common in school-age children.',['Pain around the belly button that comes and goes','Otherwise well, growing, and normal poops','Often worse with stress'],['Keep up school and normal activities','Regular meals, fiber and fluids; a heat pack','A clinician can confirm it and check for warning signs'],'Abdominal pain'),
+ peds_mesadenitis:KIDS('Swollen glands in the belly (mesenteric adenitis) during a virus or sore throat; it can mimic appendicitis.',['Belly pain, often around the belly button or lower right','A fever, sore throat or cold','Usually settles within a few days'],'A clinician needs to rule out appendicitis.','Mesenteric lymphadenitis'),
+ peds_torsion:KIDS('A twisted testicle (testicular torsion): it cuts off the blood supply and must be fixed within hours.',['Sudden pain in a testicle, the groin, or low belly','Swelling or a high-riding testicle','Vomiting'],'Go to the ER now; surgery within 6 hours saves the testicle.','Testicular torsion','er'),
+ peds_ovarian:KIDS('An ovary that twists (torsion) or a cyst that bursts.',['Sudden, severe pain low on one side','Vomiting','Pain that comes in waves'],'Go to the ER for sudden severe pain; an ultrasound tells.','Ovarian torsion','er'),
+ peds_dysmen:KIDS('Period pain (dysmenorrhea): cramping before and during a period.',['Cramping low in the belly or back','Starts just before or with bleeding','Lasts 1 to 3 days'],['Ibuprofen at the first sign of the period, with food','A heat pack and gentle exercise','See a clinician if it stops school or activities'],'Period pain'),
+ peds_varicella:KIDS('Chickenpox: a very catching virus with itchy spots that blister and crust.',['Itchy spots that turn to blisters, then crusts','New crops for 3 to 5 days','A fever and feeling tired'],['Acetaminophen for fever; do not use ibuprofen in chickenpox','Calamine lotion, oatmeal baths, short nails','Keep home until all spots have crusted'],'Chickenpox'),
+ peds_fifth:KIDS('Fifth disease (slapped cheek): a mild virus (parvovirus B19).',['Bright red cheeks','A lacy rash on the arms, legs and body a few days later','Mild cold symptoms first'],['Fluids and rest','The rash can come and go for weeks with heat or sun','Not catching once the rash appears; tell pregnant contacts'],'Fifth disease'),
+ peds_measles:KIDS('Measles: a very catching virus that can cause pneumonia and brain swelling. Two doses of MMR vaccine prevent it.',['Fever, cough, runny nose and red eyes for a few days','Then a blotchy rash spreading from the face down','Tiny white spots inside the cheeks'],'Call before going in so staff can keep others safe. Public health will be notified.','Measles'),
+ peds_sjs:KIDS('A severe blistering skin reaction (Stevens-Johnson syndrome or toxic epidermal necrolysis), usually from a medicine or infection.',['Painful red or purple skin with blisters or peeling','Sores in the mouth, eyes or genitals','Fever, unwell'],'Go to the ER now.','Stevens-Johnson syndrome','er'),
+ peds_tss:KIDS('Toxic shock syndrome: a toxin from staph or strep bacteria.',['High fever','A sunburn-like rash','Vomiting, diarrhea, dizziness or confusion'],'Call 911.','Toxic shock syndrome','er'),
+ peds_perthes:KIDS('Perthes disease: the top of the thigh bone temporarily loses its blood supply, usually at ages 4 to 10.',['A limp, often painless at first','Pain in the hip, groin, thigh or knee','Stiff hip'],'Needs an X-ray and a referral to a children’s bone specialist.','Legg-Calve-Perthes disease'),
+ peds_toddler_fx:KIDS('A toddler’s fracture: a small break in the shin bone from a minor twist or fall, often not noticed.',['A new limp or refusing to walk','No obvious swelling or bruise','Otherwise well, no fever'],'Needs an exam and often an X-ray; it heals well in a cast or boot.','Leg fracture'),
+ peds_osteo:KIDS('A bone infection (osteomyelitis), most often in the leg bones in children.',['Pain in one bone, a limp, or not using a limb','Fever, unwell','Tender, sometimes swollen or warm'],'Needs same-day blood tests and imaging; antibiotics for several weeks.','Osteomyelitis'),
+ peds_malig:KIDS('Leukemia or a bone tumor can rarely cause bone pain or a limp in children. Most leg pain is not this, but some patterns need a blood test.',['Bone pain that wakes at night','Tiredness, pale skin, bruising easily, fevers','Weight loss or a lump on a bone'],'Needs a same-day examination and blood tests.','Childhood leukemia'),
+ peds_jia:KIDS('Juvenile idiopathic arthritis: long-lasting joint inflammation that starts before age 16.',['Swollen, stiff joints, worst in the morning','A limp, especially in the morning','Lasting more than a few weeks'],'Needs a clinician and often a children’s rheumatologist, plus regular eye checks.','Juvenile idiopathic arthritis'),
+ peds_hsp:KIDS('IgA vasculitis (Henoch-Schönlein purpura): inflammation of small blood vessels, common in children after a cold.',['Raised purple spots on the legs and bottom','Joint pain and swelling','Belly pain; sometimes blood in the pee'],'Needs a clinician and urine checks for several months.','Henoch-Schonlein purpura'),
+ peds_apophysitis:KIDS('Growth plate overuse pain: the tendon pulls on a growth plate in a growing, active child (Osgood-Schlatter at the knee, Sever’s at the heel).',['Pain and a tender bump just below the kneecap, or at the back of the heel','Worse with running, jumping or kneeling','Better with rest'],['Rest from activities that hurt; stay active otherwise','Ice after sport; stretching the thighs or calves','Heel cups for Sever’s'],'Osgood-Schlatter disease'),
+ peds_migraine:KIDS('Migraine in a child: attacks of headache, often with tummy ache or feeling sick, that can run in families.',['Throbbing or pressing headache, often on both sides in children','Feeling sick, light and noise bother them','Better after sleep'],['Ibuprofen early in the attack, dosed by weight','Rest in a dark, quiet room; sleep often ends it','Regular sleep, meals and water; a headache diary'],'Migraine'),
+ peds_tension:KIDS('A tension-type headache: a pressing or tight headache, common in school-age children and teens.',['A tight band or pressure around the head','Mild to moderate; can carry on','Linked to tiredness, stress, screens or skipped meals'],['Rest, water and a snack','Regular sleep and screen breaks','Pain medicine no more than 2 days a week'],'Tension headache'),
+ peds_viral_ha:KIDS('A headache with a fever or cold, from the illness itself.',['Headache with fever, aches or a cold','Better when the fever comes down','No stiff neck or non-fading rash'],['Fluids and rest','Fever or pain medicine dosed by weight'],'Headache'),
+ peds_concussion:KIDS('A concussion: a mild brain injury from a blow to the head or body.',['Headache, dizziness, feeling foggy','Sleepier or more irritable; trouble concentrating','Sensitive to light and noise'],'Needs a clinician check; rest for 1 to 2 days, then a gradual return to school and, once cleared, sports.','Concussion'),
+ peds_moh:KIDS('A rebound headache: using pain medicine on many days can make headaches more frequent.',['Headache on 15 or more days a month','Pain medicine used on 10 or more days a month','Worse on waking'],'A clinician helps plan a break from pain medicine and a preventive plan.','Headache'),
+ peds_ich:KIDS('Bleeding inside the head after an injury: rare, but serious.',['A headache that gets worse, vomiting more than once','Very sleepy, confused, or a seizure','Weakness, or one pupil bigger than the other'],'Call 911 or go to the ER now.','Head injury','er'),
+ peds_laryngomalacia:KIDS('Laryngomalacia: a soft, floppy voice box that flops inward when a baby breathes in, making a squeaky or noisy sound. It is the most common cause of noisy breathing in babies, and most outgrow it by 12 to 18 months.',['Noisy, squeaky breathing in, starting in the first weeks of life','Louder when feeding, crying, excited or lying on the back; quieter lying on the tummy while awake and watched, or when calm','Usually feeding and growing well'],'A clinician listens and confirms it; most babies need no treatment. Get seen today for feeding trouble, choking with feeds, or poor weight gain, and call 911 for pauses in breathing, blue spells, or the ribs sucking in.','Laryngomalacia'),
+ peds_subglottic:KIDS('Subglottic stenosis: a narrowing of the windpipe just below the voice box, present from birth or after a breathing tube.',['Noisy breathing in and out','Croup that keeps coming back, or lasts long','A history of a breathing tube, or being born early'],'Needs an ear, nose and throat specialist to look with a small camera.','Subglottic stenosis'),
+ peds_vcp:KIDS('Vocal cord paralysis in a baby: one or both vocal cords don’t move, often after birth or heart surgery.',['A weak, hoarse or quiet cry','Noisy breathing','Coughing or choking with feeds'],'Needs an ear, nose and throat specialist; both-sided paralysis can block the airway.','Vocal cord paralysis'),
+ peds_vascular_ring:KIDS('A vascular ring: a blood vessel near the heart that wraps around the windpipe or food pipe and presses on it.',['Noisy breathing, often in and out, sometimes a barky cough','Worse with feeding; choking or vomiting with feeds','Breathing problems that don’t settle'],'Needs a clinician and usually a scan of the chest; it is fixed with surgery.','Vascular rings'),
+ peds_hirsch:KIDS('Rare bowel causes of constipation, such as Hirschsprung disease, where part of the bowel lacks the nerves that push poop along.',['Constipation from birth; first poop after 2 days','A swollen belly, vomiting','Poor growth'],'Needs a clinician and sometimes a specialist.','Hirschsprung disease')
+});
+['peds_subglottic','peds_vcp','peds_vascular_ring','peds_osteo','peds_malig','peds_hus','peds_pertussis','peds_periorbital','peds_measles','peds_hirsch'].forEach(k=>INFO[k].mnm=1); // must not miss (free text) though not ER-level
+Object.assign(DXMAP,{'Laryngomalacia':'peds_laryngomalacia','Subglottic narrowing (subglottic stenosis)':'peds_subglottic','Vocal cord paralysis (infant)':'peds_vcp','Vascular ring':'peds_vascular_ring','Urine infection (child or teen)':'uti_child','Viral infection with fever':'peds_viral_fever','Common cold (child)':'peds_cold','Bacterial meningitis':'peds_meningitis','Roseola':'peds_roseola','Scarlet fever':'peds_scarlet','MIS-C (inflammation after COVID-19)':'peds_misc','Viral wheeze':'peds_viral_wheeze','Viral chest infection (child)':'peds_chest','Asthma flare in a child':'peds_asthma','Severe asthma attack':'peds_asthma','Whooping cough (pertussis)':'peds_pertussis','Pertussis in a baby':'peds_pertussis_baby','Inhaled object (choking)':'peds_fb_airway','Epiglottitis or bacterial tracheitis':'peds_epiglottitis','Protracted bacterial bronchitis':'peds_pbb','Severe allergic reaction (anaphylaxis)':'peds_anaphylaxis','Middle ear infection (child)':'peds_aom','Mastoiditis':'peds_mastoid','Teething':'peds_teething','Sinus infection in a child':'peds_sinus','Swelling around the eye (periorbital or orbital cellulitis)':'peds_periorbital','Button battery or magnet':'peds_battery','Viral sore throat in a child':'peds_viral_throat','Peritonsillar abscess (quinsy)':'peds_pta','Deep neck infection (retropharyngeal abscess)':'peds_rpa','Herpes mouth infection (gingivostomatitis)':'peds_gingivo','Stomach bug in a child (gastroenteritis)':'peds_gastro','Pyloric stenosis':'peds_pyloric','Reflux in babies (spitting up)':'peds_reflux','Twisted bowel (malrotation with volvulus)':'peds_volvulus','Bloody diarrhea with kidney risk (E. coli, HUS)':'peds_hus','New diabetes with ketoacidosis (DKA)':'peds_dka','Colic':'peds_colic','Constipation in a child':'peds_constipation','Functional belly pain':'peds_fap','Swollen belly glands with a virus (mesenteric adenitis)':'peds_mesadenitis','Testicle twist (testicular torsion)':'peds_torsion','Ovary twist or burst cyst':'peds_ovarian','Period pain':'peds_dysmen','Chickenpox':'peds_varicella','Fifth disease (slapped cheek)':'peds_fifth','Measles':'peds_measles','Severe blistering skin reaction (SJS/TEN)':'peds_sjs','Toxic shock syndrome':'peds_tss','Perthes disease':'peds_perthes','Toddler’s fracture':'peds_toddler_fx','Bone infection (osteomyelitis)':'peds_osteo','Leukemia or a bone tumor (rare)':'peds_malig','Juvenile idiopathic arthritis':'peds_jia','IgA vasculitis (HSP)':'peds_hsp','Growth plate overuse pain (Osgood-Schlatter or Sever’s)':'peds_apophysitis','Migraine in a child':'peds_migraine','Tension-type headache in a child':'peds_tension','Headache with a viral illness':'peds_viral_ha','Concussion':'peds_concussion','Rebound headache from frequent pain medicine':'peds_moh','Bleeding inside the head after an injury':'peds_ich','Hirschsprung disease or another bowel cause (rare)':'peds_hirsch'});
+
+// evidence basis per result (shown under "For your clinician"); † = not yet checked against the original document
+{ const S=(g,c,ids)=>ids.forEach(id=>SOURCE[id]={g,c});
+ const NICE143='NICE NG143 Fever in under 5s: assessment and initial management (2019, updated 2021), traffic-light system†';
+ S('Guideline','AAP Clinical Practice Guideline: Evaluation and Management of Well-Appearing Febrile Infants 8 to 60 Days Old (Pantell et al., Pediatrics 2021;148:e2021052228)†; '+NICE143+'.',['T-PF-INFANT','T-PF-INFANT-CHECK','T-PU-GENERIC']);
+ S('Guideline',NICE143+'; NICE NG240 Meningitis (bacterial) and meningococcal disease (2024)†.',['T-PF-RED','T-PF-AMBER','T-PF-PROLONGED']);
+ S('Guideline',NICE143+'; AAP Clinical Practice Guideline: Fever and Antipyretic Use in Children (Sullivan & Farrar, Pediatrics 2011;127:580)†.',['T-PF-COLD','T-PF-NOSOURCE','T-PF-NOSOURCE-TEEN','T-PF-NOSOURCE-2D']);
+ S('Guideline','AAP Clinical Practice Guideline: Urinary Tract Infection in Febrile Infants and Children 2 to 24 Months (Pediatrics 2011;128:595, reaffirmed 2016)†; NICE NG224 Urinary tract infection in under 16s (2022)†; '+NICE143+'.',['T-PF-NOSOURCE-UTI','T-PF-UTI','T-PB-UTI']);
+ S('Guideline','AHA Scientific Statement: Diagnosis, Treatment, and Long-Term Management of Kawasaki Disease (McCrindle et al., Circulation 2017;135:e927)†; CDC MIS-C case definition (2023)†.',['T-PF-KAWASAKI']);
+ S('Guideline','AAP Clinical Practice Guideline: Bronchiolitis (Ralston et al., Pediatrics 2014;134:e1474)†; NICE NG9 Bronchiolitis in children (2015, updated 2021)†.',['T-PR-INFANT','T-PR-BRONCH-HOME','T-PR-BRONCH-SEEN','T-PR-RED']);
+ S('Expert consensus','International Pediatric Otolaryngology Group consensus recommendations: laryngomalacia (Carter et al., Int J Pediatr Otorhinolaryngol 2016;86:256)†; AAO-HNS and AAP patient guidance on infant stridor and laryngomalacia†; Thorne & Garetz, Laryngomalacia: review and summary of current clinical practice (Paediatr Respir Rev 2016)†.',['T-PR-LARYNGO','T-PR-STRIDOR-SEEN','T-PR-STRIDOR-RED']);
+ S('Guideline','IDSA/PIDS Guideline: Community-Acquired Pneumonia in Infants and Children Older Than 3 Months (Bradley et al., Clin Infect Dis 2011;53:e25)†; WHO respiratory-rate thresholds†.',['T-PR-PNEU','T-PR-LRTI-HOME']);
+ S('Guideline','AAP Clinical Report: Use of Codeine- and Dextromethorphan-Containing Cough Remedies in Children†; FDA advice on OTC cough and cold medicines under 2†; '+NICE143+'.',['T-PR-COLD']);
+ S('Guideline','Alberta Medical Association TOP guideline: Diagnosis and Management of Croup†; Cochrane review: Glucocorticoids for croup (Gates et al., 2018)†; Westley croup score†.',['T-PR-CROUP','T-PR-CROUP-SEVERE','T-PR-EPIGLOTTITIS']);
+ S('Guideline','NAEPP 2020 Focused Updates to the Asthma Management Guidelines†; GINA 2024†; BTS/NICE/SIGN NG245 Asthma (2024)†.',['T-PR-ASTHMA-GREEN','T-PR-ASTHMA-YELLOW','T-PR-ASTHMA-RED','T-PR-WHEEZE-NEW']);
+ S('Guideline','World Allergy Organization anaphylaxis guidance (2020)†; AAP Clinical Report: Epinephrine for First-Aid Management of Anaphylaxis (Sicherer & Simons, Pediatrics 2017)†.',['T-PR-ANAPHYLAXIS']);
+ S('Expert consensus','No validated triage rule. Foreign-body aspiration: history of choking is the most sensitive feature; normal chest X-ray does not exclude†.',['T-PR-FB']);
+ S('Guideline','CDC Pertussis: clinical overview and treatment†; AAP Red Book†.',['T-PR-PERTUSSIS']);
+ S('Guideline','CHEST Guideline: Management of Children With Chronic Wet Cough and Protracted Bacterial Bronchitis (Chang et al., Chest 2017;151:884)†.',['T-PR-CHRONIC']);
+ S('Guideline','AAP Clinical Practice Guideline: The Diagnosis and Management of Acute Otitis Media (Lieberthal et al., Pediatrics 2013;131:e964)†; NICE NG91 Otitis media (acute): antimicrobial prescribing (2018)†.',['T-PE-AOM-WAIT','T-PE-AOM-SEEN','T-PE-DRAIN','T-PE-TUG','T-PE-MASTOID']);
+ S('Guideline','AAO-HNSF Clinical Practice Guideline: Acute Otitis Externa (Rosenfeld et al., Otolaryngol Head Neck Surg 2014;150:S1)†.',['T-PE-OE']);
+ S('Guideline','AAO-HNSF Clinical Practice Guideline: Otitis Media with Effusion (Rosenfeld et al., 2016)†.',['T-PE-OME']);
+ S('Expert consensus','National Capital Poison Center button battery guideline†; foreign bodies: no validated triage rule.',['T-PE-BATTERY','T-PE-FB']);
+ S('Guideline','AAP Clinical Practice Guideline: Acute Bacterial Sinusitis in Children 1 to 18 Years (Wald et al., Pediatrics 2013;132:e262)†.',['T-PE-SINUS','T-PE-ORBITAL']);
+ S('Guideline','IDSA Clinical Practice Guideline: Group A Streptococcal Pharyngitis (Shulman et al., Clin Infect Dis 2012;55:e86)†; McIsaac score (McIsaac et al., CMAJ 1998)†.',['T-PT-STREP','T-PT-VIRAL','T-PT-MONO','T-PT-RED','T-PS-SCARLET','T-PB-THROAT']);
+ S('Guideline','NICE CG84 Diarrhoea and vomiting caused by gastroenteritis in under 5s (2009)†; CDC: Managing Acute Gastroenteritis Among Children (King et al., MMWR Recomm Rep 2003;52(RR-16))†; Clinical Dehydration Scale (Friedman et al., J Pediatr 2004)†.',['T-PT-DRINK','T-PT-MOUTH','T-PV-INFANT','T-PV-RED','T-PV-DEHYD','T-PV-GASTRO','T-PV-BLOODY','T-PV-VOMIT-ONLY','T-PV-PROLONGED']);
+ S('Guideline','NASPGHAN/ESPGHAN Pediatric Gastroesophageal Reflux Clinical Practice Guidelines (Rosen et al., J Pediatr Gastroenterol Nutr 2018;66:516)†; bilious vomiting in infancy: surgical emergency (expert consensus)†.',['T-PV-BILIOUS','T-PV-PYLORIC','T-PV-REFLUX','T-PB-INFANT']);
+ S('Guideline','Pediatric Appendicitis Score (Samuel, J Pediatr Surg 2002;37:877)†; ACR Appropriateness Criteria: Right Lower Quadrant Pain†; testicular torsion: surgical emergency (AUA)†.',['T-PB-RED','T-PB-APPY','T-PB-APPY-POSS','T-PB-TEEN-GIRL']);
+ S('Guideline','ESPGHAN/NASPGHAN: Evaluation and Treatment of Functional Constipation in Infants and Children (Tabbers et al., J Pediatr Gastroenterol Nutr 2014;58:258)†; Rome IV childhood functional GI disorders (2016)†.',['T-PB-CONST','T-PB-CONST-RED','T-PB-FUNCTIONAL']);
+ S('Guideline','NICE NG240 Meningitis (bacterial) and meningococcal disease (2024)†; '+NICE143+'.',['T-PS-RED','T-PS-VIRAL']);
+ S('Guideline','CDC clinical overviews: hand, foot and mouth disease; chickenpox; parvovirus B19; measles†; AAP Red Book 2024–2027†.',['T-PS-HFMD','T-PS-CHICKENPOX','T-PS-ROSEOLA','T-PS-FIFTH','T-PS-MEASLES']);
+ S('Expert consensus','No validated triage rule. Childhood urticaria is most often post-viral; drug-allergy delabeling per AAAAI/ACAAI 2022 drug allergy practice parameter†.',['T-PS-HIVES','T-PS-DRUG']);
+ S('Guideline','IDSA Practice Guidelines: Skin and Soft Tissue Infections (Stevens et al., Clin Infect Dis 2014;59:e10)†.',['T-PS-CELLULITIS']);
+ S('Guideline','Kocher criteria (Kocher et al., J Bone Joint Surg Am 1999;81:1662)†; NICE CKS Acute childhood limp†; AAOS SCFE information†.',['T-PL-INFANT','T-PL-SEPTIC','T-PL-AMBER','T-PL-TODDLER','T-PL-SYNOVITIS','T-PL-INJURY-KID','T-PL-SCFE','T-PL-OSGOOD']);
+ S('Guideline','NICE CKS Acute childhood limp (red flags for malignancy and inflammatory arthritis)†; ACR/Arthritis Foundation 2019 JIA guideline†.',['T-PL-CHRONIC','T-PL-MALIG','T-PL-JIA','T-PL-GROWING']);
+ S('Guideline','AAN/CNS Practice Parameter: Evaluation of Children and Adolescents with Recurrent Headaches (Lewis et al., Neurology 2002;59:490)†; NICE CG150 Headaches in over 12s†; NICE NG240 (meningitis)†.',['T-PH-RED','T-PH-AMBER','T-PH-VIRAL','T-PH-CHRONIC']);
+ S('Guideline','AAN/AHS Practice Guideline: Acute Treatment of Migraine in Children and Adolescents (Oskoui et al., Neurology 2019;93:487)†; ICHD-3 (2018)†.',['T-PH-MIGRAINE','T-PH-TENSION']);
+ S('Guideline','CDC Guideline on the Diagnosis and Management of Mild Traumatic Brain Injury Among Children (Lumba-Brown et al., JAMA Pediatr 2018)†; PECARN head-injury rules (Kuppermann et al., Lancet 2009;374:1160)†.',['T-PH-CONCUSSION']);
+}
+Object.assign(CANTMISS,{
+ 'T-PF-NOSOURCE':'In a child under 2, a urine infection can cause a fever with no other sign. If the fever lasts more than 2 days, a urine test is needed.',
+ 'T-PF-COLD':'A fever that lasts 5 days or more is never “just a cold” until a clinician has checked for Kawasaki disease, a urine infection and pneumonia.',
+ 'T-PR-BRONCH-HOME':'Babies with bronchiolitis can tire suddenly. Pauses in breathing, grunting, or blue or grey lips need 911.',
+ 'T-PE-AOM-WAIT':'Swelling or redness behind the ear, with the ear pushed forward, is mastoiditis until proven otherwise.',
+ 'T-PT-VIRAL':'Drooling, a muffled voice, or being unable to open the mouth or move the neck can mean a throat abscess.',
+ 'T-PV-GASTRO':'Vomiting without diarrhea, green vomit, or a very sleepy child is not a simple stomach bug.',
+ 'T-PB-CONST':'Belly pain that moves to the lower right and gets worse with walking or coughing is appendicitis until proven otherwise; scrotal pain in a boy is a twisted testicle until proven otherwise.',
+ 'T-PS-VIRAL':'Any spots that don’t fade under a glass, with a fever, are meningococcal disease until proven otherwise.',
+ 'T-PL-SYNOVITIS':'A joint infection can look exactly like an irritable hip at first. A fever, or refusing all weight, changes everything.',
+ 'T-PL-OSGOOD':'Knee pain in a teenager can come from the hip: a slipped growth plate (SCFE) is missed when only the knee is examined.',
+ 'T-PH-MIGRAINE':'Headaches that wake a child, come with morning vomiting, or are getting steadily worse need an examination of the eyes and nerves.'
+});
+// a pediatric step's options or score items can be limited to some age bands
+const bandOK=x=>!x||!x.bands||!who.band||x.bands.includes(who.band);
+const scoreItemOK=it=>!it[2]||!who.band||it[2].includes(who.band);
+// router steps: resolve without showing a screen
+function routerPick(s){
+ if(s.byBand) return s.byBand[who.band]||s.byBand['*'];
+ if(s.ifTrace){ const hit=s.ifTrace.find(([tag])=>state.trace.some(t=>t===tag||t.startsWith(tag+':'))); if(hit) return hit[1]; }
+ if(s.bySys&&s.bySys[state.sys]) return s.bySys[state.sys];
+ return s.else;
+}
+const isRouter=s=>!!(s&&(s.byBand||s.ifTrace||s.bySys));
+const pedsEntry=sys=>who.kind==='child'&&who.band&&PEDS_ENTRY[sys];
+SYS_ENTRY.fever='pf_start';
+
 const DEBUG=/[?&]debug\b/.test(location.search);
 const app=document.getElementById('app'), traceEl=document.getElementById('trace'), progEl=document.getElementById('prog');
 let state={trace:[],sys:null,depth:0,skinNext:null,gateHits:[],freeText:'',freeFlags:{},intake:{}};
@@ -718,7 +1308,7 @@ function back(){
  drawTrace(); setProg(); p.thunk();
 }
 function route(id){
- if(id.startsWith('sys:')){ state.sys=id.slice(4); return route(SYS_ENTRY[state.sys]); }
+ if(id.startsWith('sys:')){ state.sys=id.slice(4); return route(pedsEntry(state.sys)||SYS_ENTRY[state.sys]); }
  if(id==='@free') return navTo(renderFree,'f');
  if(id.startsWith('color>')){ state.skinNext=id.slice(6); return navTo(()=>renderStep('skin_color'),'q'); }
  if(id==='@afterColor') return route('cream>'+state.skinNext);
@@ -729,6 +1319,7 @@ function route(id){
  if(N[id]){ if(REDFLAG_CHECK&&N[id].tier!=='emergent'&&!/^T-GATE-/.test(id)) return navTo(()=>renderCheck(id),'c');
   if(id==='T-HANDOFF-GENERIC') return navTo(()=>renderIntake(0,id),'i');
   return navTo(()=>renderTerminal(id),'t'); }
+ if(STEPS[id]&&isRouter(STEPS[id])) return route(routerPick(STEPS[id]));
  if(STEPS[id]) return navTo(()=>renderStep(id),'q');
  route('T-HANDOFF-GENERIC');
 }
@@ -951,7 +1542,7 @@ function renderHome(){
   <button class="primary" id="nx"${homeDraft.trim()?'':' disabled'}>Continue</button>
   ${whoPicker(renderHome.nudge,true)}
   <p class="homecap">Or pick an area</p>
-  <div class="sysgrid compact">${SYSTEMS.map((s,i)=>s.id==='gu'?'':`<button class="sys" data-i="${i}"><span class="ic">${ICON[s.ic]||''}</span><span class="st">${esc(s.t)}</span></button>`).join('')}</div>
+  <div class="sysgrid compact">${SYSTEMS.map((s,i)=>s.id==='gu'||(s.kids&&who.kind!=='child')?'':`<button class="sys" data-i="${i}"><span class="ic">${ICON[s.ic]||''}</span><span class="st">${esc(s.t)}</span></button>`).join('')}</div>
  </div>`;
  const ft=document.getElementById('ft'), nx=document.getElementById('nx');
  const needBand=()=>{ if(who.kind!=='adult'&&!who.band){ renderHome.nudge=who.kind==='child'?'Choose your child’s age first.':'Choose how far along you are first.'; renderHome(); document.getElementById('who').scrollIntoView({block:'center'}); return true; } renderHome.nudge=''; return false; };
@@ -995,11 +1586,11 @@ function renderStep(id){
  const head=`${backBtn()}${ctx('Question '+qNum())}<h2>${esc(s.q)}</h2>${s.lede?`<p class="lede">${esc(s.lede)}</p>`:''}`;
  if(s.score){
   const sc=s.score;
-  app.innerHTML=`<div class="step">${head}<div class="checks">${sc.items.map((it,i)=>
+  app.innerHTML=`<div class="step">${head}<div class="checks">${sc.items.map((it,i)=>!scoreItemOK(it)?'':
    `<label class="check"><input type="checkbox" data-sc="${i}" id="sc-${id}-${i}"><span>${esc(it[0])}</span></label>`).join('')}</div>
    <p class="note pre">If none apply, just press Continue.</p><button class="primary" id="nx">Continue</button></div>`;
   document.getElementById('nx').onclick=()=>{
-   const pts=[...app.querySelectorAll('[data-sc]')].filter(x=>x.checked).reduce((a,x)=>a+sc.items[+x.dataset.sc][1],0);
+   const pts=[...app.querySelectorAll('[data-sc]')].filter(x=>x.checked).reduce((a,x)=>a+sc.items[+x.dataset.sc][1],0)+((sc.bandPts||{})[who.band]||0);
    const rule=sc.rules.slice().sort((a,b)=>b.min-a.min).find(r=>pts>=r.min);
    go(rule?rule.go:sc.else,(sc.tag||id.toUpperCase())+':'+pts);
   };
@@ -1009,9 +1600,9 @@ function renderStep(id){
   app.querySelectorAll('.card').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,c=s.cards[i];go(c.go,c.tr||id+':'+(i+1))});
   markHint('.card',s.cards.map(c=>c.t+' '+c.term+' '+c.s));
  }else{
-  app.innerHTML=`<div class="step">${head}<div class="opts">${s.opts.map((o,i)=>optBtn(`data-i="${i}"`,o.t,o.s)).join('')}</div></div>`;
+  app.innerHTML=`<div class="step">${head}<div class="opts">${s.opts.map((o,i)=>bandOK(o)?optBtn(`data-i="${i}"`,o.t,o.s):'').join('')}</div></div>`;
   app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,o=s.opts[i];go((o.byShape&&o.byShape[state.skinNext])||o.go,o.tr||id+':'+(i+1))});
-  markHint('.opt',s.opts.map(o=>o.t+' '+(o.s||'')));
+  markHint('.opt',s.opts.filter(bandOK).map(o=>o.t+' '+(o.s||'')));
  }
  document.getElementById('bk').onclick=back;
  scroll();
@@ -1024,7 +1615,7 @@ function renderTerminal(id){
  let hxWhy=[];
  if(id==='T-HANDOFF-GENERIC'){ const r=intakeEscalation(); hxWhy=r.why; if(TIER_ORDER.indexOf(r.tier)>TIER_ORDER.indexOf(tierId)) tierId=r.tier; }
  const wsys=(state.sys&&state.sys!=='gu')?state.sys:(whoSys(state.freeText)||(FTM.analyze(state.freeText||'').ranked.find(r=>r.id!=='host')||{}).id||'');
- let whoWhy=''; const wf=/^T-GATE-/.test(id)?null:whoFloor(wsys);
+ let whoWhy=''; const wf=/^T-GATE-/.test(id)?null:whoFloor(wsys,n);
  if(wf&&TIER_ORDER.indexOf(wf.tier)>TIER_ORDER.indexOf(tierId)){ tierId=wf.tier; whoWhy=wf.why; }
  const t=TIERS[tierId], care=Object.assign({},CARE[tierId],n.title?{title:n.title}:{},n.icon?{ic:n.icon}:{});
  push('NODE:'+id);
@@ -1037,7 +1628,7 @@ function renderTerminal(id){
  if(generic){ const fd=freeDx(state.freeText,state.intake); state.fdx=fd; rk=fd.map(x=>(x.danger?'!':'')+x.name); lv=fd.map(x=>x.lvl); fd.forEach(x=>fdBy[x.name]=x);
   if(fd.length) why0='Your answers don’t fit one of this tool’s question paths, so we matched your own words and history against the conditions it knows. The list below is a starting point for your clinician, not a diagnosis. If anything feels urgent, contact a clinician today, or call 911 in an emergency.';
   else if(state.freeText) dx=`<section class="sec"><h3>What this could be</h3><p class="note">What you described didn’t match the conditions this tool knows closely enough to list any. That doesn’t make it more or less serious. Your clinician will work it out with you, using the history above.</p></section>`; }
- const wr=/^T-GATE-/.test(id)?{rk,lv,added:{}}:whoRanked(rk,lv,wsys); rk=wr.rk; lv=wr.lv; const whoAdded=wr.added;
+ const wr=/^T-GATE-/.test(id)?{rk,lv,added:{}}:whoRanked(rk,lv,wsys,n.peds); rk=wr.rk; lv=wr.lv; const whoAdded=wr.added;
  if(generic&&!(state.fdx||[]).length&&Object.keys(whoAdded).length) why0='Your answers don’t fit one of this tool’s question paths, so the list below shows what a clinician will want to consider first for '+(who.kind==='child'?'a child this age':'someone who is pregnant')+', with your symptoms in mind. It is a starting point, not a diagnosis. If anything feels urgent, contact a clinician today, or call 911 in an emergency.';
  state.lastDx={id,rk:rk||[],lv:lv||null,added:whoAdded};
  if(rk&&rk.length){
@@ -1112,7 +1703,7 @@ function dxPanel(f,danger){
  const medSafe=who.kind==='adult'||(who.kind==='child'&&f.kids)||(who.kind==='preg'&&f.preg);
  if(care==='otc'&&!medSafe) h+=`<h5>What can help at home</h5><p class="needs"><b>${who.kind==='child'?'For a child:':'In pregnancy:'}</b> ${esc(whoMedNote())}</p>`;
  else if(care==='otc') h+=`<h5>What can help at home</h5><ul class="sg">${f.act.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
-   <p class="fine">Check with a pharmacist first if you take other medicines, are pregnant, or have kidney, liver, heart, or stomach problems. Follow the package directions.</p>`;
+   <p class="fine">${who.kind==='child'?esc(pedsDose()):'Check with a pharmacist first if you take other medicines, are pregnant, or have kidney, liver, heart, or stomach problems. Follow the package directions.'}</p>`;
  else h+=`<p class="needs ${care}"><b>${care==='er'?'Needs emergency care.':'Needs a clinician.'}</b> ${esc(Array.isArray(f.act)?'This one has to be ruled out by an examination before any home treatment.':f.act)}</p>`;
  h+=`<a class="ml" href="${ML+encodeURIComponent(f.ml)}" target="_blank" rel="noopener noreferrer">Read more on MedlinePlus</a>`;
  return h;
@@ -1121,7 +1712,7 @@ function dxPanel(f,danger){
 /* ---- "Something else": the patient's own words, matched to a body area or
    topic by the deterministic lexicon in CONTENT.FT (see ft_match.js) ---- */
 const FTM=makeMatcher(FT);
-const AREAS=[...SYSTEMS.filter(s=>s.id!=='gu').map(s=>({id:s.id,t:s.t,s:s.s,ic:s.ic,go:'sys:'+s.id})),...FT.T];
+const AREAS0=[...SYSTEMS.filter(s=>s.id!=='gu').map(s=>({id:s.id,t:s.t,s:s.s,ic:s.ic,go:'sys:'+s.id})),...FT.T];
 function renderFree(){
  app.innerHTML=`<div class="step">${backBtn()}${ctx('In your own words')}
   <h2>Tell us what’s happening</h2>
@@ -1148,8 +1739,10 @@ function renderSuggest(a){
    <a class="call" href="tel:988">Call or text 988</a><a class="call alt" href="tel:911">Call 911</a></div></div>`:'';
  const emerg=(!a.crisis&&a.emerg)?`<div class="callout danger"><span class="ci">${ICON.alert}</span><div><h4>Some of what you wrote can be an emergency</h4>
    <p>If it is happening now, call 911 or go to the ER.</p><a class="call" href="tel:911">Call 911</a></div></div>`:'';
- const byId=Object.fromEntries(AREAS.map(x=>[x.id,x]));
- const shown=a.ranked.filter(r=>r.id!=='host').slice(0,4).map(r=>byId[r.id]).filter(Boolean), rest=AREAS.filter(x=>x.id!=='host'&&!shown.includes(x));
+ const AREAS=AREAS0.filter(x=>x.id!=='fever'||who.kind==='child'), byId=Object.fromEntries(AREAS.map(x=>[x.id,x]));
+ // a child's fever with no body part named goes to the fever questions first
+ const fv=who.kind==='child'&&whoSys(state.freeText)==='fever'?[byId.fever]:[];
+ const shown=[...fv,...a.ranked.filter(r=>r.id!=='host').map(r=>byId[r.id]).filter(Boolean)].slice(0,4), rest=AREAS.filter(x=>x.id!=='host'&&!shown.includes(x));
  const fin=a.crisis?'T-GATE-CRISIS':a.emerg?'T-GATE-EMERGENT':'T-HANDOFF-GENERIC';
  const none=`<div class="opts">${optBtn(`data-go="${fin}"`,'None of these fit',a.crisis?'Get support now':a.emerg?'Get emergency advice':'A clinician will go through it with you')}</div>`;
  const picked=a.picked.length?`<p class="picked"><span>We picked up</span>${a.picked.slice(0,6).map(w=>`<b>${esc(w)}</b>`).join('')}</p>`:'';
@@ -1266,7 +1859,7 @@ function copyHpi(){
    why it is on the list. Must-not-miss conditions that match are always kept. */
 function makeFreeDx(C,FTM){
  const {INFO,DXMAP,N,STEPS,SYS_ENTRY,FT}=C;
- const STOP=new Set([...FT.S,'pain','feel','feeling','have','with','your','you','can','may','often','usually','more','less','get','one','that','this','from','when','also','very','some','any','not','after','before','over','into','about','than','them','which','will','most','like','sign','sym','symptom','cause','common','condition','problem','other','often','day','week','month','year','time','skin','body','area','side','part','start','make','take','need','see','look','well','new','much','often','long','short','few','lot','last','come','goe','even','still','only','both','each','what','where','there','these','those','such','being','been','its','often','down','upper','lower','worse','better','behind','first','all','always','lot','really','bit','little','kind','sort','thing','keep','going','got','gets','went','since','ago','right','left','bad','hurt','hurts','sore','ache','aches']);
+ const STOP=new Set([...FT.S,'child','kid','baby','toddler','infant','son','daughter','pain','feel','feeling','have','with','your','you','can','may','often','usually','more','less','get','one','that','this','from','when','also','very','some','any','not','after','before','over','into','about','than','them','which','will','most','like','sign','sym','symptom','cause','common','condition','problem','other','often','day','week','month','year','time','skin','body','area','side','part','start','make','take','need','see','look','well','new','much','often','long','short','few','lot','last','come','goe','even','still','only','both','each','what','where','there','these','those','such','being','been','its','often','down','upper','lower','worse','better','behind','first','all','always','lot','really','bit','little','kind','sort','thing','keep','going','got','gets','went','since','ago','right','left','bad','hurt','hurts','sore','ache','aches']);
  const LOC=[['head','scalp','forehead','temple'],['face','cheek','jaw','mouth','lip','perioral','tongue','gum','tooth','teeth'],['eye','eyelid'],['ear'],['nose','nostril','sinus'],['throat','neck'],['chest','breast','rib'],['back','spine','lumbar'],['stomach','belly','abdomen','abdominal','tummy','gut'],['arm','elbow','shoulder','wrist','hand','finger'],['leg','knee','thigh','calf','ankle','hip'],['foot','feet','heel','toe','sole'],['groin','genital','vagina','vaginal','penis','scrotum','testicle','vulva','pee','urine','bladder']].map(g=>new Set(g.map(w=>FTM.stem(w))));
  const locOf=ss=>{ const out=new Set(); ss.forEach(s=>LOC.forEach((g,i)=>{ if(g.has(s)) out.add(i); })); return out; };
  const NEG=new Set(FT.N);
@@ -1283,19 +1876,21 @@ function makeFreeDx(C,FTM){
  keys.forEach(k=>{ const f=INFO[k], m=new Map();
   const add=(t,w)=>liveStems(t).forEach(({s})=>m.set(s,Math.max(m.get(s)||0,w)));
   add([f.about,...(f.signs||[])].join(' '),1); if(Array.isArray(f.act)) add(f.act.join(' '),.5); add((names[k]||[]).join(' ')+' '+(f.ml||''),2);
-  doc[k]=m; m.forEach((_,s)=>df[s]=(df[s]||0)+1); });
- const idf=s=>Math.log(1+keys.length/(df[s]||keys.length));
+  doc[k]=m; if(!f.pv) m.forEach((_,s)=>df[s]=(df[s]||0)+1); });
+ // word weights come from the v0.30 corpus; the pediatric-branch entries (pv) are scored but don't shift them
+ const base=keys.filter(k=>!INFO[k].pv).length, idf=s=>Math.log(1+base/(df[s]||base));
  // ---- which body areas each condition belongs to, and which are must-not-miss
  const area={}, danger=new Set(), seenS=new Set();
- const walk=(id,sys)=>{ const n=N[id]; if(n){ (n.ranked||[]).forEach(r=>{ const nm=r.replace(/^!/,''), k=DXMAP[nm]; if(!k) return;
-    (area[k]=area[k]||new Set()).add(sys); if(r[0]==='!') danger.add(k); }); return; }
-  const s=STEPS[id]; if(!s||seenS.has(sys+id)) return; seenS.add(sys+id);
-  (JSON.stringify(s).match(/[A-Za-z0-9_\-]+/g)||[]).forEach(t=>{ if(t!==id&&(N[t]||STEPS[t])) walk(t,sys); }); };
+ const walk=(id,sys,pd)=>{ const n=N[id]; if(n){ (n.ranked||[]).forEach(r=>{ const nm=r.replace(/^!/,''), k=DXMAP[nm]; if(!k||(n.peds&&!INFO[k].kids)) return;
+    (area[k]=area[k]||new Set()).add(sys); if(r[0]==='!'&&!n.peds) danger.add(k); }); return; }
+  const s=STEPS[id]; if(!s||!!s.peds!==!!pd||seenS.has(sys+id)) return; seenS.add(sys+id);
+  (JSON.stringify(s).match(/[A-Za-z0-9_\-]+/g)||[]).forEach(t=>{ if(t!==id&&(N[t]||STEPS[t])) walk(t,sys,pd); }); };
  Object.entries(SYS_ENTRY).forEach(([sys,e])=>{ if(STEPS[e]) walk(e,sys); });
+ if(typeof PEDS_ENTRY!=='undefined') Object.entries(PEDS_ENTRY).forEach(([sys,e])=>{ if(STEPS[e]) walk(e,sys,1); });
  FT.T.forEach(t=>{ if(N[t.go]) walk(t.go,t.id); });
  if(typeof POP!=='undefined') Object.values(POP).forEach(G=>Object.entries(G).forEach(([sys,L])=>L.forEach(([nm])=>{ const k=DXMAP[nm]; if(k&&sys!=='*') (area[k]=area[k]||new Set()).add(sys); })));
- Object.values(N).forEach(n=>(n.ranked||[]).forEach(r=>{ if(r[0]==='!'&&DXMAP[r.slice(1)]) danger.add(DXMAP[r.slice(1)]); }));
- keys.forEach(k=>{ if(INFO[k].care==='er') danger.add(k); });
+ Object.values(N).forEach(n=>(n.ranked||[]).forEach(r=>{ const k=DXMAP[r.slice(1)]; if(r[0]==='!'&&k&&!n.peds) danger.add(k); }));
+ keys.forEach(k=>{ if(INFO[k].care==='er'||INFO[k].mnm) danger.add(k); });
  const docLoc={}; keys.forEach(k=>docLoc[k]=locOf([...doc[k].keys()]));
  // ---- tapped history chips -> the words a condition description would use
  const CHIP={
@@ -1358,7 +1953,7 @@ function makeFreeDx(C,FTM){
  };
 }
 const freeDx=makeFreeDx(CONTENT,FTM);
-const AREA_T=Object.fromEntries(AREAS.map(x=>[x.id,x.t]));
+const AREA_T=Object.fromEntries(AREAS0.map(x=>[x.id,x.t]));
 // plain "why it is on your list" sentence for one matched condition
 function fdWhy(x,html){ const q=w=>html?'“'+esc(w)+'”':'"'+w+'"', P=[];
  if(x.why.yours.length) P.push('You wrote '+x.why.yours.map(q).join(', ')+'.');
@@ -1442,7 +2037,8 @@ function phRender(){
 const BG_RANKW=[1,.6,.42,.3,.22,.16,.12];
 function bgResolve(t){
  for(let k=0;k<5&&typeof t==='string';k++){
-  if(t.startsWith('sys:')) t=SYS_ENTRY[t.slice(4)];
+  if(t.startsWith('sys:')) t=pedsEntry(t.slice(4))||SYS_ENTRY[t.slice(4)];
+  else if(STEPS[t]&&isRouter(STEPS[t])) t=routerPick(STEPS[t]);
   else if(t.startsWith('color>')||t.startsWith('cream>')) t=t.slice(6);
   else if(t==='@afterColor'||t==='@skinNext') t=state.skinNext;
   else if(t.startsWith('ask:')) t=t.slice(t.indexOf('>')+1);
@@ -1453,7 +2049,7 @@ function bgResolve(t){
 }
 function bgTargets(s){
  if(s.score) return [...s.score.rules.map(r=>r.go),s.score.else];
- return (s.cards||s.opts||[]).map(o=>(o.byShape&&state.skinNext&&o.byShape[state.skinNext])||o.go);
+ return (s.cards||s.opts||[]).filter(bandOK).map(o=>(o.byShape&&state.skinNext&&o.byShape[state.skinNext])||o.go);
 }
 function bgReach(id,p,acc,seen){
  const s=STEPS[id]; if(!s||seen.has(id)) return;
@@ -1465,7 +2061,7 @@ function bgReach(id,p,acc,seen){
 function bgFlags(id,out,seen,depth){
  const s=STEPS[id]; if(!s||s.score||seen.has(id)||depth>3) return; seen.add(id);
  const q=s.q.replace(/\s+/g,' ').trim(), generic=/^(which (\w+ )?(fits|best)|what is (this|it) about|any of these|which of these|what best)/i.test(q);
- (s.cards||s.opts||[]).forEach(o=>{
+ (s.cards||s.opts||[]).filter(bandOK).forEach(o=>{
   const t=bgResolve((o.byShape&&state.skinNext&&o.byShape[state.skinNext])||o.go); if(!t) return;
   if(N[t]&&(N[t].tier==='emergent'||N[t].tier==='urgent')){
    const short=o.t.length<26||/^(yes|no|not sure)\b/i.test(o.t);
@@ -1519,7 +2115,7 @@ function bestGuess(id){
      ? `Based on ${basis}, this could be ${tied.slice(0,-1).map(lc).join(', ')} or ${lc(tied[tied.length-1])}. They are about equally likely until the next question separates them, so answering it would give a much sharper result.`
      : `Based on ${basis}, the most likely cause is ${lc(top[0])}`+(top.length>1?`, with ${top.slice(1,3).map(lc).join(' and ')} also possible`:'')+`. This is a best guess: you stopped before the questions that tell these apart, so answering them would give a sharper result.`)
   : `Based on ${basis}, here is the safest next step. The questions ahead are what narrow this down, so answering even a few more would give a clearer result.`;
- N['T-BESTGUESS']={tier,why,ranked,lvls,bring,amplify,
+ N['T-BESTGUESS']={tier,why,ranked,lvls,bring,amplify,peds:ids.every(k=>N[k].peds)?1:0,
   warn:flags.length?`Get care today, or call 911 if it’s severe, if any of these apply: ${flags.join('; ')}.`:null,
   warnList:flags.length?flags.map(f=>f.charAt(0).toUpperCase()+f.slice(1)):null,
   distinguish:`Patient chose to stop at: “${STEPS[id].q}” — this is a provisional differential pooled from the remaining branches, not a completed pathway.`};
